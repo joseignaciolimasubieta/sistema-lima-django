@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="{% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            {% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            {% else %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            {% endif %}
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<div class="max-w-4xl mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div class="space-y-3">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Anticipo.</h1>
+            <p class="text-lg font-medium text-gray-500 max-w-2xl leading-relaxed">Registro de adelantos sobre honorarios pendientes.</p>
+        </div>
+        
+        <a href="{% url 'honorarios' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-semibold transition-all shadow-sm">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a Honorarios
+        </a>
+    </div>
+
+    <form method="POST" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-visible relative">
+        {% csrf_token %}
+        
+        <div class="bg-slate-50 px-8 py-6 border-b-2 border-slate-200 flex justify-between items-center rounded-t-3xl">
+            <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                Ficha de Adelanto Financiero
+            </h3>
+            <span class="px-3 py-1 rounded-full bg-[#0071e3]/10 text-[#0071e3] border border-[#0071e3]/20 text-[9px] font-black uppercase tracking-widest shadow-sm">ID HONORARIO: #{{ honorario.id }}</span>
+        </div>
+
+        <div class="p-8 space-y-8">
+            
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex items-center gap-5">
+                <div class="w-14 h-14 rounded-full bg-[#0071e3]/10 flex items-center justify-center text-[#0071e3] font-black text-xl border border-[#0071e3]/20 shrink-0">
+                    {{ honorario.curso.docente.nombre|make_list|first|upper }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-[#0071e3] mb-1">Beneficiario / Docente</p>
+                    <h2 class="text-xl font-bold text-black uppercase truncate leading-tight">{{ honorario.curso.docente.nombre }}</h2>
+                    <p class="text-xs font-bold text-gray-500 mt-1.5 truncate uppercase flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        CURSO: {{ honorario.curso.nombre }}
+                    </p>
+                </div>
+                <div class="hidden md:block text-right border-l-2 border-slate-200 pl-6">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Honorario Total</p>
+                    <p class="text-xl font-black text-black">Bs. {{ honorario.honorario_total }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="space-y-6">
+                    <div class="flex flex-col justify-center">
+                        <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-3">Monto a Entregar (Bs.) <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-5 top-1/2 -translate-y-1/2 text-emerald-600/50 font-black text-2xl">Bs.</span>
+                            <input type="number" name="monto_anticipo" step="0.01" min="0" max="{{ honorario.honorario_total|stringformat:'s' }}" 
+                                   value="{{ honorario.anticipo }}" 
+                                   class="w-full h-20 bg-emerald-50 border-2 border-emerald-300 rounded-2xl pl-16 pr-6 text-3xl font-black text-emerald-700 outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 transition-all shadow-sm" 
+                                   required placeholder="0.00">
+                        </div>
+                        <div class="mt-3 flex items-center gap-2 px-1">
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+                                Tope máximo permitido: <span class="text-black font-black">Bs. {{ honorario.honorario_total }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Cuenta de Origen (Egreso de Caja) <span class="text-rose-500">*</span></label>
+                        <select name="cuenta_origen_id" required class="w-full h-11 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold text-gray-800 outline-none focus:border-[#0071e3] transition-colors cursor-pointer shadow-sm">
+                            <option value="" disabled selected>SELECCIONE UNA CUENTA...</option>
+                            {% for c in cuentas %}
+                            <option value="{{ c.id }}">{{ c.codigo }} — {{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Motivo / Detalle (Opcional)</label>
+                    <textarea name="detalle_anticipo" rows="5" 
+                              class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-sm font-bold text-black outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm resize-none uppercase" 
+                              placeholder="EJ: ANTICIPO SOLICITADO VÍA TRANSFERENCIA...">{{ honorario.observacion|default:"" }}</textarea>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bg-slate-50 px-8 py-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 rounded-b-3xl">
+            <a href="{% url 'honorarios' %}" class="w-full md:w-auto text-center h-12 px-6 rounded-full text-xs font-bold uppercase tracking-widest text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center">
+                Cancelar
+            </a>
+            
+            <button type="submit" class="w-full md:w-auto h-12 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                Registrar Anticipo
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-down { animation: fadeInDown 0.4s ease-out forwards; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* CSS tradicional para asegurar que el PDF salga perfecto */
+        @page {
+            size: a5 portrait; /* Tamaño ideal para recibos (Mitad de una carta) */
+            margin: 2cm;
+        }
+        body { font-family: Helvetica, sans-serif; font-size: 14px; color: #333; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; }
+        .title { font-size: 24px; font-weight: bold; color: #1e3a8a; }
+        .subtitle { font-size: 12px; color: #666; }
+        .receipt-number { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 25px; background-color: #f3f4f6; padding: 5px; }
+        .details { margin-top: 10px; width: 100%; }
+        .row { margin-bottom: 15px; }
+        .label { font-weight: bold; color: #444; width: 120px; display: inline-block;}
+        .amount-box { margin-top: 30px; border: 1px solid #16a34a; background-color: #f0fdf4; padding: 15px; text-align: right; }
+        .amount-text { font-size: 20px; font-weight: bold; color: #16a34a; }
+        .footer { margin-top: 50px; text-align: center; font-size: 10px; color: #999; border-top: 1px dashed #ccc; padding-top: 10px;}
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="title">LIMA S.R.L.</div>
+        <div class="subtitle">Gestión Académica y Consultora Contable<br>El Alto, Bolivia</div>
+    </div>
+
+    <div class="receipt-number">
+        RECIBO DE INSCRIPCIÓN N° 00{{ inscripcion.id }}
+    </div>
+
+    <div class="details">
+        <div class="row"><span class="label">Fecha de Pago:</span> {{ inscripcion.fecha_inscripcion|date:"d" }} de {{ inscripcion.fecha_inscripcion|date:"F" }} de {{ inscripcion.fecha_inscripcion|date:"Y" }}</div>
+        <div class="row"><span class="label">Participante:</span> {{ inscripcion.participante.nombre_completo }}</div>
+        <div class="row"><span class="label">Celular:</span> {{ inscripcion.participante.celular }}</div>
+        <div class="row"><span class="label">Curso Inscrito:</span> {{ inscripcion.curso.nombre }}</div>
+        <div class="row"><span class="label">Modalidad:</span> {{ inscripcion.curso.modalidad }} ({{ inscripcion.curso.turno }})</div>
+        <div class="row"><span class="label">Método/Banco:</span> {{ inscripcion.banco }}</div>
+    </div>
+
+    <div class="amount-box">
+        TOTAL CANCELADO: <span class="amount-text">Bs. {{ inscripcion.importe }}</span>
+    </div>
+
+    <div class="footer">
+        Este documento es un comprobante de registro válido emitido por LIMA S.R.L.<br>
+        ¡Gracias por confiar en nosotros para su formación profesional!
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="max-w-4xl mx-auto mt-8 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h2 class="text-3xl font-black text-black tracking-tight">Modificar Préstamo</h2>
+        </div>
+        <a href="{% url 'lista_prestamos' %}" class="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm">Volver al Panel</a>
+    </div>
+
+    <form method="POST" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+        {% csrf_token %}
+        
+        <div class="p-8 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Funcionario / Empleado</label>
+                    <select name="empleado_bloqueado" class="w-full h-11 px-4 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-400 outline-none pointer-events-none cursor-not-allowed" disabled>
+                        <option value="{{ prestamo.empleado.id }}">{{ prestamo.empleado.nombre_completo }}</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha del Reajuste General</label>
+                    <input type="text" id="fecha_prestamo" name="fecha_prestamo" value="{{ prestamo.fecha_prestamo|date:'Y-m-d' }}" class="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors cursor-pointer" required>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div>
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    Capital Histórico Aprobado (No Editable)
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-2xl border border-gray-100">
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Capital Base (Bs.)</label>
+                        <input type="text" value="{{ prestamo.monto_prestado|floatformat:2 }}" class="w-full h-11 px-4 bg-transparent border border-transparent rounded-xl text-sm font-black text-gray-400 outline-none pointer-events-none" readonly>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Interés Base (Bs.)</label>
+                        <input type="text" value="{{ prestamo.interes|floatformat:2 }}" class="w-full h-11 px-4 bg-transparent border border-transparent rounded-xl text-sm font-black text-gray-400 outline-none pointer-events-none" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xs font-black text-[#0071e3] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Ampliación de Préstamo (Nuevo Desembolso)
+                </h3>
+                <div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 space-y-6">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Aumentar Capital (Bs.)</label>
+                            <input type="number" step="0.01" name="aumento_capital" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
+                            <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Si no deseas ampliar, deja este campo vacío.</p>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Nuevo Interés / Recargo (Bs.)</label>
+                            <input type="number" step="0.01" name="aumento_interes" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Cuenta de Origen para la Ampliación</label>
+                            <select name="cuenta_origen_id" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors cursor-pointer">
+                                {% for c in cuentas %}
+                                <option value="{{ c.id }}">{{ c.codigo }} - {{ c.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Fecha de Desembolso (Flujo de Caja)</label>
+                            <input type="text" id="fecha_ampliacion" name="fecha_ampliacion" placeholder="SELECCIONAR FECHA..." class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors cursor-pointer">
+                            <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Esta fecha afectará únicamente al registro del flujo de caja.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Frecuencia</label>
+                    <select name="tipo_cuota" class="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors cursor-pointer" required>
+                        <option value="MENSUAL" {% if prestamo.tipo_cuota == 'MENSUAL' %}selected{% endif %}>Mensual</option>
+                        <option value="SEMANAL" {% if prestamo.tipo_cuota == 'SEMANAL' %}selected{% endif %}>Semanal</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nº Cuotas Restantes</label>
+                    <input type="number" name="nro_cuotas" value="{{ prestamo.nro_cuotas }}" class="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors" required>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Día de Pago</label>
+                    <input type="text" name="dia_de_pago" value="{{ prestamo.dia_de_pago }}" placeholder="EJ. DÍA 15 DEL MES" class="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors" required>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Glosa / Observaciones</label>
+                <input type="text" name="observaciones" value="{{ prestamo.observaciones|default:'' }}" placeholder="Añade un motivo de la ampliación o notas..." class="w-full h-11 px-4 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors">
+            </div>
+        </div>
+
+        <div class="bg-gray-50 px-8 py-5 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <button type="submit" name="eliminar" onclick="return confirm('ATENCIÓN: ¿Está seguro de eliminar TODO este préstamo y su historial?');" class="px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 transition-colors w-full md:w-auto text-center border border-red-100">
+                Eliminar Préstamo
+            </button>
+            
+            <button type="submit" class="px-10 py-3 rounded-full text-[10px] font-black uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all flex items-center justify-center gap-2 w-full md:w-auto">
+                <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                Guardar Cambios y Ampliar
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Calendario 1: Fecha de reajuste general
+        flatpickr("#fecha_prestamo", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+        });
+
+        // Calendario 2: Fecha exclusiva para el asiento del Flujo de Caja de la ampliación
+        flatpickr("#fecha_ampliacion", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+            defaultDate: new Date() // Seteado automáticamente al día de hoy para ahorrar tiempo
+        });
+    });
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% endblock %}

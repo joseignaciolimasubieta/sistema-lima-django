@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="max-w-4xl mx-auto px-4 md:px-8 pt-10 pb-16 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div class="space-y-2">
+            <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tight">Nuevo Préstamo.</h1>
+        </div>
+        
+        <a href="{% url 'lista_prestamos' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a Préstamos
+        </a>
+    </div>
+
+    <form method="POST" class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden">
+        {% csrf_token %}
+        
+        <div class="p-8 border-b border-gray-100">
+            <div class="flex justify-center mb-10">
+                <div class="inline-flex bg-slate-100 p-1.5 rounded-full shadow-inner border border-slate-200/50">
+                    <label class="relative cursor-pointer mb-0">
+                        <input type="radio" name="tipo_deudor" value="empleado" class="peer sr-only" checked onchange="toggleDeudor()">
+                        <div class="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:bg-white peer-checked:text-[#0071e3] peer-checked:shadow-sm transition-all duration-300">
+                            Personal Interno
+                        </div>
+                    </label>
+                    <label class="relative cursor-pointer mb-0">
+                        <input type="radio" name="tipo_deudor" value="externo" class="peer sr-only" onchange="toggleDeudor()">
+                        <div class="px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest text-slate-400 peer-checked:bg-white peer-checked:text-[#0071e3] peer-checked:shadow-sm transition-all duration-300">
+                            Persona Externa
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                
+                <div id="seccion_empleado" class="flex flex-col md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Seleccionar Empleado</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <select name="empleado">
+                            <option value="">SELECCIONE UN EMPLEADO</option>
+                            {% for emp in empleados %}
+                            <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div id="seccion_externo" class="hidden md:col-span-2 grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Nombre Completo (Externo)</label>
+                        <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                            <input type="text" name="nombre_externo" placeholder="EJ. JUAN PÉREZ">
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Celular de Contacto</label>
+                        <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                            <input type="text" name="celular_externo" placeholder="EJ. 78784879">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 h-px bg-gray-100 my-2"></div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Monto del Préstamo (Bs)</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-emerald-500 focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <input type="number" step="0.01" name="monto_prestado" placeholder="0.00" required>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tasa de Interés (%)</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm relative">
+                        <input type="number" step="0.01" name="interes_porcentaje" id="input_porcentaje" placeholder="EJ. 5" value="0">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none"></span>
+                    </div>
+                    <p id="calculo_interes" class="text-[10px] font-black text-emerald-500 mt-2 ml-1 tracking-widest uppercase">Interés total: Bs. 0.00</p>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Cantidad de Cuotas</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <input type="number" name="nro_cuotas" value="1" required>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Frecuencia de Pago</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <select name="tipo_cuota">
+                            <option value="MENSUAL">MENSUAL</option>
+                            <option value="QUINCENAL">QUINCENAL</option>
+                            <option value="SEMANAL">SEMANAL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-col relative md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Día Estimado de Pago (Texto)</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <input type="text" name="dia_de_pago" placeholder="EJ. 15 DE CADA MES">
+                    </div>
+                </div>
+
+                <div class="flex flex-col relative">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha de Desembolso</label>
+                    <div class="absolute bottom-0 left-0 h-12 flex items-center pl-4 pointer-events-none z-10">
+                        <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <input type="text" name="fecha_prestamo" id="fecha_prestamo" required>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Cuenta de Origen</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm">
+                        <select name="cuenta_origen_id" required>
+                            {% for c in cuentas %}
+                            <option value="{{ c.id }}">{{ c.codigo }} - {{ c.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="md:col-span-2 bg-[#0071e3]/5 border-2 border-[#0071e3]/20 rounded-2xl p-6 mt-4 flex flex-col sm:flex-row justify-between items-center gap-6 transition-all">
+                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <span class="text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-1">Valor de Cada Cuota</span>
+                        <span class="text-3xl font-black text-black leading-none" id="resumen_cuota">Bs. 0.00</span>
+                    </div>
+                    
+                    <div class="hidden sm:block w-px h-12 bg-[#0071e3]/20"></div>
+                    
+                    <div class="flex flex-col items-center sm:items-start text-center sm:text-left">
+                        <span class="text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-1">Total a Devolver</span>
+                        <span class="text-xl font-black text-gray-700" id="resumen_total">Bs. 0.00</span>
+                    </div>
+
+                    <div class="hidden sm:block w-px h-12 bg-[#0071e3]/20"></div>
+                    
+                    <div class="flex flex-col items-center sm:items-end text-center sm:text-right">
+                        <span class="text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-1">Fecha de Último Pago</span>
+                        <span class="text-xl font-black text-gray-700 uppercase" id="resumen_fecha">-</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-slate-50 px-8 py-5 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <a href="{% url 'lista_prestamos' %}" class="w-full sm:w-auto inline-flex items-center justify-center h-12 px-8 rounded-full text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm">
+                Cancelar
+            </a>
+            <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-10 rounded-full text-[10px] font-black uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95">
+                <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                Aprobar Desembolso
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Inicializar el Calendario (esto no cambia)
+        const fp = flatpickr("#fecha_prestamo", {
+            locale: "es",
+            dateFormat: "Y-m-d", 
+            altInput: true,      
+            altFormat: "j \\de F, Y", 
+            defaultDate: new Date(),
+            altInputClass: "w-full h-12 bg-slate-50 focus:bg-white focus:border-[#0071e3] border-2 border-slate-100 rounded-xl pl-12 pr-4 text-sm font-bold text-black uppercase outline-none cursor-pointer transition-all shadow-sm",
+            onChange: function() {
+                calcularResumen(); // Forzar cálculo al cambiar fecha
+            }
+        });
+        
+        toggleDeudor();
+
+        // 2. VARIABLES DE LA CALCULADORA
+        const inputMonto = document.querySelector('input[name="monto_prestado"]');
+        const inputPorcentaje = document.getElementById('input_porcentaje');
+        const inputCuotas = document.querySelector('input[name="nro_cuotas"]');
+        const selectFrecuencia = document.querySelector('select[name="tipo_cuota"]');
+        const inputFecha = document.getElementById('fecha_prestamo'); // El input original oculto de flatpickr
+        
+        const txtCalculo = document.getElementById('calculo_interes');
+        const resCuota = document.getElementById('resumen_cuota');
+        const resTotal = document.getElementById('resumen_total');
+        const resFecha = document.getElementById('resumen_fecha');
+
+        // 3. MOTOR MATEMÁTICO
+        function calcularResumen() {
+            let monto = parseFloat(inputMonto.value) || 0;
+            let porcentaje = parseFloat(inputPorcentaje ? inputPorcentaje.value : 0) || 0;
+            let cuotas = parseInt(inputCuotas.value) || 1;
+            let frecuencia = selectFrecuencia.value;
+            let fechaStr = inputFecha.value;
+
+            // A. Cálculos de Dinero
+            let interes = monto * (porcentaje / 100);
+            let totalDeuda = monto + interes;
+            let valorCuota = totalDeuda / cuotas;
+
+            // Actualizar texto chiquito de interés
+            if (txtCalculo) {
+                if (interes > 0) {
+                    txtCalculo.textContent = `SUMARÁ: Bs. ${interes.toFixed(2)} AL CAPITAL`;
+                    txtCalculo.className = "text-[10px] font-black text-emerald-500 mt-2 ml-1 tracking-widest uppercase transition-all";
+                } else {
+                    txtCalculo.textContent = `PRÉSTAMO SIN INTERÉS (0%)`;
+                    txtCalculo.className = "text-[10px] font-black text-gray-400 mt-2 ml-1 tracking-widest uppercase transition-all";
+                }
+            }
+
+            // Actualizar Panel Gigante (Formato Bs. 0.00)
+            resTotal.textContent = `Bs. ${totalDeuda.toLocaleString('es-BO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            resCuota.textContent = `Bs. ${valorCuota.toLocaleString('es-BO', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            // B. Cálculo de la Fecha Final
+            if (fechaStr && cuotas > 0) {
+                // Truco para evitar problemas de zona horaria: agregar T00:00:00
+                let fechaObj = new Date(fechaStr + "T00:00:00"); 
+                
+                if (!isNaN(fechaObj.getTime())) {
+                    if (frecuencia === 'MENSUAL') {
+                        fechaObj.setMonth(fechaObj.getMonth() + cuotas);
+                    } else if (frecuencia === 'QUINCENAL') {
+                        fechaObj.setDate(fechaObj.getDate() + (cuotas * 15));
+                    } else if (frecuencia === 'SEMANAL') {
+                        fechaObj.setDate(fechaObj.getDate() + (cuotas * 7));
+                    }
+                    
+                    // Formatear a texto bonito (Ej. 12 de Octubre, 2026)
+                    const opcionesFecha = { year: 'numeric', month: 'long', day: 'numeric' };
+                    resFecha.textContent = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
+                } else {
+                    resFecha.textContent = "-";
+                }
+            } else {
+                resFecha.textContent = "-";
+            }
+        }
+
+        // 4. ESCUCHAR CAMBIOS EN TIEMPO REAL
+        [inputMonto, inputPorcentaje, inputCuotas, selectFrecuencia].forEach(el => {
+            if(el) {
+                el.addEventListener('input', calcularResumen);
+                el.addEventListener('change', calcularResumen);
+            }
+        });
+
+        // Ejecutar por primera vez al cargar la página
+        calcularResumen();
+    });
+
+    function toggleDeudor() {
+        const tipo = document.querySelector('input[name="tipo_deudor"]:checked').value;
+        const secEmpleado = document.getElementById('seccion_empleado');
+        const secExterno = document.getElementById('seccion_externo');
+        const selectEmpleado = document.querySelector('select[name="empleado"]');
+        const inputNombre = document.querySelector('input[name="nombre_externo"]');
+        const inputCelular = document.querySelector('input[name="celular_externo"]');
+
+        if (tipo === 'empleado') {
+            secEmpleado.classList.remove('hidden');
+            secExterno.classList.add('hidden');
+            secExterno.classList.remove('grid');
+            if(inputNombre) inputNombre.value = '';
+            if(inputCelular) inputCelular.value = '';
+        } else {
+            secEmpleado.classList.add('hidden');
+            secExterno.classList.remove('hidden');
+            secExterno.classList.add('grid');
+            if(selectEmpleado) selectEmpleado.value = '';
+        }
+    }
+</script>
+
+<style>
+    /* Estilos globales para los inputs nativos que reemplazan los de Django */
+    .campo-django > input, 
+    .campo-django > select {
+        width: 100%;
+        height: 3rem; /* 48px */
+        background-color: transparent;
+        border: none;
+        outline: none;
+        color: #000; 
+        font-size: 0.875rem; 
+        font-weight: 700; 
+        padding: 0 1rem; 
+        text-transform: uppercase;
+    }
+
+    .campo-django input:focus,
+    .campo-django select:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeInDown 0.4s ease-out forwards; }
+</style>
+
+{% endblock %}

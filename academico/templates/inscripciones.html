@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-mensaje bg-white/90 backdrop-blur-xl text-gray-900 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-emerald-500 p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-bold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-mensaje');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 3000);
+    });
+</script>
+{% endif %}
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-8 w-full">
+        
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Inscripciones.</h1>
+        </div>
+        
+        <div class="flex flex-col items-end gap-4 w-full xl:w-auto shrink-0">
+            
+            <div class="flex flex-wrap items-center justify-end gap-4 w-full">
+                
+                <a href="{% url 'cuentas_por_cobrar' %}" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-black border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                    Cuentas por Cobrar
+                </a>
+                
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
+                
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="NOMBRE O CELULAR..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+
+                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <div class="relative w-full sm:w-40 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" name="rango_fechas" value="{{ rango_fechas|default:'' }}" placeholder="FECHAS..." id="calendario_inscripciones" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400 cursor-pointer">
+                    </div>
+
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">BUSCAR</button>
+                    
+                    {% if buscar or rango_fechas %}
+                        <a href="{% url 'inscripciones' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    {% endif %}
+                </form>
+
+                <button id="btn-toggle-edicion" class="h-12 sm:h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0"></button>
+
+                <a href="{% url 'crear_inscripcion' %}" class="h-12 sm:h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Nuevo Inscrito
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+        <div class="overflow-x-auto overflow-y-auto max-h-[75vh] relative scrollbar-delgada">
+            
+            <table class="w-full text-sm text-left border-collapse">
+                
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Participante</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Celular</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Curso / Mes</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Turno</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Modalidad</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Forma<br>De Pago</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Destino</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Importe</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Vendedor</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Comisión</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Registro</th>
+                        <th class="col-edicion hidden px-2.5 py-3 text-center text-[9px] font-black text-[#0071e3] uppercase tracking-widest whitespace-nowrap bg-slate-100">Acciones</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for item in lista_combinada %}
+                        
+                        {% if item.curso %}
+                        <tr class="hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer">
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.fecha_inscripcion|date:"d M y"|default:item.fecha_inscripcion }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
+                                {{ item.participante }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.participante.celular|default:"-" }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
+                                <div class="font-bold text-black group-hover:text-white transition-colors text-[11px]">{{ item.curso.nombre|default:item.curso }}</div>
+                                <div class="text-[9px] font-black text-[#0071e3] group-hover:text-blue-200 transition-colors uppercase tracking-widest mt-0.5">{{ item.curso.mes_curso|default:"-" }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.curso.turno|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-[10px] font-bold text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-wider whitespace-nowrap">
+                                {{ item.modalidad|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.forma_pago|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.banco|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                                {{ item.importe|default:"0,00" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.vendedor|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
+                                {{ item.comision|default:0|floatformat:2 }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
+                                {{ item.registrado_por|default:"-" }}
+                            </td>
+                            
+                            <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'editar_inscripcion' item.id %}" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Editar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Editar</span>
+                                    </a>
+                                    <a href="{% url 'eliminar_inscripcion' item.id %}" onclick="return confirm('⚠ ATENCIÓN: ¿Deseas ELIMINAR este registro? Esta acción no se puede deshacer.');" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Eliminar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% elif item.tipo_servicio %}
+                        <tr class="hover:bg-[#0071e3] transition-colors duration-200 bg-gray-50/30 group relative cursor-pointer">
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.fecha_venta|date:"d M y"|default:item.fecha_venta }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
+                                {{ item.participante.nombre_completo }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.participante.celular|default:"-" }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
+                                <div class="font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] uppercase">{{ item.tipo_servicio }}</div>
+                                <div class="text-[9px] font-black text-gray-400 group-hover:text-white transition-colors uppercase tracking-widest mt-0.5">{{ item.detalle }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.forma_pago|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.banco|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                                {{ item.importe|default:"0,00" }}
+                            </td>       
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.vendedor|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
+                                {{ item.comision|default:0|floatformat:2 }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
+                                {{ item.registrado_por|default:"-" }}
+                            </td>
+                            
+                            <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'editar_venta_servicio' item.id %}" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Editar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Editar</span>
+                                    </a>
+                                    <a href="{% url 'eliminar_venta_servicio' item.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar permanentemente esta venta de servicio?');" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Eliminar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="13" class="px-6 py-20 text-center bg-gray-50">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">No hay inscripciones ni ventas registradas</h3>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
+                    <tr>
+                        <td class="px-2.5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">TOTALES</td>
+                        <td class="px-2.5 py-4 text-left text-xs uppercase whitespace-nowrap" id="total-participantes">
+                            
+                            <span class="text-black font-black">0</span>
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4 text-right text-sm font-black text-black whitespace-nowrap" id="total-importe">
+                            
+                            Bs. 0,00
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4 text-right text-sm font-black text-[#0071e3] whitespace-nowrap" id="total-comision">
+                           
+                            Bs. 0,00
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="col-edicion hidden px-2.5 py-4 bg-slate-100 border-l border-slate-200"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        flatpickr("#calendario_inscripciones", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es",
+            placeholder: "SELECCIONA FECHAS..."
+        });
+
+        const btnEdicion = document.getElementById('btn-toggle-edicion');
+        const colsEdicion = document.querySelectorAll('.col-edicion');
+        
+        let modoEdicion = localStorage.getItem('modoEdicionInscripciones') === 'true';
+        
+        function aplicarModoEdicion() {
+            colsEdicion.forEach(col => {
+                if (modoEdicion) {
+                    col.classList.remove('hidden');
+                } else {
+                    col.classList.add('hidden');
+                }
+            });
+            
+            if (modoEdicion) {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-[#0071e3] text-white rounded-full shadow-md transition-all text-[11px] font-bg-[#0071e3] uppercase tracking-widest flex items-center justify-center gap-2";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="text-center leading-tight"><b>Edición Activa</b></span>
+                `;
+            } else {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-white text-gray-600 border border-gray-300 hover:bg-gray-50 rounded-full shadow-sm transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="text-center leading-tight">Editar</span>
+                `;
+            }
+        }
+
+        aplicarModoEdicion();
+        
+        btnEdicion.addEventListener('click', function(e) {
+            e.preventDefault();
+            modoEdicion = !modoEdicion; 
+            localStorage.setItem('modoEdicionInscripciones', modoEdicion); 
+            aplicarModoEdicion(); 
+            
+            if (modoEdicion) {
+                const contenedorTabla = document.querySelector('.scrollbar-delgada');
+                setTimeout(() => {
+                    contenedorTabla.scrollTo({
+                        left: contenedorTabla.scrollWidth,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        });
+
+        function calcularTotalesMatematicos() {
+            const celdasImporte = document.querySelectorAll('.val-importe');
+            const celdasComision = document.querySelectorAll('.val-comision');
+            
+            let sumaImporte = 0;
+            let sumaComision = 0;
+            let totalRegistros = celdasImporte.length;
+
+            function limpiarNumero(texto) {
+                if (!texto || texto.trim() === "-") return 0;
+                let limpio = texto.replace(/[^0-9.,-]/g, '').trim();
+                if (!limpio) return 0;
+                if (limpio.includes('.') && limpio.includes(',')) {
+                    limpio = limpio.replace(/\./g, '').replace(',', '.');
+                } else if (limpio.includes(',')) {
+                    if (limpio.indexOf(',') === limpio.length - 3) {
+                        limpio = limpio.replace(',', '.');
+                    } else {
+                        limpio = limpio.replace(/,/g, '');
+                    }
+                }
+                return parseFloat(limpio) || 0;
+            }
+
+            celdasImporte.forEach(celda => { sumaImporte += limpiarNumero(celda.textContent); });
+            celdasComision.forEach(celda => { sumaComision += limpiarNumero(celda.textContent); });
+
+            function formatearMoneda(valor) {
+                return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            document.getElementById('total-participantes').innerHTML = `
+                
+                <span class="text-black font-black text-sm">${totalRegistros}</span>
+            `;
+            document.getElementById('total-importe').innerHTML = `
+                
+                <span class="text-black font-black text-sm">Bs. ${formatearMoneda(sumaImporte)}</span>
+            `;
+            document.getElementById('total-comision').innerHTML = `
+               
+                <span class="text-[#0071e3] font-black text-sm">Bs. ${formatearMoneda(sumaComision)}</span>
+            `;
+        }
+
+        calcularTotalesMatematicos();
+    }); 
+</script>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    #btn-toggle-edicion {
+        height: 2.75rem !important;
+        font-size: 0.625rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        border-radius: 9999px !important;
+    }
+</style>
+{% endblock %}

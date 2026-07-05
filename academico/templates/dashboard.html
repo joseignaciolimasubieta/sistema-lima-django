@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- FONDO GRIS MUY SUAVE PARA CONTRASTE PREMIUM -->
+<div class="min-h-screen bg-[#F8F9FA] pb-16 font-sans">
+    
+    <div class="max-w-[95rem] mx-auto px-4 md:px-8 pt-10 animate-fade-in relative z-10">
+
+       <!-- CABECERA: TÍTULO Y FILTROS TOTALMENTE REDISEÑADOS -->
+        <div class="mb-10 flex flex-col xl:flex-row justify-between items-start xl:items-end gap-8 border-b border-gray-200/60 pb-6">
+            <div class="space-y-2">
+                <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Reportes.</h1>
+            </div>
+
+            <!-- Botonera y Filtros -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-4 w-full xl:w-auto shrink-0">
+                
+                <div class="flex items-center gap-2 bg-white px-5 h-11 rounded-full border border-gray-200 shadow-sm shrink-0">
+                    <div class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0071e3]"></span>
+                    </div>
+                    <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">
+                        Reporte al: {% now "d M, Y" %}
+                    </span>
+                </div>
+
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[22rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    <div class="relative w-full h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" name="rango_fechas" id="rango_fechas_dash" value="{{ rango_fechas }}" placeholder="BUSCAR POR FECHA..." class="hidden">
+                    </div>
+                    
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">
+                        BUSCAR
+                    </button>
+                    
+                    {% if rango_fechas %}
+                    <a href="{% url 'dashboard' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- NUEVO DISEÑO ASIMÉTRICO (BENTO BOX STYLE)  -->
+        <!-- ========================================== -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- COLUMNA IZQUIERDA (Métrica Principal + Gráfico) -->
+            <div class="lg:col-span-4 flex flex-col gap-6">
+                
+                <!-- HERO CARD: Recaudación Total (Ahora Capital Operativo) -->
+                <div class="bg-gradient-to-br from-[#0F172A] via-[#1E3A8A] to-[#0071e3] rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden flex flex-col justify-center min-h-[220px] group">
+                    <!-- Ícono de fondo gigante y sutil -->
+                    <svg class="absolute -right-6 -bottom-6 w-48 h-48 text-white/5 transform group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-blue-400 mb-6 border border-white/10 shadow-inner">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                        </div>
+                        <h3 class="text-[11px] font-bold text-blue-200 uppercase tracking-widest mb-2">Total Cuentas Operativas</h3>
+                        <p class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none">Bs. {{ total_operativo|default:"0.00"|floatformat:2 }}</p>
+                    </div>
+                </div>
+
+                <!-- GRÁFICO DE DONA ENCAJADO EN LA COLUMNA -->
+                <div class="bg-white rounded-[2.5rem] border border-gray-200/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] p-7 flex-1 flex flex-col min-h-[380px]">
+                    <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider mb-1">Distribución</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Alumnos por Curso</p>
+                    
+                    {% if reporte_cursos %}
+                    <div class="relative flex items-center justify-center w-full flex-1 min-h-[200px]">
+                        <canvas id="graficoDonaAlumnos"></canvas>
+                    </div>
+                    <!-- Leyenda Minimalista -->
+                    <div class="mt-6 flex flex-col gap-2">
+                        {% for item in reporte_cursos|slice:":4" %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full block" id="legend-dot-{{ forloop.counter0 }}"></span>
+                                <span class="text-[11px] font-bold text-slate-600 uppercase truncate max-w-[150px]">{{ item.curso__nombre|upper|truncatechars:18 }}</span>
+                            </div>
+                            <span class="text-[11px] font-black text-slate-900">{{ item.num_inscritos }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="flex-1 flex flex-col items-center justify-center opacity-40">
+                        <svg class="w-12 h-12 text-slate-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" /></svg>
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-500">Sin datos métricos</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA (3 Tarjetas horizontales + Tabla de Detalle) -->
+            <div class="lg:col-span-8 flex flex-col gap-6">
+                
+                <!-- Fila de 3 Tarjetas Pequeñas -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Tarjeta: Inscritos Hoy -->
+                    <div class="bg-white rounded-[2rem] p-6 border border-gray-200/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                        </div>
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nuevos Inscritos</h3>
+                        <div class="flex items-baseline gap-2">
+                            <p class="text-3xl font-black text-slate-900">{{ inscripciones_hoy|default:"0" }}</p>
+                            <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-wider">Hoy</span>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Ticket Medio -->
+                    <div class="bg-white rounded-[2rem] p-6 border border-gray-200/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                        </div>
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Promedio</h3>
+                        <div class="flex items-baseline gap-1">
+                            <span class="text-sm font-bold text-slate-400">Bs.</span>
+                            <p class="text-3xl font-black text-slate-900">{{ ticket_promedio|default:"0"|floatformat:0 }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta: Cursos Vigentes -->
+                    <div class="bg-white rounded-[2rem] p-6 border border-gray-200/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-4">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                        </div>
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cursos Activos</h3>
+                        <p class="text-3xl font-black text-slate-900">{{ total_cursos|default:"0" }}</p>
+                    </div>
+
+                </div>
+
+                <!-- TABLA DE RENDIMIENTO -->
+                <div class="bg-white rounded-[2.5rem] border border-gray-200/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex-1 overflow-hidden flex flex-col">
+                    <div class="px-8 pt-8 pb-4 flex justify-between items-end">
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">Desempeño Académico</h2>
+                            <p class="text-[11px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Rendimiento por Modalidad</p>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto scrollbar-delgada flex-1 px-4 pb-6 space-y-6">
+                        
+                        <!-- SECCIÓN: MODALIDAD VIRTUAL -->
+                        <div>
+                            <div class="px-4 py-2.5 bg-blue-50/50 border-l-4 border-[#0071e3] rounded-r-xl mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <h3 class="text-[10px] font-black text-[#0071e3] uppercase tracking-widest">Modalidad Virtual</h3>
+                            </div>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nombre del Curso</th>
+                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Participantes</th>
+                                        <th class="py-3 px-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Recaudado</th>
+                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Alerta</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    {% for curso in reporte_cursos %}
+                                        {% if curso.modalidad == 'VIRTUAL' %}
+                                        <tr class="hover:bg-slate-50/70 transition-colors group border-b border-slate-50 last:border-0">
+                                            <td class="py-3 px-4 font-bold text-slate-800 group-hover:text-[#0071e3] transition-colors flex items-center gap-3">
+                                                <div class="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" id="table-color-dot-{{ forloop.counter0 }}"></div>
+                                                <!-- Añadimos 'uppercase' y el filtro '|upper' -->
+                                                <span class="truncate max-w-[180px] md:max-w-none uppercase">{{ curso.curso__nombre|upper }}</span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
+                                                Bs. {{ curso.total_generado|default:"0"|floatformat:0 }}
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">
+                                                    {{ curso.tendencia_texto }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- SECCIÓN: MODALIDAD PRESENCIAL -->
+                        <div>
+                            <div class="px-4 py-2.5 bg-amber-50/50 border-l-4 border-amber-500 rounded-r-xl mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                <h3 class="text-[10px] font-black text-amber-600 uppercase tracking-widest">Modalidad Presencial</h3>
+                            </div>
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr>
+                                        <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nombre del Curso</th>
+                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Participantes</th>
+                                        <th class="py-3 px-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Recaudado</th>
+                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Alerta</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    {% for curso in reporte_cursos %}
+                                        {% if curso.modalidad == 'PRESENCIAL' %}
+                                        <tr class="hover:bg-slate-50/70 transition-colors group border-b border-slate-50 last:border-0">
+                                            <td class="py-3 px-4 font-bold text-slate-800 group-hover:text-amber-600 transition-colors flex items-center gap-3">
+                                                <div class="w-2.5 h-2.5 rounded-full shrink-0 shadow-sm" id="table-color-dot-{{ forloop.counter0 }}"></div>
+                                                <!-- Añadimos 'uppercase' y el filtro '|upper' -->
+                                                <span class="truncate max-w-[180px] md:max-w-none uppercase">{{ curso.curso__nombre|upper }}</span>
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
+                                                Bs. {{ curso.total_generado|default:"0"|floatformat:0 }}
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">
+                                                    {{ curso.tendencia_texto }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPTS DE GRÁFICOS Y CALENDARIO -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        flatpickr("#rango_fechas_dash", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es",
+            altInput: true,
+            altFormat: "d M Y",
+            // ACTUALIZAR ESTA LÍNEA CON LAS CLASES DEL BUSCADOR UNIFICADO:
+            altInputClass: "w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
+        });
+
+        // INICIALIZACIÓN DEL GRÁFICO REAL
+        {% if reporte_cursos %}
+            const ctx = document.getElementById('graficoDonaAlumnos').getContext('2d');
+            
+            const paletaModerna = ['#0071e3', '#F59E0B', '#10B981', '#8B5CF6', '#F43F5E', '#06B6D4', '#EC4899'];
+
+            // NUEVO: Agregamos (V) o (P) al final del nombre en el gráfico
+            const etiquetasCursos = [{% for item in reporte_cursos %}"{{ item.curso__nombre|upper|truncatechars:18|escapejs }} ({% if item.modalidad == 'VIRTUAL' %}V{% else %}P{% endif %})",{% endfor %}];
+            const datosInscritos = [{% for item in reporte_cursos %}{{ item.num_inscritos }},{% endfor %}];
+
+            // Asignar colores a las viñetas de la leyenda y de la tabla
+            datosInscritos.forEach((_, index) => {
+                const colorAsignado = paletaModerna[index % paletaModerna.length];
+                
+                const tableDot = document.getElementById(`table-color-dot-${index}`);
+                if(tableDot) tableDot.style.backgroundColor = colorAsignado;
+                
+                const legendDot = document.getElementById(`legend-dot-${index}`);
+                if(legendDot) legendDot.style.backgroundColor = colorAsignado;
+            });
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: etiquetasCursos,
+                    datasets: [{
+                        data: datosInscritos,
+                        backgroundColor: paletaModerna,
+                        borderWidth: 0,
+                        hoverOffset: 8,
+                        borderRadius: 4 // Bordes ligeramente redondeados en la dona
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%', // Dona más delgada y elegante
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#1E293B',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#CBD5E1',
+                            bodyFont: {
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto',
+                                weight: 'bold',
+                                size: 12
+                            },
+                            padding: 12,
+                            boxPadding: 6,
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1,
+                            displayColors: true,
+                            cornerRadius: 12
+                        }
+                    }
+                }
+            });
+        {% endif %}
+    });
+</script>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .scrollbar-delgada::-webkit-scrollbar { width: 5px; height: 5px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- LIBRERÍAS CSS DEL CALENDARIO FLATPICKR -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Catálogo de Cursos.</h1>
+        </div>
+
+        <!-- DERECHA: CONTROLES AGRUPADOS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA ÚNICA: Buscador unificado -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- Búsqueda por Texto (Nombre del Curso o Docente) -->
+                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR CURSO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+
+                    <!-- Divisor sutil -->
+                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- Buscador de Mes / Periodo -->
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" id="calendario_info" name="mes" value="{{ mes_buscar|default:'' }}" class="hidden" placeholder="PERIODO...">
+                    </div>
+                    
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
+                        BUSCAR
+                    </button>
+                    
+                    {% if mes_buscar or buscar %}
+                    <a href="{% url 'informacion_cursos' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <!-- CUADRÍCULA DE CURSOS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for c in cursos %}
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#0071e3] transition-all cursor-pointer group flex flex-col justify-between h-full"
+             onclick="cargarYMostrarAfiche(this)"
+             data-nombre="{{ c.nombre }}"
+             data-mes="{{ c.mes_curso }}"
+             data-turno="{{ c.turno }}"
+             data-docente="{{ c.docente.nombre }}"
+             data-inicio="{{ c.fecha_inicio|date:'d/m/Y'|default:'-' }}"
+             data-inicio-largo="{{ c.fecha_inicio|date:'l d \d\e F'|default:'-'|upper }}"
+             data-fin="{{ c.fecha_finalizacion|date:'d/m/Y'|default:'-' }}"
+             data-horario="{{ c.horario|default:'-' }}"
+             data-dias="{{ c.dias|default:'-' }}"
+             data-duracion="{{ c.duracion|default:'-' }}"
+             data-modalidad="{{ c.modalidad|default:'VIRTUAL' }}"
+             data-inversion="{{ c.inversion }}"
+             data-promo="{{ c.promo }}"
+             data-antiguos="{{ c.antiguos }}">
+             
+            <div>
+                <div class="flex justify-between items-start mb-4">
+                    <span class="text-[9px] font-black {% if c.modalidad == 'VIRTUAL' %}bg-blue-50 text-[#0071e3]{% else %}bg-amber-50 text-amber-600 border-amber-200{% endif %} uppercase tracking-widest px-3 py-1 rounded-full">{{ c.modalidad|default:"VIRTUAL" }}</span>
+                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ c.mes_curso|default:"-" }}</span>
+                </div>
+                <h3 class="font-black text-lg text-black uppercase leading-tight group-hover:text-[#0071e3] transition-colors">{{ c.nombre }}</h3>
+                <p class="text-xs font-bold text-gray-500 mt-2 uppercase flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    {{ c.docente.nombre }}
+                </p>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Inicia el</span>
+                    <span class="text-xs font-black text-black uppercase">{{ c.fecha_inicio|date:"d M Y"|default:"-" }}</span>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-gray-50 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white flex items-center justify-center transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-24 text-center bg-white rounded-3xl border border-gray-200">
+            <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest">No hay cursos registrados</h3>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- FOLLETO DIGITAL (MODAL) -->
+<div id="modal-afiche-curso" class="fixed inset-0 bg-black/30 backdrop-blur-md z-[300] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-[#f5f5f7] rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-xl overflow-hidden transform scale-95 transition-transform duration-300 mx-4 relative border border-white/60 font-sans">
+        
+        <div class="bg-white p-8 pb-6 border-b border-gray-100 relative">
+            <div class="flex justify-between items-start gap-4">
+                <div class="flex flex-wrap gap-2">
+                    <span id="afiche-periodo" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-[#0071e3]">PERIODO</span>
+                </div>
+                <button onclick="cerrarAficheInformacion()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-black flex items-center justify-center transition-all outline-none" title="Cerrar">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <h2 id="afiche-nombre" class="text-3xl md:text-4xl font-black tracking-tight text-black uppercase mt-6 leading-none">CARGANDO...</h2>
+            <div class="flex items-center gap-2 mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-t border-gray-50 pt-4">
+                <div class="w-6 h-6 rounded-full bg-black text-white font-black text-[9px] flex items-center justify-center" id="afiche-avatar-docente">D</div>
+                <span>FACILITADOR(A): <span id="afiche-docente" class="text-black font-black">DOCENTE</span></span>
+            </div>
+            <p id="afiche-inicio-sub" class="text-sm font-black text-[#0071e3] tracking-widest uppercase mt-3">INICIO: ...</p>
+            
+            
+        </div>
+
+        <div class="p-8 space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Días de Clase</span>
+                    <p id="afiche-dias" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Duración del Curso</span>
+                    <p id="afiche-duracion" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Horario</span>
+                    <p id="afiche-horas" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Modalidad del Curso</span>
+                    <p id="afiche-modalidad-box" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Turno Asignado</span>
+                    <p id="afiche-turno-box" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+                
+                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Fecha de Finalización</span>
+                    <p id="afiche-fin" class="text-xs font-black text-black uppercase">...</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border border-gray-200/80 shadow-sm space-y-4">
+                <span class="text-[13px] font-bold text-black uppercase tracking-widest block border-b border-gray-50 pb-2">Precio del Curso</span>
+                
+                <div class="grid grid-cols-3 gap-2 text-center divide-x divide-gray-100">
+                    <div class="space-y-1">
+                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-wider block">Inversión</span>
+                        <div class="text-xl md:text-2xl font-black text-gray-900 tracking-tight" id="afiche-precio-base">Bs. 0.00</div>
+                    </div>
+                    <div class="space-y-1 pl-2">
+                        <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Promoción Amistad</span>
+                        <div class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight" id="afiche-precio-promo">Bs. 0.00</div>
+                    </div>
+                    <div class="space-y-1 pl-2">
+                        <span class="text-[9px] font-black text-[#0071e3] bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Alumnos Antiguos</span>
+                        <div class="text-xl md:text-2xl font-black text-[#0071e3] tracking-tight" id="afiche-precio-antiguo">Bs. 0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center pt-2">
+                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
+                    ESCUELA FINANCIERA LUCA PACIOLI
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#calendario_info", {
+            locale: "es",
+            placeholder: "PERIODO...",
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            altInput: true,
+            // ¡NUEVAS CLASES DE ESTILO!
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
+        });
+    });
+
+    function cargarYMostrarAfiche(elemento) {
+        document.getElementById('afiche-nombre').textContent = elemento.getAttribute('data-nombre').toUpperCase();
+        document.getElementById('afiche-inicio-sub').textContent = "INICIO: " + elemento.getAttribute('data-inicio-largo').toUpperCase();
+        document.getElementById('afiche-docente').textContent = elemento.getAttribute('data-docente').toUpperCase();
+        document.getElementById('afiche-dias').textContent = elemento.getAttribute('data-dias').toUpperCase();
+        document.getElementById('afiche-horas').textContent = elemento.getAttribute('data-horario').toUpperCase();
+        document.getElementById('afiche-duracion').textContent = elemento.getAttribute('data-duracion').toUpperCase();
+        document.getElementById('afiche-fin').textContent = elemento.getAttribute('data-fin');
+        document.getElementById('afiche-periodo').textContent = elemento.getAttribute('data-mes').toUpperCase();
+        document.getElementById('afiche-modalidad-box').textContent = elemento.getAttribute('data-modalidad').toUpperCase();
+        document.getElementById('afiche-turno-box').textContent = elemento.getAttribute('data-turno').toUpperCase();
+        
+        const docenteStr = elemento.getAttribute('data-docente');
+        if(docenteStr) {
+            document.getElementById('afiche-avatar-docente').textContent = docenteStr.trim().substring(0, 1).toUpperCase();
+        }
+        
+        document.getElementById('afiche-precio-base').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-inversion')).toFixed(2);
+        document.getElementById('afiche-precio-promo').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-promo')).toFixed(2);
+        document.getElementById('afiche-precio-antiguo').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-antiguos')).toFixed(2);
+
+        const modal = document.getElementById('modal-afiche-curso');
+        const card = modal.querySelector('div');
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            card.classList.remove('scale-95');
+            modal.classList.add('opacity-100');
+            card.classList.add('scale-100');
+        }, 10);
+    }
+
+    function cerrarAficheInformacion() {
+        const modal = document.getElementById('modal-afiche-curso');
+        const card = modal.querySelector('div');
+        
+        modal.classList.remove('opacity-100');
+        card.classList.remove('scale-100');
+        modal.classList.add('opacity-0');
+        card.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% endblock %}

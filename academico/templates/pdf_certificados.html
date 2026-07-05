@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: letter landscape;
+            margin: 0; 
+            background-image: url("{{ ruta_imagen }}"); 
+        }
+
+        /* 🚀 NUEVO: Cargamos el archivo físico de Montserrat en el PDF */
+        @font-face {
+            font-family: 'MontserratPDF';
+            src: url("{{ ruta_fuente }}");
+        }
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .certificado-pagina {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ========================================================= */
+        /* ESTILOS DE TIPOGRAFÍA                                     */
+        /* ========================================================= */
+        
+        .nombre-alumno {
+            font-family: 'Times New Roman', Times, serif; /* <--- TIPO DE LETRA */
+            font-style: italic;
+            font-size: 46px;
+            font-weight: bold;
+            color: #927a2e; 
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nombre-curso {
+            font-family: 'Times New Roman', Times, serif; /* <--- TIPO DE LETRA */
+            font-style: italic; /* <--- TIPO DE LETRA CURSIVA */
+            font-size: 30px;
+            font-weight: bold;
+            color: #1e3a8a; 
+            margin: 0;
+            padding: 0;
+        }
+
+        .texto-fecha {
+            font-family: 'MontserratPDF', sans-serif; /* <--- APLICAMOS LA NUEVA FUENTE */
+            font-size: 14px; 
+            color: #927a2e; 
+            line-height: 1.8; 
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="certificado-pagina">
+        
+        <pdf:spacer height="235" /> <!-- Ajustar Espacio entre la parte superior y el nombre del alumno -->
+        
+        <p class="nombre-alumno" align="center">{{ inscrito.participante.nombre_completo|upper }}</p>
+        
+        <pdf:spacer height="65" /> <!-- Ajustar Espacio entre el nombre y el curso -->
+
+        
+        <p class="nombre-curso" align="center">{{ curso.nombre|upper }}</p>
+        
+        <pdf:spacer height="25" /> <!-- Ajustar Espacio entre el curso y la fecha -->
+        
+        <p class="texto-fecha" align="center">
+            REALIZADO DEL {{ curso.fecha_inicio|date:"d" }} DE {{ curso.fecha_inicio|date:"F"|upper }} 
+            AL {{ curso.fecha_finalizacion|date:"d" }} DE {{ curso.fecha_finalizacion|date:"F"|upper }} 
+            DEL AÑO 
+            {% if curso.fecha_finalizacion.year == 2024 %}DOS MIL VEINTICUATRO
+            {% elif curso.fecha_finalizacion.year == 2025 %}DOS MIL VEINTICINCO
+            {% elif curso.fecha_finalizacion.year == 2026 %}DOS MIL VEINTISÉIS
+            {% elif curso.fecha_finalizacion.year == 2027 %}DOS MIL VEINTISIETE
+            {% elif curso.fecha_finalizacion.year == 2028 %}DOS MIL VEINTIOCHO
+            {% else %}{{ curso.fecha_finalizacion|date:"Y" }}{% endif %} 
+            CON UN VALOR CURRICULAR DE
+            <br>
+            20 HORAS ACADÉMICAS.
+        </p>
+
+    </div>
+
+</body>
+</html>

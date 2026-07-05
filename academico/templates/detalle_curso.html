@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="{% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            {% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            {% else %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            {% endif %}
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<div class="w-full px-4 xl:px-8 mx-auto pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <!-- CABECERA PRINCIPAL -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-start justify-between gap-6 w-full">
+        
+        <!-- LADO IZQUIERDO: Título, Info y KPIs -->
+        <div class="flex flex-col gap-6 w-full xl:w-auto">
+            <div>   </div>
+            <div class="space-y-1">
+                <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Asistencia.</h1>
+                <h1 class="text-3xl md:text-4xl font-bold text-black tracking-tight uppercase">{{ curso.nombre }}</h1>
+            </div>
+
+            <!-- Etiquetas de Info Curso -->
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 text-gray-600 text-[10px] font-bold tracking-widest uppercase border border-gray-200">
+                    Mes: <span class="text-black">{{ curso.mes_curso|default:"-" }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-50 text-gray-600 text-[10px] font-bold tracking-widest uppercase border border-gray-200">
+                    Turno: <span class="text-black">{{ curso.turno|default:"-" }}</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#0071e3] text-[10px] font-bold tracking-widest uppercase border border-blue-100">
+                    Docente: <span class="text-black">{{ curso.docente.nombre|default:"-" }}</span>
+                </span>
+            </div>
+
+        </div>
+
+        <!-- LADO DERECHO: Botón Volver y Buscador -->
+        <div class="flex flex-col items-end gap-3 shrink-0">
+            <a href="{% url 'cursos' %}" class="w-fit h-9 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver a Cursos
+            </a>
+
+             <div class="flex gap-4 shrink-0">
+                {% if total_virtual > 0 %}
+                <div class="bg-white border border-gray-200 shadow-sm rounded-3xl px-6 py-4 flex flex-col justify-center min-w-[140px] text-center">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Virtual</span>
+                    <span class="text-4xl font-black text-black leading-none">{{ total_virtual }}</span>
+                </div>
+                {% endif %}
+                
+                {% if total_presencial > 0 %}
+                <div class="bg-white border border-gray-200 shadow-sm rounded-3xl px-6 py-4 flex flex-col justify-center min-w-[140px] text-center">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Presencial</span>
+                    <span class="text-4xl font-black text-black leading-none">{{ total_presencial }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full md:w-[26rem] group focus-within:border-[#0071e3] transition-all">
+                <input type="hidden" name="modalidad" value="{{ modalidad_actual }}">
+                <div class="relative w-full h-8 flex items-center">
+                    <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR PARTICIPANTE..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                </div>
+                <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm ml-1">Buscar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABLA DE ASISTENCIA -->
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm z-20">
+        <div class="overflow-x-auto scrollbar-delgada max-h-[70vh]">
+            <table class="w-full text-sm text-left border-collapse" id="tabla-asistencia">
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-slate-500 text-center sticky left-0 z-30 bg-slate-50 w-12">N°</th>
+                        <th class="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-slate-500 min-w-[250px] sticky left-12 z-30 bg-slate-50">Participante</th>
+                        {% for fecha in fechas_curso %}
+                        <th class="px-2 py-3 text-center border-l border-slate-200/60 min-w-[60px] bg-slate-50">
+                            <div class="text-[11px] font-black text-black">{{ fecha|date:"d" }}</div>
+                            <div class="text-[8px] font-bold text-slate-400 uppercase mt-0.5 tracking-widest">{{ fecha|date:"D" }}</div>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for alumno in alumnos_con_asistencia %}
+                    <tr class="hover:bg-gray-100 transition-colors duration-200 group">
+                        <td class="px-4 py-4 text-center font-bold text-gray-400 group-hover:text-black text-[11px] sticky left-0 z-10 bg-white group-hover:bg-gray-100 transition-colors">
+                            {{ forloop.counter }}
+                        </td>
+                        <td class="px-4 py-4 sticky left-12 z-10 bg-white group-hover:bg-gray-100 transition-colors">
+                            <div class="font-black text-black group-hover:text-black transition-colors uppercase text-[12px]">{{ alumno.inscripcion.participante.nombre_completo }}</div>
+                            <div class="text-[9px] font-bold text-gray-400 group-hover:text-black transition-colors mt-1 tracking-widest">CEL: {{ alumno.inscripcion.participante.celular|default:"S/N" }}</div>
+                        </td>
+                        {% for asistencia in alumno.asistencias %}
+                        <td class="px-2 py-4 text-center border-l border-gray-100/70 select-none">
+                            <button type="button" onclick="marcarAsistencia(this, {{ asistencia.id }})" data-col="{{ forloop.counter0 }}" data-estado="{{ asistencia.estado }}"
+                                    class="w-7 h-7 rounded-full inline-flex items-center justify-center mx-auto font-black text-[10px] transition-all duration-200 transform outline-none {% if asistencia.estado == 'PRESENTE' %}bg-[#0071e3] text-white{% elif asistencia.estado == 'FALTA' %}bg-amber-500 text-white{% else %}bg-slate-100 text-slate-300{% endif %}">
+                                {% if asistencia.estado == 'PRESENTE' %}
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                {% elif asistencia.estado == 'FALTA' %}
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                {% else %}
+                                    <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
+                                {% endif %}
+                            </button>
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                 <tfoot class="bg-slate-50 border-t-2 border-slate-200 text-slate-600 font-bold sticky bottom-0 z-30">
+                    <tr class="border-b border-slate-100">
+                        <td class="px-4 py-3 text-center bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"></td>
+                        <td class="px-4 py-3 text-left text-[10px] font-black text-blue-600 uppercase tracking-widest bg-slate-50 sticky left-12 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Asistieron
+                        </td>
+                        {% for fecha in fechas_curso %}
+                        <td id="total-presentes-{{ forloop.counter0 }}" class="px-2 py-3 text-center text-xs font-black text-blue-600 border-l border-slate-200 bg-blue-50/30">
+                            0
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-3 text-center bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"></td>
+                        <td class="px-4 py-3 text-left text-[10px] font-black text-amber-500 uppercase tracking-widest bg-slate-50 sticky left-12 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-500"></span> Faltaron
+                        </td>
+                        {% for fecha in fechas_curso %}
+                        <td id="total-faltas-{{ forloop.counter0 }}" class="px-2 py-3 text-center text-xs font-black text-amber-500 border-l border-slate-200 bg-amber-50/30">
+                            0
+                        </td>
+                        {% endfor %}
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    calcularTotalesAsistencia();
+});
+
+function calcularTotalesAsistencia() {
+    const totalColumnas = {{ fechas_curso|length|default:0 }};
+    if (totalColumnas === 0) return;
+    
+    for (let col = 0; col < totalColumnas; col++) {
+        let presentes = document.querySelectorAll(`button[data-col="${col}"][data-estado='PRESENTE']`).length;
+        let faltas = document.querySelectorAll(`button[data-col="${col}"][data-estado='FALTA']`).length;
+        
+        let elPresentes = document.getElementById(`total-presentes-${col}`);
+        let elFaltas = document.getElementById(`total-faltas-${col}`);
+        
+        if (elPresentes) elPresentes.textContent = presentes;
+        if (elFaltas) elFaltas.textContent = faltas;
+    }
+}
+
+function marcarAsistencia(boton, asistenciaId) {
+    boton.style.opacity = '0.5';
+    boton.style.transform = 'scale(0.9)';
+    
+    fetch('/asistencia/toggle/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: asistenciaId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            const estado = data.nuevo_estado;
+            
+            boton.setAttribute('data-estado', estado);
+            boton.className = "w-7 h-7 rounded-full inline-flex items-center justify-center mx-auto transition-all duration-200 transform outline-none focus:outline-none ";
+            
+            if (estado === 'PRESENTE') {
+                boton.className += "bg-[#0071e3] text-white shadow-sm hover:bg-blue-600 hover:scale-110";
+                boton.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+            } else if (estado === 'FALTA') {
+                boton.className += "bg-amber-500 text-white shadow-sm hover:bg-amber-600 hover:scale-110";
+                boton.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            } else {
+                boton.className += "bg-slate-100 text-slate-300 hover:bg-slate-200/80 hover:scale-110";
+                boton.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-current"></div>';
+            }
+            
+            calcularTotalesAsistencia();
+        }
+        boton.style.opacity = '1';
+        boton.style.transform = 'scale(1)';
+    })
+    .catch(error => {
+        console.error('Error al guardar:', error);
+        boton.style.opacity = '1';
+        boton.style.transform = 'scale(1)';
+        alert('Hubo un error de conexión. Inténtalo de nuevo.');
+    });
+}
+</script>
+
+<style>
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeInDown 0.4s ease-out forwards; }
+
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+
+{% endblock %}

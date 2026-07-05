@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div class="space-y-3">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Venta de Servicio.</h1>
+        </div>
+        
+        <a href="{% url 'crear_inscripcion' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-semibold transition-all shadow-sm">
+            <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            Cambiar a Inscripción Regular
+        </a>
+    </div>
+    
+    <form method="POST" class="space-y-8">
+        {% csrf_token %}
+        
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden relative z-10">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">01</span>
+                <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Información del Cliente</h3>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Nombre Completo <span class="text-rose-500"></span></label>
+                    <input type="text" name="nombre_completo" placeholder="EJ. JUAN PEREZ" required 
+                           class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                </div>
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Número de Celular <span class="text-rose-500"></span></label>
+                    <input type="text" name="celular" placeholder="EJ. 77712345" required 
+                           class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-visible relative z-30">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">02</span>
+                <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Detalles del Servicio</h3>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tipo de Servicio <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <select name="tipo_servicio" required class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="CERTIFICADO">CERTIFICADO</option>
+                            <option value="GRABACIÓN">GRABACIÓN</option>
+                            <option value="SISTEMA">SISTEMA</option>
+                            <option value="OTRO">OTRO</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="md:col-span-2 flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Detalle Específico (Opcional)</label>
+                    <input type="text" name="detalle" placeholder="EJ. CERTIFICADO DE EXCEL BÁSICO" 
+                           class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden relative z-10">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">03</span>
+                <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Control Financiero</h3>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-8">
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-2">Importe (Bs.) <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-black/30 font-black text-lg">Bs.</span>
+                        <input type="number" step="0.01" name="importe" placeholder="0.00" required 
+                               class="w-full h-14 bg-blue-50/50 border-2 border-blue-100 rounded-xl pl-12 pr-4 text-2xl font-black text-black outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Forma de Pago <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <select name="forma_pago" required class="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="Efectivo">EFECTIVO</option>
+                            <option value="Depósito">DEPÓSITO</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Destino del Dinero <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <select name="banco" required class="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-[#0071e3] uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="ADMINISTRACIÓN">001 - ADMINISTRACIÓN</option>
+                            <option value="BANCO">002 - BANCO</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Vendedor <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <select name="vendedor" required class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="">SELECCIONE VENDEDOR</option>
+                            <option value="ADMINISTRACIÓN">ADMINISTRACIÓN</option>
+                            <option value="XIOMARA">XIOMARA</option>
+                            <option value="PATRICIA">PATRICIA</option>
+                            <option value="IGNACIO">IGNACIO</option>
+                            <option value="JUANJO">JUANJO</option>
+                            <option value="GABRIEL">GABRIEL</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Registrado Por <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <select name="registrado_por" required class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                            <option value="">SELECCIONE QUIEN REGISTRA</option>
+                            <option value="JUANJO">JUANJO</option>
+                            <option value="IGNACIO">IGNACIO</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha de Venta <span class="text-rose-500"></span></label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none z-10">
+                            <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" id="fecha_venta" name="fecha_venta" placeholder="SELECCIONA FECHA..." required 
+                               class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl pl-12 pr-4 text-sm font-bold text-black outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm cursor-pointer">
+                    </div>
+                </div>
+
+                <div id="contenedor-qr" class="hidden md:col-span-3 mt-4 p-8 bg-white border-2 border-dashed border-blue-200 rounded-3xl flex flex-col items-center justify-center transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-6">
+                        <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                        <p class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest">Escanea para pagar vía QR</p>
+                    </div>
+                    
+                    <div class="p-2 bg-gray-50 rounded-2xl shadow-sm border border-gray-200">
+                        <img src="{% static 'IMG_6078.PNG' %}" alt="QR Empresa" class="w-64 h-64 md:w-72 md:h-72 rounded-xl object-contain">
+                    </div>
+                    
+                    <p class="text-[10px] font-bold text-gray-500 mt-5 text-center uppercase tracking-widest leading-relaxed">
+                        CUENTA EMPRESARIAL <br> <span class="text-black font-black">LIMA S.R.L.</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+            
+        <div class="bg-slate-50 px-8 py-6 rounded-3xl border border-gray-200 flex flex-col md:flex-row justify-end items-center gap-4">
+            <a href="{% url 'inscripciones' %}" class="w-full md:w-auto text-center h-12 px-8 rounded-full text-xs font-bold uppercase tracking-widest text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center">
+                Cancelar
+            </a>
+            <button type="submit" class="w-full md:w-auto h-12 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                Guardar Venta
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 0. ANULAR TECLA ENTER
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        });
+
+        // 1. Inicializar el Calendario
+        flatpickr("#fecha_venta", {
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "j \\de F, Y",
+            locale: "es",
+            defaultDate: "today"
+        });
+
+        // 2. LÓGICA AUTOMÁTICA DEL QR Y CUENTAS
+        const selectFormaPago = document.querySelector('select[name="forma_pago"]');
+        const selectBanco = document.querySelector('select[name="banco"]');
+        const contenedorQr = document.getElementById('contenedor-qr');
+
+        function verificarQR() {
+            // Sincronizar cuentas
+            if (selectFormaPago.value === 'Efectivo') {
+                selectBanco.value = 'ADMINISTRACIÓN';
+            } else if (selectFormaPago.value === 'Depósito') {
+                selectBanco.value = 'BANCO';
+            }
+
+            // Mostrar u ocultar el código QR de pago
+            if (selectFormaPago.value === 'Depósito' && selectBanco.value === 'BANCO') {
+                contenedorQr.classList.remove('hidden');
+                contenedorQr.classList.add('animate-fade-in-down');
+            } else {
+                contenedorQr.classList.add('hidden');
+                contenedorQr.classList.remove('animate-fade-in-down');
+            }
+        }
+
+        selectFormaPago.addEventListener('change', verificarQR);
+        selectBanco.addEventListener('change', verificarQR);
+        
+        // Ejecución inicial por si acaso recarga con datos
+        verificarQR();
+    });
+</script>
+
+<style>
+    /* Animación suave para el QR */
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-down { animation: fadeInDown 0.4s ease-out forwards; }
+</style>
+{% endblock %}

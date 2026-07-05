@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500); 
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Control Prestamos.</h1>
+        </div>
+
+        <!-- DERECHA: CONTROLES AGRUPADOS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA ÚNICA: Buscador unificado y Botón -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- Búsqueda por Texto (Nombre o C.I.) -->
+                    <div class="relative w-full h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="buscar" value="{{ buscar }}" placeholder="BUSCAR FUNCIONARIO O C.I..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+                    
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
+                        BUSCAR
+                    </button>
+                    
+                    {% if buscar %}
+                    <a href="{% url 'lista_prestamos' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
+                </form>
+
+                <!-- Botón: Desembolsar Préstamo -->
+                <a href="{% url 'crear_prestamo' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Desembolsar Préstamo
+                </a>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- TARJETAS DE INDICADORES (KPIs) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <!-- Tarjeta: Capital Prestado -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Capital Prestado</span>
+                <h3 class="text-2xl font-black text-black tracking-tight">Bs. {{ total_capital_prestado }}</h3>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 p-3 rounded-2xl text-[#0071e3]">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+            </div>
+        </div>
+
+        <!-- Tarjeta: Total Recuperado -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Total Recuperado</span>
+                <h3 class="text-2xl font-black text-emerald-600 tracking-tight">Bs. {{ total_recuperado }}</h3>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl text-emerald-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3 3L22 4m-2 12a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h11.751"></path></svg>
+            </div>
+        </div>
+
+        <!-- Tarjeta: Saldo de Préstamos -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
+            <div>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Saldo de Prestamos</span>
+                <h3 class="text-2xl font-black text-[#0071e3] tracking-tight">Bs. {{ saldo_por_cobrar }}</h3>
+            </div>
+            <div class="bg-blue-50 border border-blue-100 p-3 rounded-2xl text-[#0071e3]">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden relative">
+        <div class="overflow-x-auto scrollbar-delgada">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-white border-b-2 border-gray-200">
+                    <tr>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest whitespace-nowrap">Fecha Emisión</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest min-w-[250px]">Funcionario / Concepto</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest whitespace-nowrap">Frecuencia</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest leading-tight">Amortización<br>Total</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest min-w-[180px]">Progreso</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest whitespace-nowrap">Saldo</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest whitespace-nowrap">Estado</th>
+                        <th class="py-5 px-3 md:px-4 text-center text-[10px] font-black text-gray-900 uppercase tracking-widest whitespace-nowrap">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs text-gray-800 bg-white">
+                    {% for p in prestamos %}
+                    
+                    <!-- HOVER EFECTO APPLE BLUE PURO (EN TODA LA FILA) -->
+                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer">
+                        
+                        <td class="py-4 px-3 md:px-4 text-center font-bold text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">{{ p.fecha_prestamo|date:"d M, Y" }}</td>
+                        
+                        <td class="py-4 px-3 md:px-4">
+                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight whitespace-nowrap">{{ p.empleado.nombre_completo }}</div>
+                            <div class="text-[10px] text-gray-400 group-hover:text-blue-100 transition-colors font-semibold mt-0.5 uppercase">C.I. {{ p.empleado.ci }}</div>
+                        </td>
+                        
+                        <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">
+                            <span class="inline-block px-3 py-1 rounded-lg bg-gray-100 group-hover:bg-white/20 text-gray-600 group-hover:text-white transition-colors font-bold text-[9px] tracking-wider uppercase">{{ p.tipo_cuota }}</span>
+                            <div class="text-[9px] font-semibold text-gray-400 group-hover:text-blue-100 transition-colors mt-1.5 uppercase">Pago: {{ p.dia_de_pago }}</div>
+                        </td>
+                        
+                        <td class="py-4 px-3 md:px-4 text-right whitespace-nowrap">
+                            <span class="text-sm font-black text-black group-hover:text-white transition-colors block mb-0.5">Bs. {{ p.total_deuda }}</span>
+                            <div class="text-[9px] text-gray-400 group-hover:text-blue-200 transition-colors font-bold leading-snug tracking-wider">Capital: Bs. {{ p.monto_prestado }}<br>Interés: Bs. {{ p.interes }}</div>
+                        </td>
+                        
+                        <!-- BARRA DE PROGRESO INTACTA, SOLO TEXTOS CAMBIAN -->
+                        <td class="py-4 px-3 md:px-4">
+                            <div class="flex items-center justify-between text-[10px] font-black text-slate-500 group-hover:text-white transition-colors mb-1.5">
+                                <span class="text-emerald-600 group-hover:text-emerald-300 transition-colors">Pago: Bs. {{ p.pago_acumulado }}</span>
+                                <span class="group-hover:text-blue-200 transition-colors">Meta: Bs. {{ p.total_deuda }}</span>
+                            </div>
+                            <div class="w-full bg-slate-100 group-hover:bg-white/20 transition-colors rounded-full h-2 border border-slate-200/60 group-hover:border-transparent overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 transition-all duration-500" style="width: calc(({{ p.pago_acumulado|stringformat:'s' }} / {{ p.total_deuda|stringformat:'s' }}) * 100%)"></div>
+                            </div>
+                        </td>
+                        
+                        <td class="py-4 px-3 md:px-4 text-right font-black text-[#0071e3] group-hover:text-white transition-colors text-sm whitespace-nowrap">Bs. {{ p.saldo_restante }}</td>
+                        
+                        <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">
+                            {% if p.estado == 'ACTIVO' %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-200/60 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors">
+                                    <span class="relative flex h-2 w-2">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 group-hover:bg-amber-300 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500 group-hover:bg-amber-300"></span>
+                                    </span>
+                                    ACTIVO
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200/60 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors">
+                                    LIQUIDADO
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="py-4 px-3 md:px-4 whitespace-nowrap border-l border-transparent group-hover:border-white/20">
+                            <div class="flex items-center justify-center gap-1 md:gap-2">
+                                {% if p.estado == 'ACTIVO' %}
+                                <a href="{% url 'registrar_pago_prestamo' p.id %}" class="inline-flex items-center gap-1.5 bg-[#0071e3]/10 text-[#0071e3] group-hover:bg-white group-hover:text-[#0071e3] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full transition-all shadow-sm border border-transparent">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    Abonar
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'editar_prestamo' p.id %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all shadow-sm" title="Editar Ficha">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </a>
+                                <button type="button" onclick="toggleHistorial({{ p.id }}, this)" class="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all shadow-sm" title="Ver Historial de Amortizaciones">
+                                    <svg class="w-4 h-4 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr id="historial-{{ p.id }}" class="hidden bg-gray-50/50">
+                        <td colspan="8" class="p-4 md:p-6 border-b border-gray-200">
+                            <div class="bg-white rounded-3xl border border-gray-200 shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-4 gap-0 animate-fade-in">
+                                
+                                <div class="p-6 md:p-8 bg-gray-50/80 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col justify-between gap-6">
+                                    <div>
+                                        <!-- NUEVO: Indicador de Horizonte de Tiempo -->
+                                        <div class="flex items-center justify-between mb-4 bg-blue-50/50 p-3.5 rounded-xl border border-blue-100/50">
+                                            <div>
+                                                <span class="block text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">Inicio Crédito</span>
+                                                <span class="text-xs font-black text-[#0071e3]">{{ p.fecha_prestamo|date:"d M, Y" }}</span>
+                                            </div>
+                                            <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                                            <div class="text-right">
+                                                <span class="block text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-0.5">Fin Estimado</span>
+                                                <span class="text-xs font-black text-[#0071e3]">{{ p.fecha_estimada_fin|date:"d M, Y" }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <div class="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
+                                                <span class="text-[10px] font-semibold text-gray-400 uppercase">Monto Otorgado</span>
+                                                <span class="font-bold text-black">Bs. {{ p.total_deuda }}</span>
+                                            </div>
+                                            <div class="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
+                                                <span class="text-[10px] font-semibold text-gray-400 uppercase">Total Amortizado</span>
+                                                <span class="font-bold text-emerald-600">Bs. {{ p.pago_acumulado }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="pt-5 border-t border-gray-200">
+                                        <span class="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Saldo Líquido Pendiente</span>
+                                        <h5 class="text-2xl font-bold text-[#0071e3]">Bs. {{ p.saldo_restante }}</h5>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-6 md:p-8 lg:col-span-3 overflow-x-auto">
+                                    <h4 class="text-[11px] font-bold text-gray-800 uppercase tracking-widest flex items-center gap-2 mb-5">
+                                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        Historial Cronológico de Pagos
+                                    </h4>
+                                    
+                                    {% if p.pagos.all %}
+                                    <table class="w-full text-left text-xs border border-gray-200 rounded-2xl overflow-hidden">
+                                        <thead>
+                                            <tr class="bg-gray-50 border-b border-gray-200">
+                                                <th class="p-4 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Fecha del Abono</th>
+                                                <th class="p-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Origen</th>
+                                                <th class="p-4 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Monto Procesado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100 bg-white">
+                                            {% for abono in p.pagos.all %}
+                                            <tr class="hover:bg-gray-50/50 transition-colors">
+                                                <td class="p-4 font-medium text-gray-600">{{ abono.fecha_pago|date:"d M, Y" }}</td>
+                                                <td class="p-4 text-center">
+                                                    {% if abono.es_descuento_planilla %}
+                                                    <span class="inline-block bg-purple-50 text-purple-700 border border-purple-100 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest">Descuento x Planilla</span>
+                                                    {% else %}
+                                                    <span class="inline-block bg-emerald-50 text-emerald-700 border border-emerald-100 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest">Abono Directo x Caja</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="p-4 text-right">
+                                                    <div class="flex items-center justify-end gap-3">
+                                                        <span class="font-bold text-emerald-600 text-sm">Bs. {{ abono.monto }}</span>
+                                                        
+                                                        {% if not abono.es_descuento_planilla %}
+                                                        <a href="{% url 'imprimir_recibo_pago' abono.id %}" target="_blank" class="inline-flex items-center gap-1 text-[9px] font-black text-[#0071e3] hover:text-[#0077ED] uppercase tracking-wider bg-blue-50 px-2 py-1 rounded-md transition-colors" title="Imprimir Comprobante Oficial">
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                                            RECIBO
+                                                        </a>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}
+                                    <div class="bg-gray-50 rounded-2xl p-10 border border-dashed border-gray-200 text-center text-gray-400 font-semibold uppercase tracking-widest text-[11px]">
+                                        Ninguna cuota amortizada en este crédito todavía.
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-24 text-center">
+                            <p class="text-gray-400 font-semibold text-sm">No se registran transacciones de préstamo en el sistema financiero.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { height: 8px; width: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: #ffffff; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid #ffffff; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+
+<script>
+    function toggleHistorial(id, boton) {
+        const fila = document.getElementById('historial-' + id);
+        const svg = boton.querySelector('svg');
+        
+        if (fila.classList.contains('hidden')) {
+            fila.classList.remove('hidden');
+            fila.classList.add('table-row');
+            svg.classList.add('rotate-180');
+        } else {
+            fila.classList.add('hidden');
+            fila.classList.remove('table-row');
+            svg.classList.remove('rotate-180');
+        }
+    }
+    
+</script>
+
+{% endblock %}

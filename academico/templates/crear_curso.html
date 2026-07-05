@@ -1,0 +1,640 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="{% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            {% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            {% else %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            {% endif %}
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+<div class="max-w-5xl mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div class="space-y-3">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">
+                {% if editando %}Editar Curso.{% else %}Nuevo Curso.{% endif %}
+            </h1>
+           
+        </div>
+        
+        <a href="{% url 'cursos' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-semibold transition-all shadow-sm">
+            <svg class="w-5 h-5 text-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a la Tabla
+        </a>
+    </div>
+
+    <form method="POST" action="" class="space-y-8">
+        {% csrf_token %}
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-visible relative z-30">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3 rounded-t-3xl">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">01</span>
+                <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Datos Principales</h2>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                
+                <div class="flex flex-col md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Nombre del Curso</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.nombre }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Docente Asignado</label>
+                    <div class="bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10 cursor-pointer">
+                        {{ form.docente }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Mes del Curso</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.mes_curso }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Turno</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.turno }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Modalidad</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.modalidad }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 relative z-20">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3 rounded-t-3xl">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">02</span>
+                <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Cronograma Académico</h2>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div class="flex flex-col relative">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha de Inicio</label>
+                    <div class="absolute bottom-0 left-0 h-12 flex items-center pl-4 pointer-events-none z-10">
+                        <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <input type="text" name="fecha_inicio" value="{% if editando and curso.fecha_inicio %}{{ curso.fecha_inicio|date:'Y-m-d' }}{% endif %}" placeholder="SELECCIONE FECHA..." class="hidden">
+                </div>
+
+                <div class="flex flex-col relative">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Fecha de Finalización</label>
+                    <div class="absolute bottom-0 left-0 h-12 flex items-center pl-4 pointer-events-none z-10">
+                        <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                    <input type="text" name="fecha_finalizacion" value="{% if editando and curso.fecha_finalizacion %}{{ curso.fecha_finalizacion|date:'Y-m-d' }}{% endif %}" placeholder="SELECCIONE FECHA..." class="hidden">
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Horario de Clases</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.horario }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Días de la Semana</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.dias }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:col-span-2">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Duración Total</label>
+                    <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.duracion }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 relative z-10">
+            <div class="bg-slate-50 px-8 py-5 border-b-2 border-slate-200 flex items-center gap-3 rounded-t-3xl">
+                <span class="flex items-center justify-center w-6 h-6 rounded-full bg-black text-white text-[10px] font-black tracking-tighter">03</span>
+                <h2 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Control Financiero (Precios en Bs)</h2>
+            </div>
+            
+            <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-6">
+                <div class="flex flex-col">
+                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Inversión Normal (BS)</label>
+                    <div class="campo-precio bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-2xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-[#0071e3]/10">
+                        {{ form.inversion }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Precio Promoción (BS)</label>
+                    <div class="campo-precio bg-slate-50 border-2 border-slate-100 focus-within:border-emerald-500 focus-within:bg-white rounded-2xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-emerald-500/10">
+                        {{ form.promo }}
+                    </div>
+                </div>
+
+                <div class="flex flex-col">
+                    <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Precio Alumnos Antiguos (BS)</label>
+                    <div class="campo-precio bg-slate-50 border-2 border-slate-100 focus-within:border-indigo-500 focus-within:bg-white rounded-2xl transition-all shadow-sm focus-within:ring-4 focus-within:ring-indigo-500/10">
+                        {{ form.antiguos }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 px-8 py-6 rounded-3xl border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <div></div>
+
+            <div class="order-1 md:order-2 flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <a href="{% url 'cursos' %}" class="w-full md:w-auto text-center h-12 px-8 rounded-full text-xs font-bold uppercase tracking-widest text-gray-600 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center">
+                    Cancelar
+                </a>
+                <button type="submit" class="w-full md:w-auto h-12 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    {% if editando %}Guardar Cambios{% else %}Guardar Curso{% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========================================================
+        // 0. ESCUDO ABSOLUTO: ANULAR LA TECLA ENTER
+        // ========================================================
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'BUTTON') {
+                    e.preventDefault(); 
+                    return false;
+                }
+            }
+        });
+
+        // 1. BUSCADOR DE DOCENTES (TOM SELECT CLÁSICO)
+        let docenteSelect = document.querySelector('select[name="docente"]');
+        if (docenteSelect) {
+            new TomSelect(docenteSelect, {
+                create: false,
+                sortField: {field: "text", direction: "asc"},
+                placeholder: "BUSCAR DOCENTE...",
+                controlClass: 'ts-control custom-tomselect'
+            });
+        }
+
+        // 2. DICCIONARIOS DE SUGERENCIAS PARA EL AUTOCOMPLETADO
+        const sugerenciasMeses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"].map(t => ({text: t, value: t}));
+        const sugerenciasTurnos = ["MAÑANA", "TARDE", "NOCHE", "FIN DE SEMANA"].map(t => ({text: t, value: t}));
+        const sugerenciasModalidades = ["VIRTUAL", "PRESENCIAL"].map(t => ({text: t, value: t}));
+
+        // 3. FUNCIÓN CREADORA DEL AUTOCOMPLETADO MÁGICO
+        function activarAutocompletado(nombreCampo, opcionesSugeridas) {
+            let campo = document.querySelector(`input[name="${nombreCampo}"], select[name="${nombreCampo}"]`);
+            if (campo) {
+                new TomSelect(campo, {
+                    options: opcionesSugeridas,
+                    create: true,         
+                    createOnBlur: true,   
+                    maxItems: 1,
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: 'text',
+                    placeholder: "EMPIEZA A ESCRIBIR...",
+                    controlClass: 'ts-control custom-tomselect',
+                    onKeyDown: function(e) {
+                        if (e.key === 'Tab' && this.isOpen && this.activeOption) {
+                            e.preventDefault(); 
+                            this.addItem(this.activeOption.dataset.value); 
+                            this.close(); 
+                        }
+                    }
+                });
+            }
+        }
+
+        activarAutocompletado('mes_curso', sugerenciasMeses);
+        activarAutocompletado('turno', sugerenciasTurnos);
+        activarAutocompletado('modalidad', sugerenciasModalidades);
+
+        // --- NUEVO: LISTA DE FERIADOS BOLIVIA 2026 ---
+        const feriadosBolivia = [
+            "2026-01-01", // Año Nuevo
+            "2026-01-22", // Día del Estado Plurinacional
+            "2026-02-16", // Carnaval (Lunes)
+            "2026-02-17", // Carnaval (Martes)
+            "2026-04-03", // Viernes Santo
+            "2026-05-01", // Día del Trabajo
+            "2026-06-04", // Corpus Christi
+            "2026-06-22", // Año Nuevo Andino (Feriado trasladado al Lunes)
+            "2026-08-06", // Día de la Independencia
+            "2026-11-02", // Día de los Difuntos
+            "2026-12-25"  // Navidad
+        ];
+
+        // 4. CALENDARIOS NORMALES ACTUALIZADOS
+        flatpickr('input[name="fecha_inicio"], input[name="fecha_finalizacion"]', {
+            dateFormat: "Y-m-d", 
+            altInput: true,      
+            altFormat: "j \\de F, Y", 
+            locale: "es", 
+            placeholder: "SELECCIONE FECHA...",
+            altInputClass: "w-full h-12 bg-transparent pl-12 pr-4 text-sm font-bold text-black uppercase outline-none cursor-pointer",
+            disable: feriadosBolivia // <-- ¡ESTO BLOQUEA LOS DÍAS EN EL CALENDARIO!
+        });
+        
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========================================================
+        // 1. SELECTOR INTELIGENTE DE HORARIOS (El que ya teníamos)
+        // ========================================================
+        const horarioInput = document.querySelector('input[name="horario"]');
+        if (horarioInput) {
+            horarioInput.style.display = 'none';
+            
+            function crearListaHoras(valores) {
+                const sel = document.createElement('select');
+                sel.className = horarioInput.className + ' cursor-pointer text-center !w-auto !px-2 appearance-none bg-transparent outline-none';
+                sel.style.textAlignLast = 'center';
+                
+                valores.forEach(val => {
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = val;
+                    sel.appendChild(opt);
+                });
+                return sel;
+            }
+
+            let horas = [];
+            for(let i=0; i<=23; i++) horas.push(i < 10 ? '0'+i : i.toString());
+            let minutos = ['00', '30'];
+
+            const contenedorHoras = document.createElement('div');
+            contenedorHoras.className = 'flex items-center gap-1 w-full bg-white border border-gray-200 rounded-xl px-2 py-1 shadow-sm mt-1';
+            
+            const hInicio = crearListaHoras(horas);
+            const dosPuntos1 = document.createElement('span'); dosPuntos1.textContent = ':'; dosPuntos1.className="font-bold text-gray-400";
+            const mInicio = crearListaHoras(minutos);
+            
+            const separadorH = document.createElement('span');
+            separadorH.textContent = ' A ';
+            separadorH.className = 'text-[10px] font-black text-[#0071e3] uppercase tracking-widest mx-2';
+            
+            const hFin = crearListaHoras(horas);
+            const dosPuntos2 = document.createElement('span'); dosPuntos2.textContent = ':'; dosPuntos2.className="font-bold text-gray-400";
+            const mFin = crearListaHoras(minutos);
+
+            horarioInput.parentNode.insertBefore(contenedorHoras, horarioInput);
+            contenedorHoras.appendChild(hInicio);
+            contenedorHoras.appendChild(dosPuntos1);
+            contenedorHoras.appendChild(mInicio);
+            contenedorHoras.appendChild(separadorH);
+            contenedorHoras.appendChild(hFin);
+            contenedorHoras.appendChild(dosPuntos2);
+            contenedorHoras.appendChild(mFin);
+
+            if (horarioInput.value) {
+                const partes = horarioInput.value.toUpperCase().split(' A ');
+                if (partes.length === 2) {
+                    const inicio = partes[0].trim().split(':');
+                    const fin = partes[1].trim().split(':');
+                    if(inicio.length === 2) { hInicio.value = inicio[0]; mInicio.value = (inicio[1] === '30') ? '30' : '00'; }
+                    if(fin.length === 2) { hFin.value = fin[0]; mFin.value = (fin[1] === '30') ? '30' : '00'; }
+                }
+            } else {
+                hInicio.value = "00"; mInicio.value = "00";
+                hFin.value = "00"; mFin.value = "00";
+                horarioInput.value = "00:00 A 00:00";
+            }
+
+            function actualizarHorario() {
+                horarioInput.value = `${hInicio.value}:${mInicio.value} A ${hFin.value}:${mFin.value}`;
+            }
+
+            hInicio.addEventListener('change', actualizarHorario);
+            mInicio.addEventListener('change', actualizarHorario);
+            hFin.addEventListener('change', actualizarHorario);
+            mFin.addEventListener('change', actualizarHorario);
+        }
+
+        // ========================================================
+        // 2. NUEVO: SELECTOR INTELIGENTE DE DÍAS DE LA SEMANA
+        // ========================================================
+        const diasInput = document.querySelector('input[name="dias"]');
+        if (diasInput) {
+            diasInput.style.display = 'none';
+            
+            function crearListaDias() {
+                const sel = document.createElement('select');
+                sel.className = diasInput.className + ' cursor-pointer text-center !w-auto !px-2 appearance-none bg-transparent outline-none';
+                sel.style.textAlignLast = 'center';
+                
+                const listaDias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+                
+                listaDias.forEach(val => {
+                    let opt = document.createElement('option');
+                    opt.value = val;
+                    opt.text = val;
+                    sel.appendChild(opt);
+                });
+                return sel;
+            }
+
+            const contenedorDias = document.createElement('div');
+            contenedorDias.className = 'flex items-center gap-1 w-full bg-white border border-gray-200 rounded-xl px-2 py-1 shadow-sm mt-1';
+            
+            const dInicio = crearListaDias();
+            
+            const separadorDias = document.createElement('span');
+            separadorDias.textContent = ' A ';
+            separadorDias.className = 'text-[10px] font-black text-[#0071e3] uppercase tracking-widest mx-2';
+            
+            const dFin = crearListaDias();
+
+            diasInput.parentNode.insertBefore(contenedorDias, diasInput);
+            contenedorDias.appendChild(dInicio);
+            contenedorDias.appendChild(separadorDias);
+            contenedorDias.appendChild(dFin);
+
+            // 4. INTELIGENCIA DE CARGA
+            if (diasInput.value) {
+                if (diasInput.value.includes(' A ')) {
+                    // Si tiene un rango (Ej: LUNES A VIERNES)
+                    const partes = diasInput.value.toUpperCase().split(' A ');
+                    dInicio.value = partes[0].trim();
+                    dFin.value = partes[1].trim();
+                } else {
+                    // Si es un solo día (Ej: SÁBADO)
+                    dInicio.value = diasInput.value.trim();
+                    dFin.value = diasInput.value.trim();
+                }
+            } else {
+                dInicio.value = 'LUNES';
+                dFin.value = 'JUEVES';
+                diasInput.value = 'LUNES A VIERNES';
+            }
+
+            // 5. INTELIGENCIA DE GUARDADO AUTOMÁTICO
+            function actualizarDias() {
+                if (dInicio.value === dFin.value) {
+                    // Si elige el mismo día en ambos (SÁBADO A SÁBADO), la base de datos guarda solo "SÁBADO"
+                    diasInput.value = dInicio.value;
+                } else {
+                    // Si son distintos, guarda el rango "LUNES A VIERNES"
+                    diasInput.value = `${dInicio.value} A ${dFin.value}`;
+                }
+            }
+
+            dInicio.addEventListener('change', actualizarDias);
+            dFin.addEventListener('change', actualizarDias);
+        }
+        // ========================================================
+        // 3. NUEVO: SELECTOR INTELIGENTE DE DURACIÓN TOTAL Y PRECIOS
+        // ========================================================
+        const duracionInput = document.querySelector('input[name="duracion"]');
+        if (duracionInput) {
+            // 1. Ocultamos el campo original
+            duracionInput.style.display = 'none';
+
+            // 2. Creamos la nueva interfaz de números
+            const contenedorDuracion = document.createElement('div');
+            contenedorDuracion.className = 'flex flex-wrap items-center gap-2 w-full bg-white border border-gray-200 rounded-xl px-3 py-2 shadow-sm mt-1';
+
+            contenedorDuracion.innerHTML = `
+                <div class="flex items-center gap-1">
+                    <input type="number" id="num_sem" min="0" class="w-12 text-center font-black text-[#0071e3] bg-transparent outline-none placeholder-gray-300" placeholder="0">
+                    <span id="lbl_sem" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">SEMANAS,</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <input type="number" id="num_ses" min="0" class="w-12 text-center font-black text-[#0071e3] bg-transparent outline-none placeholder-gray-300" placeholder="0">
+                    <span id="lbl_ses" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">SESIONES,</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <input type="number" id="num_hrs" min="0" step="0.5" class="w-16 text-center font-black text-[#0071e3] bg-transparent outline-none placeholder-gray-300" placeholder="0">
+                    <span id="lbl_hrs" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">HORAS POR CLASE</span>
+                </div>
+            `;
+
+            duracionInput.parentNode.insertBefore(contenedorDuracion, duracionInput);
+
+            const numSem = document.getElementById('num_sem');
+            const lblSem = document.getElementById('lbl_sem');
+            const numSes = document.getElementById('num_ses');
+            const lblSes = document.getElementById('lbl_ses');
+            const numHrs = document.getElementById('num_hrs');
+            const lblHrs = document.getElementById('lbl_hrs');
+
+            // 3. Conectamos con los campos de finanzas
+            const inputInversion = document.querySelector('input[name="inversion"]');
+            const inputPromo = document.querySelector('input[name="promo"]');
+            const inputAntiguos = document.querySelector('input[name="antiguos"]');
+
+            // 4. Cargamos los datos si estamos editando
+            if (duracionInput.value) {
+                const txt = duracionInput.value.toUpperCase();
+                const matchSem = txt.match(/([\d\.]+)\s*SEMANA/);
+                const matchSes = txt.match(/([\d\.]+)\s*SESI/);
+                const matchHrs = txt.match(/([\d\.]+)\s*HORA/);
+
+                if (matchSem) numSem.value = matchSem[1];
+                if (matchSes) numSes.value = matchSes[1];
+                if (matchHrs) numHrs.value = matchHrs[1];
+            }
+
+            // 5. Motor principal: Ajusta textos y precios
+            function actualizarDuracion(evento) {
+                let valSem = parseFloat(numSem.value || 0);
+                let valSes = parseFloat(numSes.value || 0);
+                let valHrs = parseFloat(numHrs.value || 0);
+
+                let txtSem = valSem === 1 ? "SEMANA" : "SEMANAS";
+                let txtSes = valSes === 1 ? "SESIÓN" : "SESIONES";
+                let txtHrs = valHrs === 1 ? "HORA" : "HORAS";
+
+                lblSem.textContent = txtSem + ",";
+                lblSes.textContent = txtSes + ",";
+                lblHrs.textContent = txtHrs + " POR CLASE";
+
+                // Unimos los valores para la base de datos
+                if (valSem > 0 || valSes > 0 || valHrs > 0) {
+                    let hrsString = valHrs.toString().replace('.', ',');
+                    duracionInput.value = `${valSem} ${txtSem}, ${valSes} ${txtSes}, ${hrsString} ${txtHrs} POR CLASE`;
+                } else {
+                    duracionInput.value = "";
+                }
+
+                // =======================================================
+                // 🚀 INTELIGENCIA ARTIFICIAL: AUTO-COMPLETADO DE PRECIOS
+                // =======================================================
+                if (evento !== null && inputInversion && inputPromo && inputAntiguos) {
+                    
+                    // Si el usuario aún no ha escrito las horas, asumimos 1 por defecto para calcular rápido
+                    let horasMultiplicador = valHrs > 0 ? valHrs : 1; 
+                    
+                    // Calculamos la carga horaria total del curso (Ej: 8 sesiones * 1.5 hrs = 12 horas)
+                    let totalHorasClase = valSes * horasMultiplicador;
+                    
+                    if (totalHorasClase === 12) {
+                        inputInversion.value = "159";
+                        inputPromo.value = "260";
+                        inputAntiguos.value = "130";
+                    } 
+                    else if (totalHorasClase === 8) {
+                        inputInversion.value = "130";
+                        inputPromo.value = "220";
+                        inputAntiguos.value = "110";
+                    }
+                }
+            }
+
+            // Disparadores
+            numSem.addEventListener('input', actualizarDuracion);
+            numSes.addEventListener('input', actualizarDuracion);
+            numHrs.addEventListener('input', actualizarDuracion);
+            
+            // Ejecución inicial segura
+            actualizarDuracion(null); 
+        }
+    });
+</script>
+
+<style>
+    /* 1. Estilos base de los inputs NATIVOS generados por Django */
+    .campo-django > input, 
+    .campo-django > select, 
+    .campo-django > textarea {
+        width: 100%;
+        height: 3rem; /* 48px */
+        background-color: transparent;
+        border: none;
+        outline: none;
+        color: #000; 
+        font-size: 0.875rem; 
+        font-weight: 700; 
+        padding: 0 1rem; 
+    }
+
+    /* Convertir a mayúsculas */
+    .campo-django > input[type="text"],
+    .campo-django > select {
+        text-transform: uppercase;
+    }
+
+    /* 2. ESTILO PARA LA SECCIÓN DE PRECIOS */
+    .campo-precio > input {
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        font-size: 1.5rem !important;
+        font-weight: 900 !important;
+        color: #000; 
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    /* Limpiar bordes por defecto */
+    .campo-django input:focus, .campo-precio input:focus,
+    .campo-django select:focus, .campo-precio select:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* 3. ARREGLO DEL SALTO DE RENGLÓN EN TOM-SELECT */
+    .ts-control.custom-tomselect {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0.7rem 1rem !important;
+        min-height: 48px !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .ts-control.custom-tomselect .item {
+        font-weight: 700 !important;
+        color: #000 !important;
+        text-transform: uppercase !important;
+        font-size: 0.875rem !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        white-space: nowrap !important;
+    }
+
+    .ts-control.custom-tomselect > input {
+        width: auto !important;
+        min-width: 10px !important;
+        flex-grow: 1 !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        padding: 0 !important;
+        margin-left: 0.25rem !important;
+    }
+
+    .ts-dropdown {
+        border-radius: 0.75rem !important;
+        border: 2px solid #e2e8f0 !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        font-weight: 700 !important;
+        font-size: 0.875rem !important;
+        text-transform: uppercase !important;
+        z-index: 9999 !important;
+    }
+    
+    .ts-dropdown .active {
+        background-color: #f1f5f9 !important;
+        color: #000 !important;
+    }
+    
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeInDown 0.4s ease-out forwards; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500); 
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO 2 FILAS ALINEADO)            -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Flujo de Caja.</h1>
+        </div>
+        
+        <!-- DERECHA: CONTROLES EN 2 FILAS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA SUPERIOR: Exportar y Saldos -->
+            <div class="flex flex-wrap items-center justify-end gap-4 w-full">
+                
+                <button id="btn-ver-saldos" type="button" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    Saldos
+                </button>
+
+                <a href="{% url 'exportar_excel_caja' %}?rango_fechas={{ rango_fechas }}" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Exportar Excel
+                </a>
+
+            </div>
+
+            <!-- FILA INFERIOR: Buscador, Editar y Nuevo Registro -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- Buscador (Más largo: w-full sm:w-auto md:w-[26rem]) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    <div class="relative w-full h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" name="rango_fechas" value="{{ rango_fechas }}" placeholder="BUSCAR POR FECHA..." id="calendario_caja" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-black placeholder-gray-400 cursor-pointer hidden">
+                    </div>
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">BUSCAR</button>
+                    {% if rango_fechas %}
+                        <a href="{% url 'flujo_caja' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    {% endif %}
+                </form>
+
+                <!-- Botón Edición (Controlado por tu CSS y JS que hicimos antes) -->
+                <button id="btn-toggle-edicion" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0"></button>
+
+                <!-- Botón Nuevo (Mismo tamaño: h-11 px-6) -->
+                <a href="{% url 'crear_movimiento' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Nuevo Registro
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm mb-10">
+        <div class="overflow-x-auto max-h-[600px] scrollbar-delgada relative" id="contenedor-tabla-caja">
+            
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Detalle de Operación</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Cuenta Afectada</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Entradas</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Salidas</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Saldo</th>
+                        <th class="col-edicion hidden px-4 py-3 text-center text-[9px] font-black text-[#0071e3] uppercase tracking-widest whitespace-nowrap bg-slate-100 w-28">Acciones</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for mov in movimientos %}
+                    
+                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer">
+                        
+                        <td class="px-4 py-3 text-left text-gray-500 group-hover:text-white transition-colors font-bold text-[10px] uppercase whitespace-nowrap">
+                            {{ mov.fecha|date:"l d \d\e F, Y" }}
+                        </td>
+                        
+                        <td class="px-4 py-3 text-left">
+                            <div class="font-bold text-black group-hover:text-white transition-colors text-xs uppercase">{{ mov.detalle }}</div>
+                        </td>
+                        
+                        <td class="px-4 py-3 text-center whitespace-nowrap">
+                            <span class="inline-block px-3 py-1 rounded-md bg-gray-100 group-hover:bg-white/20 text-gray-600 group-hover:text-white transition-colors font-bold text-[9px] tracking-wider uppercase">
+                                {{ mov.cuenta.nombre }}
+                            </span>
+                        </td>
+                        
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                            <span class="font-black text-xs transition-colors {% if mov.tipo == 'ENTRADA' %}text-emerald-600 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
+                                {% if mov.tipo == 'ENTRADA' %}{{ mov.monto }}{% else %}-{% endif %}
+                            </span>
+                        </td>
+            
+                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                            <span class="font-black text-xs transition-colors {% if mov.tipo == 'SALIDA' %}text-red-500 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
+                                {% if mov.tipo == 'SALIDA' %}{{ mov.monto }}{% else %}-{% endif %}
+                            </span>
+                        </td>
+
+                        <td class="px-5 py-3 text-right font-black text-[#0071e3] group-hover:text-blue-100 transition-colors text-xs whitespace-nowrap">
+                            Bs. {{ mov.saldo_calculado }}
+                        </td>
+            
+                        <td class="col-edicion hidden px-4 py-3 text-center whitespace-nowrap bg-gray-50/50 group-hover:bg-transparent transition-colors">
+                            <div class="flex items-center justify-center gap-2">
+                                
+                                <a href="{% url 'editar_movimiento' mov.id %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all shadow-sm" title="Editar Registro">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </a>
+
+                                <form method="POST" action="{% url 'editar_movimiento' mov.id %}" class="inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="eliminar" value="1">
+                                    <button type="submit" onclick="return confirm('¿Estás absolutamente seguro de eliminar este registro contable?');" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white transition-all shadow-sm" title="Eliminar Registro">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="py-24 text-center group">
+                            <h3 class="text-sm font-bold text-gray-400 group-hover:text-gray-400 transition-colors uppercase tracking-widest">No hay movimientos registrados en este periodo</h3>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
+                    <tr>
+                        <td colspan="3" class="px-4 py-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
+                            TOTALES:
+                        </td>
+                        
+                        <td class="px-4 py-4 text-right whitespace-nowrap">
+                            
+                            <span class="text-sm font-black text-emerald-600">Bs. {{ total_entradas }}</span>
+                        </td>
+                        
+                        <td class="px-4 py-4 text-right whitespace-nowrap">
+                            
+                            <span class="text-sm font-black text-red-500">Bs. {{ total_salidas }}</span>
+                        </td>
+
+                        <td class="px-5 py-4 text-right whitespace-nowrap">
+                            
+                            <span class="text-sm font-black text-[#0071e3]">Bs. {{ saldo_total }}</span>
+                        </td>
+
+                        <td class="col-edicion hidden px-4 py-4 bg-slate-100 border-l border-slate-200"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modal-saldos" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-md cursor-pointer" id="modal-backdrop"></div>
+    <div class="relative bg-[#f5f5f7] w-11/12 max-w-[85rem] rounded-[2rem] shadow-2xl p-6 md:p-10 transform scale-95 transition-transform duration-300" id="modal-content">
+        
+        <button id="btn-cerrar-saldos" class="absolute top-6 right-6 text-gray-500 hover:text-black transition-colors bg-white hover:bg-gray-100 rounded-full p-2 border border-gray-200 shadow-sm">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div class="mb-8 text-center sm:text-left">
+            <h2 class="text-3xl font-bold text-black tracking-tight">Estado de Cuentas.</h2>
+           
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+            <div class="lg:col-span-1 bg-white rounded-3xl p-6 border border-gray-200 shadow-sm flex flex-col">
+                <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Catálogo
+                </h3>
+                <div class="space-y-2 max-h-[300px] overflow-y-auto scrollbar-delgada pr-2">
+                    {% for cuenta in cuentas_caja %}
+                    <div class="flex gap-2 items-center p-2 hover:bg-violet-50 rounded-xl transition-colors">
+                        <span class="text-[9px] font-black text-[#0071e3] bg-blue-50 px-2 py-1 rounded-lg border border-blue-100 min-w-[30px] text-center">{{ cuenta.codigo }}</span>
+                        <span class="text-[10px] font-bold text-gray-800 uppercase">{{ cuenta.nombre }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm relative overflow-hidden group">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        Cuentas Operativas
+                    </h3>
+                </div>
+                <div class="space-y-1 mb-6">
+                    {% for cuenta in cuentas_operativas %}
+                    <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ cuenta.nombre }}</span>
+                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
+                    <span class="text-lg font-bold text-black">Bs. {{ total_operativo }}</span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 border border-gray-200 shadow-sm relative overflow-hidden group">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-[11px] font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        Fondo de Ahorros
+                    </h3>
+                </div>
+                <div class="space-y-1 mb-6">
+                    {% for cuenta in cuentas_ahorro %}
+                    <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ cuenta.nombre }}</span>
+                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
+                    <span class="text-lg font-bold text-black">Bs. {{ total_ahorro }}</span>
+                </div>
+            </div>
+
+            <div class="bg-black rounded-3xl p-8 shadow-2xl flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-2 mb-8">
+                        <div class="w-2 h-2 rounded-full bg-[#0071e3] animate-pulse"></div>
+                        <h3 class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Saldo Total:</h3>
+                    </div>
+                    
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                            <span class="text-xs font-medium text-gray-400">Suma Operativa</span>
+                            <span class="text-sm font-bold text-white">Bs. {{ total_operativo }}</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-gray-800 pb-4">
+                            <span class="text-xs font-medium text-gray-400">Suma Ahorro</span>
+                            <span class="text-sm font-bold text-white">Bs. {{ total_ahorro }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 bg-[#1c1c1e] p-6 rounded-2xl border border-gray-800 text-center">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Capital Absoluto (Caja Fuerte)</p>
+                    <h3 class="text-1xl md:text-2xl font-bold text-white tracking-tight">Bs. {{ total_absoluto }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmarEdicion(url) {
+        Swal.fire({
+            title: '¿Editar este registro?',
+            text: "Accederás a la ventana para modificar los datos contables.",
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#0071e3',
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Sí, editar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'rounded-[2rem] shadow-2xl',
+                title: 'text-black font-bold',
+                confirmButton: 'rounded-full font-bold px-6',
+                cancelButton: 'rounded-full font-bold px-6'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+
+    function confirmarEliminacion(formulario) {
+        Swal.fire({
+            title: '¿Eliminar registro?',
+            text: "¡El dinero se recalculará automáticamente de tu caja fuerte!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ff3b30', 
+            cancelButtonColor: '#9ca3af',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'rounded-[2rem] shadow-2xl',
+                title: 'text-black font-bold',
+                confirmButton: 'rounded-full font-bold px-6',
+                cancelButton: 'rounded-full font-bold px-6'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                formulario.submit();
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        flatpickr("#calendario_caja", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            locale: "es",
+            allowInput: true,
+            altInput: true,
+            altFormat: "d M Y",
+            altInputClass: "w-full h-full pl-10 pr-4 bg-transparent outline-none text-sm font-semibold text-black placeholder-gray-400 cursor-pointer"
+        });
+
+        const inputCalendario = document.querySelector('.flatpickr-input[type="text"]');
+        if (inputCalendario) {
+            inputCalendario.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); 
+                    document.querySelector('form').submit(); 
+                }
+            });
+        }
+
+        const contenedorTabla = document.getElementById('contenedor-tabla-caja');
+        if (contenedorTabla) {
+            contenedorTabla.scrollTop = contenedorTabla.scrollHeight;
+        }
+
+        const modalSaldos = document.getElementById('modal-saldos');
+        const modalContent = document.getElementById('modal-content');
+        const btnVerSaldos = document.getElementById('btn-ver-saldos');
+        const btnCerrarSaldos = document.getElementById('btn-cerrar-saldos');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+
+        function openModal() {
+            modalSaldos.classList.remove('hidden');
+            setTimeout(() => {
+                modalSaldos.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalSaldos.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modalSaldos.classList.add('hidden');
+            }, 300);
+        }
+
+        btnVerSaldos.addEventListener('click', openModal);
+        btnCerrarSaldos.addEventListener('click', closeModal);
+        modalBackdrop.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && !modalSaldos.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+
+        const btnEdicion = document.getElementById('btn-toggle-edicion');
+        const colsEdicion = document.querySelectorAll('.col-edicion');
+        
+        let modoEdicion = localStorage.getItem('modoEdicionCaja') === 'true';
+        
+        function aplicarModoEdicion() {
+            colsEdicion.forEach(col => {
+                if (modoEdicion) { col.classList.remove('hidden'); } else { col.classList.add('hidden'); }
+            });
+            
+            if (modoEdicion) {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-[#0071e3] text-white rounded-full shadow-md transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="text-center leading-tight"><b>Edición Activa</b></span>
+                `;
+            } else {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-white text-gray-600 border border-gray-300 hover:bg-gray-50 rounded-full shadow-sm transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="text-center leading-tight">Editar</span>
+                `;
+            }
+        }
+
+        aplicarModoEdicion();
+        
+        btnEdicion.addEventListener('click', function(e) {
+            e.preventDefault();
+            modoEdicion = !modoEdicion; 
+            localStorage.setItem('modoEdicionCaja', modoEdicion); 
+            aplicarModoEdicion(); 
+            if (modoEdicion && contenedorTabla) {
+                setTimeout(() => {
+                    contenedorTabla.scrollTo({ left: contenedorTabla.scrollWidth, behavior: 'smooth' });
+                }, 100);
+            }
+        });
+    });
+</script>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    #btn-toggle-edicion {
+        height: 2.75rem !important;
+        font-size: 0.625rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        border-radius: 9999px !important;
+    }
+</style>
+
+{% endblock %}

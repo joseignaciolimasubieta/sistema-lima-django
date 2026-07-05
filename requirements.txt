@@ -1,0 +1,8 @@
+Django==4.2.30
+dj-database-url==3.0.1
+psycopg2-binary==2.9.12
+gunicorn==23.0.0
+whitenoise==6.11.0
+reportlab
+openpyxl
+xhtml2pdf

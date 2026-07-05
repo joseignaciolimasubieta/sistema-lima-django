@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/style.css">
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO 2 FILAS ALINEADO)            -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Planilla Salarial.</h1>
+        </div>
+
+        <!-- DERECHA: CONTROLES EN 2 FILAS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA SUPERIOR: Boletas y PDF Oficial -->
+            <div class="flex flex-wrap items-center justify-end gap-4 w-full">
+                <!-- Botón de Anticipos -->
+                <a href="{% url 'lista_anticipos' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                    Anticipos
+                </a>
+                <a href="{% url 'buscar_boletas' %}" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    Boletas
+                </a>
+                
+                <a href="{% url 'descargar_pdf_planilla' %}?mes_buscar={{ mes_buscar }}&buscar={{ buscar }}" target="_blank" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    PDF Oficial
+                </a>
+            </div>
+
+            <!-- FILA INFERIOR: Buscador, Editar y Registrar Pago -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- Buscador (Unificado en una sola pastilla) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- Búsqueda por Texto -->
+                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="buscar" value="{{ buscar }}" placeholder="NOMBRE O C.I..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+
+                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- Búsqueda por Fecha (Mes) -->
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" id="mes_buscar" name="mes_buscar" value="{{ mes_buscar }}" placeholder="PERIODO..." class="hidden">
+                    </div>
+
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">BUSCAR</button>
+                    
+                    {% if buscar or mes_buscar %}
+                        <a href="{% url 'planillas' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    {% endif %}
+                </form>
+
+                <!-- Botón de Edición -->
+                <button id="btn-toggle-edicion" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0"></button>
+
+                <!-- Botón Nuevo -->
+                 
+                <a href="{% url 'crear_pago' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Registrar Pago
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+        
+        <div class="p-8 pb-6 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-6">
+                <div class="space-y-1">
+                    <p>EMPRESA: <span class="font-bold text-black ml-1">{{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}</span></p>
+                    <p>NIT: <span class="font-bold text-black ml-1">{{ empresa.nit|default:'11544144015' }}</span></p>
+                    <p>CAJA DE SALUD: <span class="font-bold text-black ml-1">{{ empresa.nro_caja_salud|default:'111-7-9133' }}</span></p>
+                </div>
+                <div class="md:text-right space-y-1">
+                    <p>MINISTERIO DE TRABAJO: <span class="font-bold text-black ml-1">{{ empresa.nro_ministerio|default:'1234561702-01' }}</span></p>
+                    <p>PERIODO: <span class="font-bold text-[#0071e3] ml-1">{% if mes_literal_buscar %}{{ mes_literal_buscar }}{% else %}HISTÓRICO GENERAL{% endif %}</span></p>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <h2 class="text-xl md:text-2xl font-black text-black tracking-widest uppercase">PLANILLA DE SUELDOS Y SALARIOS</h2>
+                <p class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest">(Expresado en Bolivianos)</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto scrollbar-delgada">
+            <table class="w-full text-left whitespace-nowrap">
+                <thead>
+                    <tr class="bg-white border-b border-gray-200">
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Nº</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">C.I. / Doc.</th>
+                        <th class="py-4 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Apellidos y Nombres</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Nacimiento</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Sexo</th>
+                        <th class="py-4 px-4 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Cargo</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Ingreso</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-bold text-black uppercase tracking-widest">Haber Básico</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Hrs/Día</th>
+                        <th class="py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest border-r border-gray-100">Días/Mes</th>
+                        
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Haber Ganado</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Bono Antig.</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Ventas</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Subsidio</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Horas Extras</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Dominical</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-emerald-600 uppercase tracking-widest bg-emerald-50/30">Otros Bonos</th>
+                        <th class="py-4 px-5 text-right text-[10px] font-bold text-black uppercase tracking-widest border-r border-gray-100 bg-emerald-50/50">Total Ingresos</th>
+                        
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-red-500 uppercase tracking-widest bg-red-50/30">Gestora Pública</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-red-500 uppercase tracking-widest bg-red-50/30">RC-IVA</th>
+                        <th class="py-4 px-4 text-right text-[10px] font-semibold text-red-500 uppercase tracking-widest bg-red-50/30">Descuentos</th>
+                        <th class="py-4 px-5 text-right text-[10px] font-bold text-black uppercase tracking-widest border-r border-gray-100 bg-red-50/50">Total Egresos</th>
+                        
+                        <th class="py-4 px-6 text-right text-[11px] font-bold text-[#0071e3] uppercase tracking-widest bg-blue-50/30">Líquido Pagable</th>
+                        
+                        <th class="col-acciones hidden py-4 px-4 text-center text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Acciones</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs text-gray-800 bg-white">
+                    {% for pago in pagos %}
+                    
+                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group cursor-pointer">
+                        
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-400 group-hover:text-blue-200 transition-colors">{{ forloop.counter }}</td>
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-600 group-hover:text-white transition-colors tracking-tight">{{ pago.empleado.ci }}</td>
+                        <td class="py-3.5 px-4 font-semibold text-black group-hover:text-white transition-colors tracking-tight">
+                            {{ pago.empleado.nombre_completo }}
+                            <div class="text-[9px] text-gray-400 group-hover:text-blue-200 transition-colors font-medium uppercase mt-1">Periodo: {{ pago.mes_literal }}</div>
+                        </td>
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-500 group-hover:text-blue-100 transition-colors">{% if pago.empleado.fecha_nacimiento %}{{ pago.empleado.fecha_nacimiento|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                        <td class="py-3.5 px-4 text-center font-semibold text-gray-600 group-hover:text-white transition-colors">{% if pago.empleado.sexo %}{{ pago.empleado.sexo }}{% else %}M{% endif %}</td>
+                        <td class="py-3.5 px-4 text-[11px] text-gray-600 group-hover:text-white transition-colors font-medium">{{ pago.empleado.cargo|title }}</td>
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-500 group-hover:text-blue-100 transition-colors">{% if pago.empleado.fecha_ingreso %}{{ pago.empleado.fecha_ingreso|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                        
+                        <td class="py-3.5 px-4 text-right font-bold text-black group-hover:text-white transition-colors">{{ pago.salario_base }}</td>
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-400 group-hover:text-blue-200 transition-colors">8</td>
+                        <td class="py-3.5 px-4 text-center font-medium text-gray-400 group-hover:text-blue-200 transition-colors border-r border-gray-100 group-hover:border-white/20">30</td>
+                        
+                        <td class="py-3.5 px-4 text-right font-semibold text-emerald-600 group-hover:text-white transition-colors bg-emerald-50/10 group-hover:bg-transparent">{{ pago.salario_base }}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-emerald-600 group-hover:text-white transition-colors bg-emerald-50/10 group-hover:bg-transparent">{% if pago.bono_antiguedad %}{{ pago.bono_antiguedad }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-emerald-600 group-hover:text-white transition-colors bg-emerald-50/10 group-hover:bg-transparent">{% if pago.bono_ventas %}{{ pago.bono_ventas }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-gray-300 group-hover:text-blue-200 transition-colors bg-emerald-50/10 group-hover:bg-transparent">0.00</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-gray-300 group-hover:text-blue-200 transition-colors bg-emerald-50/10 group-hover:bg-transparent">0.00</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-gray-300 group-hover:text-blue-200 transition-colors bg-emerald-50/10 group-hover:bg-transparent">0.00</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-emerald-600 group-hover:text-white transition-colors bg-emerald-50/10 group-hover:bg-transparent">
+                            {% if pago.total_otros_bonos > 0 %}{{ pago.total_otros_bonos }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}
+                        </td>
+                        <td class="py-3.5 px-5 text-right font-bold text-black group-hover:text-white transition-colors border-r border-gray-100 group-hover:border-white/20 bg-emerald-50/50 group-hover:bg-transparent">{{ pago.total_ganado }}</td>
+                        
+                        <td class="py-3.5 px-4 text-right font-semibold text-red-500 group-hover:text-white transition-colors bg-red-50/10 group-hover:bg-transparent">{% if pago.aportes_afp %}{{ pago.aportes_afp }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-red-500 group-hover:text-white transition-colors bg-red-50/10 group-hover:bg-transparent">{% if pago.rc_iva %}{{ pago.rc_iva }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}</td>
+                        <td class="py-3.5 px-4 text-right font-semibold text-red-500 group-hover:text-white transition-colors bg-red-50/10 group-hover:bg-transparent">
+                            {% if pago.total_otros_descuentos > 0 %}{{ pago.total_otros_descuentos }}{% else %}<span class="text-gray-300 group-hover:text-blue-200">0.00</span>{% endif %}
+                        </td>
+                        <td class="py-3.5 px-5 text-right font-bold text-black group-hover:text-white transition-colors border-r border-gray-100 group-hover:border-white/20 bg-red-50/50 group-hover:bg-transparent">{{ pago.total_descuentos }}</td>
+                        
+                        <td class="py-3.5 px-6 text-right font-bold text-[#0071e3] group-hover:text-white transition-colors text-sm bg-blue-50/10 group-hover:bg-transparent">Bs. {{ pago.liquido_pagable }}</td>
+                        
+                        <td class="col-acciones hidden py-3.5 px-4 text-center bg-gray-50/50 group-hover:bg-transparent transition-colors border-l border-transparent group-hover:border-white/20">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'editar_pago' pago.id %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all shadow-sm" title="Editar Registro">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </a>
+                                <a href="{% url 'eliminar_pago' pago.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar este registro de sueldo?');" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-red-500 hover:!text-white transition-all shadow-sm" title="Eliminar Registro">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="25" class="py-24 text-center">
+                            <p class="text-gray-400 font-semibold text-sm">No se encontraron registros de pago con esos criterios.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+                <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
+                    <tr>
+                        <td colspan="7" class="py-5 px-4 text-right uppercase tracking-widest text-black-400 font-medium">TOTALES:</td>
+                        
+                        <td class="py-5 px-4 text-right text-black font-bold">{{ t_salario_base }}</td>
+                        <td class="py-5 px-4 text-center text-black-600">-</td>
+                        <td class="py-5 px-4 text-center text-black-600 border-r border-black-800">-</td>
+                        
+                        <td class="py-5 px-4 text-right font-bold text-emerald-600">{{ t_salario_base }}</td>
+                        <td class="py-5 px-4 text-right font-bold text-emerald-600">{{ t_bono_antiguedad }}</td>
+                        <td class="py-5 px-4 text-right font-bold text-emerald-600">{{ t_bono_ventas }}</td>
+                        <td class="py-5 px-4 text-right text-gray-400">0.00</td>
+                        <td class="py-5 px-4 text-right text-gray-400">0.00</td>
+                        <td class="py-5 px-4 text-right text-gray-400">0.00</td>
+                        <td class="py-5 px-4 text-right font-bold text-emerald-600">{{ t_otros_bonos_combinados }}</td>
+                        <td class="py-5 px-5 text-right font-black text-black text-[12px] border-r border-gray-200 bg-emerald-50/50">Bs. {{ t_total_ganado }}</td>
+                        
+                        <td class="py-5 px-4 text-right font-bold text-red-500">{{ t_aportes_afp }}</td>
+                        <td class="py-5 px-4 text-right font-bold text-red-500">{{ t_rc_iva }}</td>
+                        <td class="py-5 px-4 text-right font-bold text-red-500">{{ t_otros_descuentos_combinados }}</td>
+                        <td class="py-5 px-5 text-right font-black text-black text-[12px] border-r border-gray-200 bg-red-50/50">Bs. {{ t_total_descuentos }}</td>
+                        
+                        <td class="py-5 px-6 text-right font-black text-[#0071e3] text-[15px] bg-blue-50/30">Bs. {{ t_liquido_pagable }}</td>
+                        
+                        <td class="col-acciones hidden py-5 px-4"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { height: 8px; width: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: #ffffff; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid #ffffff; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    #btn-toggle-edicion {
+        height: 2.75rem !important;
+        font-size: 0.625rem !important;
+        padding-left: 1.5rem !important;
+        padding-right: 1.5rem !important;
+        border-radius: 9999px !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#mes_buscar", {
+            locale: "es",
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                })
+            ],
+            altInput: true,
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
+            placeholder: "PERIODO..."
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const imprimirId = urlParams.get('imprimir');
+        
+        if (imprimirId) {
+            const urlBoleta = "{% url 'imprimir_boleta' 999999 %}".replace('999999', imprimirId);
+            window.open(urlBoleta, '_blank');
+            window.history.replaceState(null, null, window.location.pathname);
+        }
+
+        const btnEdicion = document.getElementById('btn-toggle-edicion');
+        const colsEdicion = document.querySelectorAll('.col-acciones'); 
+        const contenedorTabla = document.querySelector('.scrollbar-delgada');
+        
+        let modoEdicion = localStorage.getItem('modoEdicionPlanillas') === 'true';
+        
+        function aplicarModoEdicion() {
+            colsEdicion.forEach(col => {
+                if (modoEdicion) { col.classList.remove('hidden'); } else { col.classList.add('hidden'); }
+            });
+            
+            if (modoEdicion) {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-[#0071e3] text-white rounded-full shadow-md transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="text-center leading-tight"><b>Edición Activa</b></span>
+                `;
+            } else {
+                btnEdicion.className = "h-14 sm:h-auto sm:min-h-[10px] px-8 bg-white text-gray-600 border border-gray-300 hover:bg-gray-50 rounded-full shadow-sm transition-all text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="text-center leading-tight">Editar</span>
+                `;
+            }
+        }
+
+        aplicarModoEdicion();
+        
+        btnEdicion.addEventListener('click', function(e) {
+            e.preventDefault();
+            modoEdicion = !modoEdicion; 
+            localStorage.setItem('modoEdicionPlanillas', modoEdicion); 
+            aplicarModoEdicion(); 
+            if (modoEdicion && contenedorTabla) {
+                setTimeout(() => {
+                    contenedorTabla.scrollTo({ left: contenedorTabla.scrollWidth, behavior: 'smooth' });
+                }, 100);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

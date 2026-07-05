@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="{% if message.tags == 'error' or 'eliminado' in message.message %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            {% if message.tags == 'error' or 'eliminado' in message.message %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            {% else %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            {% endif %}
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/style.css">
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Consultora.</h1>
+        </div>
+
+        <!-- DERECHA: CONTROLES AGRUPADOS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA ÚNICA: Buscador, Gestión y Registro -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- Buscador de Texto (NIT o Razón Social) -->
+                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="buscar_cliente" value="{{ buscar_cliente }}" placeholder="RAZÓN SOCIAL O NIT..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+
+                    <!-- Divisor sutil -->
+                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- Buscador de Mes / Periodo -->
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" id="mes_buscar" name="mes_buscar" value="{{ mes_buscar }}" class="hidden" placeholder="PERIODO...">
+                    </div>
+                    
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
+                        BUSCAR
+                    </button>
+                    
+                    {% if mes_buscar or buscar_cliente %}
+                    <a href="{% url 'consultora' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
+                </form>
+
+                <!-- Botón: Gestión de Clientes -->
+                <a href="{% url 'crear_cliente' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Gestión de Clientes
+                </a>
+                
+                <!-- Botón: Registrar Servicio -->
+                <a href="{% url 'crear_servicio' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Registrar Servicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+        <div class="overflow-x-auto scrollbar-delgada">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-white border-b-2 border-gray-200">
+                    <tr>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest min-w-[220px]">Contribuyente / Contacto</th>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest min-w-[200px]">Detalle del Servicio</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest min-w-[150px]">Factura</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Método de Pago</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Importe</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Contador(a) / Comisión</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs text-gray-800 bg-white">
+                    {% for s in servicios %}
+                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group">
+                        
+                        <td class="py-4 px-4 text-center font-bold text-black group-hover:text-white transition-colors whitespace-nowrap relative">
+                            {{ s.fecha|date:"d M, Y" }}
+                        </td>
+                        
+                        <td class="py-4 px-4 text-left">
+                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight leading-tight uppercase">{{ s.cliente }}</div>
+                            <div class="text-[10px] text-gray-500 group-hover:text-blue-100 transition-colors font-medium mt-1 tracking-wider uppercase">
+                                NIT: {{ s.cliente.nit|default:"-" }} | CEL: {{ s.cliente.celular|default:"-" }}
+                            </div>
+                        </td>
+                        
+                        <td class="py-4 px-4 text-left whitespace-nowrap">
+                            <div class="text-[#0071e3] group-hover:text-blue-200 transition-colors font-black text-xs uppercase mb-1.5">{{ s.servicio }}</div>
+                            <div class="text-[10px] text-gray-500 group-hover:text-blue-100 transition-colors font-semibold uppercase mb-0.5">
+                                PERIODO: <span class="periodo-formatear">{{ s.periodo|default:"-" }}</span>
+                            </div>
+                        </td>
+
+                        <td class="py-4 px-4 text-center whitespace-nowrap">
+                            <div class="text-black group-hover:text-white transition-colors font-bold text-[11px] uppercase mb-1.5">FACTURA: {{ s.factura|default:"-" }}</div>
+                            
+                            <div class="flex justify-center mt-1">
+                                {% if s.archivo_factura %}
+                                <a href="{{ s.archivo_factura.url }}" target="_blank" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#0071e3]/10 group-hover:bg-white/20 text-[#0071e3] group-hover:text-white hover:!bg-white hover:!text-[#0071e3] rounded-full transition-all text-[9px] font-black tracking-widest border border-[#0071e3]/20 group-hover:border-transparent shadow-sm group/btn" title="Ver Respaldo en PDF">
+                                    <svg class="w-3.5 h-3.5 group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                    VER PDF
+                                </a>
+                                {% else %}
+                                <span class="inline-flex items-center justify-center px-3 py-1.5 bg-gray-50 group-hover:bg-white/10 text-gray-400 group-hover:text-white/60 rounded-full text-[9px] font-bold tracking-widest border border-gray-100 group-hover:border-transparent transition-colors">
+                                    SIN ADJUNTO
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td class="py-4 px-4 text-center whitespace-nowrap">
+                            <div class="text-xs font-bold text-black group-hover:text-white transition-colors uppercase mb-0.5">{{ s.forma_pago|default:"-" }}</div>
+                            <div class="text-[10px] text-[#0071e3] group-hover:text-blue-200 transition-colors font-semibold uppercase">{{ s.banco|default:"-" }}</div>
+                        </td>
+                        
+                        <td class="py-6 px-4 text-center font-bold text-black group-hover:text-white transition-colors whitespace-nowrap relative">
+                            Bs. {{ s.importe }}
+                        </td>
+                        
+                        <td class="py-4 px-4 text-center whitespace-nowrap">
+                            <div class="text-xs font-bold text-black group-hover:text-white transition-colors uppercase mb-1">{{ s.contador|default:"-" }}</div>
+                            <div class="text-[10px] font-black text-amber-600 group-hover:text-blue-200 transition-colors uppercase tracking-widest">
+                                COMISIÓN: BS. {{ s.comision|default:"0.00" }}
+                            </div>
+                        </td>
+                        
+                        <td class="py-4 px-4 whitespace-nowrap text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'editar_servicio' s.id %}" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all shadow-sm" title="Editar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </a>
+                                
+                                <a href="{% url 'eliminar_servicio' s.id %}" onclick="return confirm('¿Estás seguro de que deseas ELIMINAR este registro?');" class="w-8 h-8 rounded-full flex items-center justify-center bg-white border border-gray-200 text-gray-400 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white  transition-all shadow-sm" title="Eliminar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="py-24 text-center">
+                            <p class="text-gray-400 font-semibold text-sm group-hover:text-white transition-colors">No se registran trámites con esos parámetros de búsqueda.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { height: 8px; width: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Configurador del Buscador de Calendario
+        flatpickr("#mes_buscar", {
+            locale: "es",
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                })
+            ],
+            altInput: true,
+            // ¡ESTA ES LA LÍNEA QUE DEBES CAMBIAR!
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
+        });
+
+        // TRADUCTOR AUTOMÁTICO DE PERIODOS (Ej: "2026-06" a "JUNIO 2026")
+        document.querySelectorAll('.periodo-formatear').forEach(el => {
+            let val = el.textContent.trim();
+            // Verifica si el texto tiene el guion y el formato esperado
+            if(val && val !== "-" && val.includes('-')) {
+                let parts = val.split('-');
+                if(parts.length >= 2 && parts[0].length === 4) {
+                    let year = parts[0];
+                    let month = parseInt(parts[1], 10);
+                    const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+                    if(month >= 1 && month <= 12) {
+                        el.textContent = meses[month - 1] + ' ' + year;
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

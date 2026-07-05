@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: 21.59cm 14cm; 
+            margin: 0.6cm 1cm; 
+        }
+        body { 
+            font-family: Helvetica, Arial, sans-serif; 
+            color: #1D1D1F; 
+            font-size: 9px;
+        }
+        /* CABECERA: Columnas equilibradas para centrado absoluto */
+        .header-table { width: 100%; border-bottom: 1px solid #E5E5EA; padding-bottom: 6px; margin-bottom: 10px; }
+        .company-name { font-size: 18px; font-weight: bold; color: #1D1D1F; letter-spacing: -0.5px; }
+        .company-sub { font-size: 7px; color: #86868b; font-weight: bold; letter-spacing: 1px; }
+        .doc-title { font-size: 12px; font-weight: bold; color: #0071e3; letter-spacing: -0.2px; text-align: center; }
+        
+        /* RECUADRO DERECHO BLINDADO: Una sola celda con padding para evitar cortes de texto */
+        .badge-table { border: 1px solid #E5E5EA; background-color: #F5F5F7; width: 130px; }
+        .badge-cell { padding: 8px 6px; text-align: center; }
+        .badge-text1 { font-size: 7.5px; font-weight: bold; color: #1D1D1F; letter-spacing: 0.5px; }
+        .badge-text2 { font-size: 8px; color: #86868b; font-weight: bold; margin-top: 4px; }
+
+        .main-box { width: 100%; border-collapse: collapse; border: 1px solid #E5E5EA; margin-bottom: 12px; }
+        .td-label { font-size: 7px; color: #86868b; font-weight: bold; text-transform: uppercase; background-color: #F8FAFC; padding: 6px; border: 1px solid #E5E5EA; }
+        .td-value { font-size: 9px; font-weight: bold; color: #1D1D1F; padding: 6px; border: 1px solid #E5E5EA; }
+
+        .calc-table { width: 100%; border-collapse: collapse; border: 1px solid #E5E5EA; margin-bottom: 15px; }
+        .calc-table th { background-color: #1D1D1F; color: white; padding: 6px; font-size: 7.5px; font-weight: bold; text-transform: uppercase; text-align: left; }
+        .calc-table td { padding: 6px; border-bottom: 0.5px solid #E5E5EA; font-size: 9px; }
+        
+        /* AQUÍ ESTÁ EL AJUSTE: El margin-top en 80px empuja las firmas hacia abajo */
+        .footer-table { width: 100%; border-collapse: collapse; margin-top: 80px; }
+    </style>
+</head>
+<body>
+    
+    <table class="header-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="33%" valign="middle">
+                <div class="company-name">LIMA S.R.L.</div>
+                <div class="company-sub">COMPROBANTE DE RECIBO DE CAJA</div>
+            </td>
+            <td width="34%" valign="middle" align="center">
+                <div class="doc-title">RECIBO DE AMORTIZACIÓN</div>
+                <div style="font-size:7px; color:#86868b; font-weight:bold; text-align: center; margin-top: 2px;"></div>
+            </td>
+            <td width="33%" valign="middle" align="right">
+                <table class="badge-table" align="right" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="badge-cell">
+                            <div class="badge-text1">RECIBO ORIGINAL</div>
+                            <div class="badge-text2">Nº: RC-{{ pago.id|stringformat:"05d" }}</div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table class="main-box" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="15%" class="td-label">Recibido de:</td>
+            <td width="50%" class="td-value" style="text-transform: uppercase;">{{ empleado.nombre_completo }}</td>
+            <td width="15%" class="td-label">C.I. / Doc:</td>
+            <td width="20%" class="td-value">{{ empleado.ci }}</td>
+        </tr>
+        <tr>
+            <td class="td-label">Fecha Pago:</td>
+            <td class="td-value">{{ pago.fecha_pago|date:"d \d\e F, Y" }}</td>
+            <td class="td-label">Ref. Crédito:</td>
+            <td class="td-value">OP-{{ prestamo.id|stringformat:"05d" }}</td>
+        </tr>
+    </table>
+
+    <table class="calc-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <th width="75%">CONCEPTO DE AMORTIZACIÓN</th>
+            <th width="25%" style="text-align: right;">IMPORTE</th>
+        </tr>
+        <tr>
+            <td>Abono correspondiente al saldo del préstamo.</td>
+            <td style="text-align: right; font-weight: bold;">Bs. {{ pago.monto }}</td>
+        </tr>
+        <tr style="background-color: #F8FAFC;">
+            <td style="text-align: right; font-size: 7.5px; font-weight: bold; color: #86868b;">SALDO ANTERIOR DEUDA:</td>
+            <td style="text-align: right; font-weight: bold; color: #86868b;">Bs. {{ saldo_anterior|floatformat:2 }}</td>
+        </tr>
+        <tr style="background-color: #F5F5F7;">
+            <td style="text-align: right; font-size: 8px; font-weight: bold; color: #0071e3;">NUEVO SALDO DEUDOR PENDIENTE:</td>
+            <td style="text-align: right; font-weight: bold; color: #0071e3; font-size: 10px;">Bs. {{ nuevo_saldo|floatformat:2 }}</td>
+        </tr>
+    </table>
+
+    <table class="footer-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="43%" height="65" valign="bottom" style="border-bottom: 1px solid #86868b;"></td>
+            <td width="14%"></td>
+            <td width="43%" height="65" valign="bottom" style="border-bottom: 1px solid #86868b;"></td>
+        </tr>
+        <tr>
+            <td style="text-align: center; padding-top: 5px;">
+                <div style="font-size: 7px; color: #86868b; font-weight: bold; text-transform: uppercase;">Cajero / Entregado Por</div>
+                <div style="font-size: 8.5px; font-weight: bold; color: #1D1D1F; margin-top: 2px;">LIMA S.R.L.</div>
+                <div style="font-size: 7px; color: white; margin-top: 1px;">.</div>
+            </td>
+            <td></td>
+            <td style="text-align: center; padding-top: 5px;">
+                <div style="font-size: 7px; color: #86868b; font-weight: bold; text-transform: uppercase;">Firma Conforme</div>
+                <div style="font-size: 8.5px; font-weight: bold; color: #1D1D1F; margin-top: 2px; text-transform: uppercase;">{{ empleado.nombre_completo }}</div>
+                <div style="font-size: 7px; color: #86868b; margin-top: 1px;">C.I. {{ empleado.ci }}</div>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

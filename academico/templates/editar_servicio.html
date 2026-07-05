@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/style.css">
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+
+<div class="max-w-5xl mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div class="space-y-3">
+            <div class="flex items-center gap-4">
+                <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Editar Trámite.</h1>
+            </div>
+        </div>
+        
+        <a href="{% url 'consultora' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a Consultora
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
+            <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                1. Contribuyente / Cliente Asignado
+            </h3>
+
+            <div class="space-y-2">
+                <select name="cliente" id="id_cliente" required class="w-full">
+                    {% for option in form.cliente.field.queryset %}
+                        <option value="{{ option.id }}" {% if form.cliente.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
+                            {{ option.nombre_contribuyente }} {% if option.nit %}(NIT: {{ option.nit }}){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest flex items-center gap-2 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    2. Especificaciones de la Orden Contable
+                </h3>
+            </div>
+
+            <div class="space-y-2 relative">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha del Servicio <span class="text-rose-500"></span></label>
+                <div class="relative">
+                    <input type="text" id="id_fecha" name="fecha" required class="custom-input custom-input-icon cursor-pointer" value="{{ form.fecha.value|date:'Y-m-d' }}">
+                    <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Trámite / Servicio <span class="text-rose-500"></span></label>
+                <select name="servicio" required class="custom-select cursor-pointer">
+                    <option value="CONSULTA" {% if form.servicio.value == 'CONSULTA' %}selected{% endif %}>CONSULTA</option>
+                    <option value="CONSULTOR EN LINEA" {% if form.servicio.value == 'CONSULTOR EN LINEA' or form.servicio.value == 'CONSULTOR EN LÍNEA' %}selected{% endif %}>CONSULTOR EN LINEA</option>
+                    <option value="CONTROL FINANCIERO" {% if form.servicio.value == 'CONTROL FINANCIERO' %}selected{% endif %}>CONTROL FINANCIERO</option>
+                    <option value="DECLARACIONES TRIBUTARIAS" {% if form.servicio.value == 'DECLARACIONES TRIBUTARIAS' %}selected{% endif %}>DECLARACIONES TRIBUTARIAS</option>
+                    <option value="ESTADOS FINANCIEROS" {% if form.servicio.value == 'ESTADOS FINANCIEROS' %}selected{% endif %}>ESTADOS FINANCIEROS</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Periodo / Gestión</label>
+                <div class="relative">
+                    <input type="text" id="id_periodo" name="periodo" placeholder="EJ. JUNIO 2026" class="custom-input custom-input-icon cursor-pointer" value="{{ form.periodo.value|default:'' }}">
+                    <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none z-10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Factura / Respaldo</label>
+                <input type="text" name="factura" placeholder="EJ: FACT-001245" class="custom-input uppercase" value="{{ form.factura.value|default:'' }}">
+            </div>
+
+            <div class="md:col-span-2 space-y-2 relative">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Actualizar Archivo (PDF / Imagen)</label>
+                
+                <div class="flex items-center justify-center w-full">
+                    <label id="file-dropzone" class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-gray-50/50 hover:bg-gray-50 transition-all duration-200">
+                        <div id="file-text-container" class="flex flex-col items-center justify-center pt-3 pb-4">
+                            <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider">Haga clic para reemplazar el archivo actual</p>
+                        </div>
+                        <input type="file" id="id_archivo_factura" name="archivo_factura" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                    </label>
+                </div>
+                
+                {% if servicio.archivo_factura %}
+                    <div class="absolute -top-1 -right-1">
+                        <span class="flex h-3 w-3"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
+                    </div>
+                    <div class="flex justify-end mt-2">
+                        <a href="{{ servicio.archivo_factura.url }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0071e3]/10 text-[#0071e3] hover:bg-[#0071e3] hover:text-white rounded-full transition-all text-[9px] font-black tracking-widest border border-[#0071e3]/20 shadow-sm">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            VER DOCUMENTO ADJUNTO ACTUAL
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest flex items-center gap-2 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                    3. Liquidación Económica Modificable
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4 w-full md:col-span-2">
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Forma de Pago</label>
+                        <select name="forma_pago" id="id_forma_pago" required class="custom-select cursor-pointer">
+                            <option value="EFECTIVO" {% if form.forma_pago.value|upper == 'EFECTIVO' %}selected{% endif %}>EFECTIVO</option>
+                            <option value="DEPÓSITO" {% if form.forma_pago.value|upper == 'DEPÓSITO' or form.forma_pago.value|upper == 'DEPOSITO' %}selected{% endif %}>DEPÓSITO</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Destino / Banco</label>
+                        <select name="banco" id="id_banco" required class="custom-select cursor-pointer">
+                            <option value="ADMINISTRACIÓN" {% if form.banco.value == 'ADMINISTRACIÓN' %}selected{% endif %}>001 - ADMINISTRACIÓN</option>
+                            <option value="BANCO" {% if form.banco.value == 'BANCO' %}selected{% endif %}>002 - BANCO</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-emerald-600 uppercase tracking-widest">Importe Total del Servicio (Bs.) <span class="text-rose-500"></span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600/60 font-black text-lg">Bs.</span>
+                            <input type="number" step="0.01" name="importe" required placeholder="0.00" value="{{ form.importe.value|stringformat:'s' }}" class="w-full h-12 bg-emerald-50/40 border-2 border-emerald-200/80 rounded-xl pl-12 pr-4 text-base font-black text-emerald-700 outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all placeholder-emerald-300">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Contador(a) Asignado <span class="text-rose-500"></span></label>
+                        <select name="contador" id="id_contador" required class="w-full">
+                            {% for option in form.contador.field.queryset %}
+                                <option value="{{ option.id }}" {% if form.contador.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ option.nombre_completo }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="contenedor-qr" class="hidden md:col-span-2 mt-4 p-8 bg-white border-2 border-dashed border-blue-200 rounded-3xl flex flex-col items-center justify-center transition-all shadow-sm">
+                <div class="flex items-center gap-2 mb-6">
+                    <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                    <p class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest">Escanea para pagar vía QR</p>
+                </div>
+                
+                <div class="p-2 bg-gray-50 rounded-2xl shadow-sm border border-gray-200">
+                    <img src="{% static 'IMG_6078.PNG' %}" alt="QR Empresa" class="w-64 h-64 md:w-72 md:h-72 rounded-xl object-contain">
+                </div>
+                
+                <p class="text-[10px] font-bold text-gray-500 mt-5 text-center uppercase tracking-widest leading-relaxed">
+                    CUENTA EMPRESARIAL <br> <span class="text-black font-black">LIMA S.R.L.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 px-8 py-5 border border-gray-200 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <div> </div>
+
+            <div class="order-1 md:order-2 flex flex-col md:flex-row gap-3 w-full md:w-auto">
+                <a href="{% url 'consultora' %}" class="w-full md:w-auto text-center h-11 px-8 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center">
+                    Cancelar
+                </a>
+                <button type="submit" class="w-full md:w-auto h-11 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    Actualizar Trámite
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // 1. Calendarios
+        flatpickr("#id_fecha", {
+            locale: "es", dateFormat: "Y-m-d", altInput: true, altFormat: "j \\de F, Y", altInputClass: "custom-input custom-input-icon cursor-pointer"
+        });
+
+        flatpickr("#id_periodo", {
+            locale: "es", plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], altInput: true, altInputClass: "custom-input custom-input-icon cursor-pointer"
+        });
+
+        // 2. Selectores Inteligentes (TomSelect)
+        new TomSelect('#id_cliente', {
+            sortField: {field: "text", direction: "asc"}, placeholder: "BUSCAR CONTRIBUYENTE EN LA BASE DE DATOS...", controlClass: 'ts-control custom-tomselect'
+        });
+
+        new TomSelect('#id_contador', {
+            sortField: {field: "text", direction: "asc"}, placeholder: "SELECCIONE CONTADOR...", controlClass: 'ts-control custom-tomselect'
+        });
+
+        // 3. Monitor de QR
+        const selectFormaPago = document.getElementById('id_forma_pago');
+        const selectBanco = document.getElementById('id_banco');
+        const contenedorQr = document.getElementById('contenedor-qr');
+
+        function verificarQR() {
+            if (!selectFormaPago) return;
+            const pagoVal = selectFormaPago.value.toUpperCase();
+            
+            // Auto-asignación omitida en Edición para no borrar la selección del usuario,
+            // Solo controlamos la visualización del QR.
+            if ((pagoVal === 'DEPÓSITO' || pagoVal === 'DEPOSITO') && selectBanco.value === 'BANCO') {
+                contenedorQr.classList.remove('hidden');
+            } else {
+                contenedorQr.classList.add('hidden');
+            }
+        }
+
+        if(selectFormaPago) selectFormaPago.addEventListener('change', verificarQR);
+        if(selectBanco) selectBanco.addEventListener('change', verificarQR);
+        verificarQR();
+
+        // 4. Efecto de carga visual de archivo
+        const fileInput = document.getElementById('id_archivo_factura');
+        const fileTextContainer = document.getElementById('file-text-container');
+        const fileDropzone = document.getElementById('file-dropzone');
+
+        if (fileInput && fileTextContainer) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    const fileName = this.files[0].name.toUpperCase();
+                    fileTextContainer.innerHTML = `
+                        <svg class="w-6 h-6 text-emerald-500 mb-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                        <p class="text-[11px] text-emerald-600 font-black uppercase tracking-wider">✓ NUEVO ARCHIVO SELECCIONADO</p>
+                        <p class="text-[10px] text-gray-700 font-bold uppercase tracking-tight mt-1 px-4 truncate max-w-xs">${fileName}</p>
+                    `;
+                    fileDropzone.classList.remove('border-gray-200', 'bg-gray-50/50', 'hover:bg-gray-50');
+                    fileDropzone.classList.add('border-emerald-300', 'bg-emerald-50/30');
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .custom-input, .custom-select {
+        width: 100%;
+        height: 2.75rem;
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1a202c;
+        outline: none;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+    }
+    .custom-input:focus, .custom-select:focus {
+        background-color: #ffffff;
+        border-color: #0071e3;
+        box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+    }
+
+    .custom-input-icon {
+        padding-left: 2.75rem !important;
+    }
+
+    input[type="number"] {
+        padding-left: 3rem;
+        font-size: 1rem;
+        background-color: rgb(236 253 245 / 0.4);
+        border-color: rgb(167 243 208 / 0.8);
+        color: #047857;
+    }
+    input[type="number"]:focus {
+        background-color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    /* ESTILOS TOMSELECT */
+    .ts-control.custom-tomselect {
+        border-radius: 0.75rem !important;
+        border: 2px solid #e2e8f0 !important;
+        padding: 0.65rem 1rem !important;
+        min-height: 2.75rem !important;
+        background-color: #f8fafc !important;
+    }
+    .ts-control.custom-tomselect > input { font-size: 0.85rem !important; font-weight: 700 !important; color: #1a202c !important; text-transform: uppercase !important; }
+    .ts-dropdown { border-radius: 1rem !important; border: 1px solid #e2e8f0 !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05) !important; padding: 0.4rem !important; }
+    .ts-dropdown .option { border-radius: 0.5rem !important; padding: 0.5rem 0.8rem !important; font-size: 0.75rem !important; font-weight: 700 !important; text-transform: uppercase !important; margin-bottom: 2px !important; }
+    .ts-dropdown .active { background-color: #0071e3 !important; color: white !important; }
+</style>
+
+{% endblock %}

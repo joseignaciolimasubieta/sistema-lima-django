@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="{% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            {% if message.tags == 'error' or 'eliminado' in message.message or 'BLOQUEADA' in message.message %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            {% else %}
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            {% endif %}
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <!-- ======================================================= -->
+    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
+    <!-- ======================================================= -->
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        
+        <!-- IZQUIERDA: TÍTULO -->
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Honorarios.</h1>
+        </div>
+
+        <!-- DERECHA: CONTROLES AGRUPADOS -->
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            
+            <!-- FILA ÚNICA: Buscador unificado -->
+            <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+                
+                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
+                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- Búsqueda por Texto (Nombre del Docente) -->
+                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        </div>
+                        <input type="text" name="docente" value="{{ busqueda_docente|default:'' }}" placeholder="BUSCAR DOCENTE..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                    </div>
+
+                    <!-- Divisor sutil -->
+                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- Buscador de Mes / Periodo -->
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <input type="text" id="calendario_honorarios" name="rango_fechas" value="{{ rango_fechas|default:'' }}" class="hidden" placeholder="PERIODO...">
+                    </div>
+                    
+                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
+                        BUSCAR
+                    </button>
+                    
+                    {% if busqueda_docente or rango_fechas %}
+                    <a href="{% url 'honorarios' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+        <div class="overflow-x-auto scrollbar-delgada max-h-[75vh]">
+            <table class="w-full text-left border-collapse">
+                
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Docente</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Detalles del Curso</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fechas Curso</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Carga / Estado</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Honorario / <br> Estado</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Anticipo</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Saldo</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Acciones</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for h in honorarios %}
+                    
+                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group">
+                        
+                        <td class="px-6 py-4 relative">
+                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm uppercase tracking-tight">{{ h.curso.docente.nombre }}</div>
+                        </td>
+                        
+                        <td class="py-3 px-3.5">
+                            <div class="font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[13px] uppercase leading-tight">{{ h.curso.nombre }}</div>
+                            <div class="text-[10px] font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase tracking-wider mt-1 flex items-center gap-1.5">
+                                {{ h.curso.mes_curso|default:"-" }} 
+                                <span class="text-gray-300 group-hover:text-blue-200 transition-colors">•</span> {{ h.curso.turno|default:"-" }} 
+                                <span class="text-gray-300 group-hover:text-blue-200 transition-colors">•</span> <span class="text-gray-600 group-hover:text-white transition-colors">{{ h.curso.modalidad|default:"-" }}</span>
+                            </div>
+                        </td>
+
+                        <td class="py-3 px-3.5 text-[11px] whitespace-nowrap text-gray-500 font-medium">
+                            <div class="mb-1"><span class="font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase">INICIO:</span> <span class="text-black group-hover:text-white transition-colors font-bold">{{ h.curso.fecha_inicio|date:"d/m/Y"|default:"-" }}</span></div>
+                            <div><span class="font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase">FIN:</span> <span class="text-black group-hover:text-white transition-colors font-bold">{{ h.curso.fecha_finalizacion|date:"d/m/Y"|default:"-" }}</span></div>
+                        </td>
+
+                        <td class="py-3 px-3.5 text-[11px] text-gray-500 font-medium min-w-[120px]">
+                            <div class="mb-1"><span class="font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase">CARGA:</span> <span class="text-black group-hover:text-white transition-colors font-bold">{{ h.carga|default:"-" }}</span></div>
+                            <div class="flex items-center gap-1.5 mt-1.5">
+                                <span class="font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase">ESTADO:</span> 
+                                
+                                {% if h.estado_curso_calc == 'FINALIZADO' %}
+                                    <span class="px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase bg-gray-50 text-gray-500 border border-gray-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors inline-flex items-center gap-1 justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400 group-hover:bg-gray-200"></span>FINALIZADO
+                                    </span>
+                                {% elif h.estado_curso_calc == 'EN CURSO' %}
+                                    <span class="px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase bg-emerald-50 text-emerald-600 border border-emerald-100 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors inline-flex items-center gap-1 justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 group-hover:bg-emerald-300 animacion-parpadeo"></span>EN CURSO
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 rounded-full text-[8px] font-black tracking-widest uppercase bg-amber-50 text-amber-600 border border-amber-100 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors inline-flex items-center gap-1 justify-center">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 group-hover:bg-amber-300 animacion-parpadeo"></span>{{ h.estado_curso_calc|default:"NO INICIÓ" }}
+                                    </span>
+                                {% endif %}
+                                
+                            </div>
+                        </td>
+
+                        <td class="py-3 px-3.5 text-center font-black text-black group-hover:text-white transition-colors text-[13px] whitespace-nowrap val-honorario">
+                            Bs. {{ h.honorario_total|default:"0,00" }}
+                            <div class="py-3 px-3.5 text-center whitespace-nowrap">
+                                {% if h.estado == 'PAGADO' %}
+                                    <span class="px-2.5 py-1 inline-flex text-[9px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors uppercase tracking-widest">
+                                        Pagado
+                                    </span>
+                                {% else %}
+                                    <span class="px-2.5 py-1 inline-flex text-[9px] font-black rounded-full bg-amber-50 text-amber-600 border border-amber-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors uppercase tracking-widest">
+                                        Pendiente
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <td class="py-3 px-3.5 text-right whitespace-nowrap">
+                            <div class="font-black text-black group-hover:text-white transition-colors text-[13px] val-anticipo">Bs. {{ h.anticipo|default:"0,00" }}</div>
+                            {% if h.fecha_anticipo %}
+                                <div class="text-[9px] text-gray-400 group-hover:text-blue-100 transition-colors font-bold uppercase tracking-widest mt-1">El: {{ h.fecha_anticipo|date:"d/m/Y" }}</div>
+                            {% endif %}
+                        </td>
+
+                        <td class="py-3 px-3.5 text-right font-black text-black group-hover:text-white transition-colors text-[13px] whitespace-nowrap val-saldo">
+                            Bs. {{ h.saldo|default:"0,00" }}
+                        </td>
+
+                        
+
+                        <td class="py-3 px-3.5 text-center">
+                            <div class="flex flex-col gap-1.5 items-center justify-center min-w-[100px]">
+                                
+                                {% if h.estado != 'PAGADO' %}
+                                    <a href="{% url 'registrar_anticipo' h.id %}" class="w-full h-7 px-3 flex justify-center items-center gap-1.5 rounded-full bg-white text-gray-500 border border-gray-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold shadow-sm">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Anticipo</span>
+                                    </a>
+                                    
+                                    <a href="{% url 'pagar_honorario' h.id %}" class="w-full h-7 px-3 flex justify-center items-center gap-1.5 rounded-full bg-[#0071e3] text-white border border-transparent group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold shadow-md group-hover:border-white/30">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Pagar</span>
+                                    </a>
+                                {% else %}
+                                    <!-- ESTADO PAGADO: Solo Boleta -->
+                                    <a href="{% url 'pagar_honorario' h.id %}" target="_blank" class="w-full h-7 px-3 flex justify-center items-center gap-1.5 rounded-full bg-gray-100 text-gray-500 border border-transparent group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold shadow-sm group-hover:border-white/30">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Boleta</span>
+                                    </a>
+                                {% endif %}
+                                
+                            </div>
+                        </td>
+                        
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="py-24 text-center">
+                            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <h3 class="text-lg font-bold text-gray-800 group-hover:text-white transition-colors">No hay honorarios registrados</h3>
+                            <p class="text-sm text-gray-400 mt-1 group-hover:text-blue-100 transition-colors">La información financiera de los docentes aparecerá aquí.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
+                    <tr>
+                        <td colspan="4" class="py-4 px-4 text-left text-[11px] font-black uppercase tracking-widest text-gray-400">TOTALES</td>
+                        <td class="py-4 px-3.5 text-right whitespace-nowrap" id="total-honorario"></td>
+                        <td class="py-4 px-3.5 text-right whitespace-nowrap" id="total-anticipo"></td>
+                        <td class="py-4 px-3.5 text-right whitespace-nowrap" id="total-saldo"></td>
+                        <td colspan="2" class="py-4 px-3.5"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // CONFIGURACIÓN ACTUALIZADA PARA MESES
+        flatpickr("#calendario_honorarios", {
+            locale: "es",
+            placeholder: "PERIODO...",
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            altInput: true,
+            // ¡NUEVAS CLASES DE ESTILO AQUÍ!
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
+        });
+        // Tu función de totales intacta
+        function calcularTotalesHonorarios() {
+            const celdasHonorario = document.querySelectorAll('.val-honorario');
+            const celdasAnticipo = document.querySelectorAll('.val-anticipo');
+            const celdasSaldo = document.querySelectorAll('.val-saldo');
+            
+            let sumaHonorario = 0;
+            let sumaAnticipo = 0;
+            let sumaSaldo = 0;
+
+            function limpiarNumero(texto) {
+                if (!texto || texto.trim() === "-") return 0;
+                let limpio = texto.replace(/[^0-9.,-]/g, '').trim();
+                if (!limpio) return 0;
+                
+                if (limpio.includes('.') && limpio.includes(',')) {
+                    limpio = limpio.replace(/\./g, '').replace(',', '.');
+                } else if (limpio.includes(',')) {
+                    if (limpio.indexOf(',') === limpio.length - 3) {
+                        limpio = limpio.replace(',', '.');
+                    } else {
+                        limpio = limpio.replace(/,/g, '');
+                    }
+                }
+                return parseFloat(limpio) || 0;
+            }
+
+            celdasHonorario.forEach(celda => { sumaHonorario += limpiarNumero(celda.textContent); });
+            celdasAnticipo.forEach(celda => { sumaAnticipo += limpiarNumero(celda.textContent); });
+            celdasSaldo.forEach(celda => { sumaSaldo += limpiarNumero(celda.textContent); });
+
+            function formatearMoneda(valor) {
+                return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            document.getElementById('total-honorario').innerHTML = `
+                <span class="text-black font-black text-[13px]">Bs. ${formatearMoneda(sumaHonorario)}</span>
+            `;
+            document.getElementById('total-anticipo').innerHTML = `
+                <span class="text-black font-black text-[13px]">Bs. ${formatearMoneda(sumaAnticipo)}</span>
+            `;
+            document.getElementById('total-saldo').innerHTML = `
+                <span class="text-black font-black text-[14px]">Bs. ${formatearMoneda(sumaSaldo)}</span>
+            `;
+        }
+
+        calcularTotalesHonorarios();
+    });
+</script>
+
+<style>
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    
+    @keyframes parpadeo-suave {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(0.85); }
+    }
+    .animacion-parpadeo { animation: parpadeo-suave 2s infinite ease-in-out; }
+</style>
+
+{% endblock %}

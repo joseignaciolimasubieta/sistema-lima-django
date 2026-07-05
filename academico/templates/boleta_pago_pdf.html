@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: 21.59cm 16.5cm; 
+            margin: 0.5cm 1cm; 
+        }
+        body { font-family: Helvetica, sans-serif; color: #1e293b; }
+        
+        /* HEADER */
+        .header-table { width: 100%; border-bottom: 2px solid #1e3a8a; padding-bottom: 2px; margin-bottom: 5px; }
+        .title { font-size: 14px; font-weight: bold; color: #1e3a8a; text-align: center; }
+        .subtitle { font-size: 9px; text-align: center; color: #475569; margin-top: 2px; }
+        .badge { background-color: #f1f5f9; border: 0.5px solid #cbd5e1; padding: 4px; font-size: 8px; font-weight: bold; text-align: center; color: #334155; }
+        
+        /* INFO TRABAJADOR */
+        .info-table { width: 100%; margin-bottom: 5px; border: 0.5px solid #cbd5e1; }
+        .info-table td { padding: 3px 5px; border-bottom: 0.5px solid #f1f5f9; }
+        .label { font-weight: bold; color: #64748b; font-size: 8px; text-transform: uppercase; background-color: #f8fafc; }
+        .value { font-weight: bold; font-size: 9px; color: #0f172a; }
+
+        /* TABLAS DE CÁLCULO */
+        .main-calc { width: 100%; margin-bottom: 5px; }
+        .calc-table { width: 100%; border: 0.5px solid #cbd5e1; }
+        .th-ing { background-color: #1e3a8a; color: white; font-size: 9px; padding: 4px; text-align: left; font-weight: bold; }
+        .th-egr { background-color: #be123c; color: white; font-size: 9px; padding: 4px; text-align: left; font-weight: bold; }
+        .calc-table td { padding: 3px 5px; border-bottom: 0.5px solid #e2e8f0; font-size: 9px; }
+        .amt { text-align: right; font-weight: bold; color: #0f172a; }
+        
+        /* === TRUCO PARA EVITAR EL TEXTO APLASTADO === */
+        .row-tot { background-color: #f1f5f9; }
+        .row-tot td { 
+            border-top: 1.5px solid #94a3b8; 
+            font-weight: bold; 
+            font-size: 10px;
+        }
+        .espaciador-totales {
+            /* Forzamos el empuje hacia abajo independientemente de la celda */
+            margin-top: 7px;
+            margin-bottom: 5px;
+        }
+        
+        /* FOOTER Y FIRMAS */
+        .footer-table { width: 100%; margin-top: 2px; }
+    </style>
+</head>
+<body>
+    {% for copia in copias %}
+    <table class="header-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="30%" valign="middle">
+                <div style="font-size: 20px; font-weight: bold; color:#1e3a8a; letter-spacing: -0.5px;">LIMA <span style="color:#3b82f6; font-weight: normal;">S.R.L.</span></div>
+                <div style="font-size: 7px; color:#64748b; letter-spacing: 1px;"></div>
+            </td>
+            <td width="40%" valign="middle">
+                <div class="title">BOLETA DE PAGO DE HABERES</div>
+                <div class="subtitle">CORRESPONDIENTE A: <span style="color:#0f172a; font-weight:bold;">{{ mes_literal }}</span></div>
+            </td>
+            <td width="30%" valign="middle" align="right">
+                <div class="badge">
+                    COPIA {{ copia }}<br>
+                    <span style="color:#94a3b8; font-size:6.5px; font-weight:normal;">Nº OP: {{ pago.id|stringformat:"05d" }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="info-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="15%" class="label">Razón Social:</td>
+            <td width="35%" class="value">{{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}</td>
+            <td width="15%" class="label">Empleado(a):</td>
+            <td width="35%" class="value">{{ pago.empleado.nombre_completo|upper }}</td>
+        </tr>
+        <tr>
+            <td class="label">NIT:</td>
+            <td class="value">{{ empresa.nit|default:'11544144015' }}</td>
+            <td class="label">C.I. / Doc:</td>
+            <td class="value">{{ pago.empleado.ci }}</td>
+        </tr>
+        <tr>
+            <td class="label">Nº Emp. M.T.:</td>
+            <td class="value">{{ empresa.nro_ministerio|default:'1234561702-01' }}</td>
+            <td class="label">Cargo:</td>
+            <td class="value">{{ pago.empleado.cargo|upper }}</td>
+        </tr>
+        <tr>
+            <td class="label">Caja de Salud:</td>
+            <td class="value">{{ empresa.nro_caja_salud|default:'111-7-9133' }}</td>
+            <td class="label">Fechas:</td>
+            <td class="value" style="font-size: 8.5px;">Ingreso: {{ pago.empleado.fecha_ingreso|date:"d/m/Y" }} | Emisión: {{ pago.fecha_pago|date:"d/m/Y" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Días Pagados:</td>
+            <td class="value">30 DÍAS</td>
+            <td class="label">Antigüedad:</td>
+            <td class="value" style="font-size: 8.5px;">{{ antiguedad|upper }}</td>
+        </tr>
+    </table>
+
+    <table class="main-calc" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="49%" valign="top">
+                <table class="calc-table" cellpadding="0" cellspacing="0">
+                    <tr><th colspan="2" class="th-ing">INGRESOS PERCIBIDOS</th></tr>
+                    <tr><td>Haber Básico Acordado</td><td class="amt">{{ pago.salario_base }}</td></tr>
+                    <tr><td>Bono de Antigüedad</td><td class="amt">{{ pago.bono_antiguedad }}</td></tr>
+                    <tr><td>Bono de Ventas</td><td class="amt">{{ pago.bono_ventas }}</td></tr>
+                    <tr><td>Comisiones s/Certificados</td><td class="amt">{{ pago.comisiones_certificados }}</td></tr>
+                    <tr><td>Bono Consultora</td><td class="amt">{{ pago.bono_consultora }}</td></tr>
+                    <tr><td>Otros Bonos Extraordinarios</td><td class="amt">{{ pago.otros_bonos }}</td></tr>
+                    <tr><td colspan="2" style="color:white; font-size:2px;">.</td></tr>
+                    <tr class="row-tot">
+                        <td style="color:#1e3a8a;"><div class="espaciador-totales">TOTAL INGRESOS</div></td>
+                        <td class="amt" style="color:#1e3a8a;"><div class="espaciador-totales">Bs. {{ pago.total_ganado }}</div></td>
+                    </tr>
+                </table>
+            </td>
+            
+            <td width="2%"></td> <td width="49%" valign="top">
+                <table class="calc-table" cellpadding="0" cellspacing="0">
+                    <tr><th colspan="2" class="th-egr">RETENCIONES Y DESCUENTOS</th></tr>
+                    <tr><td>Aportes de Ley a las AFPs</td><td class="amt">{{ pago.aportes_afp }}</td></tr>
+                    <tr><td>Impuesto RC-IVA (13%)</td><td class="amt">{{ pago.rc_iva }}</td></tr>
+                    <tr><td>Anticipos Entregados</td><td class="amt">{{ pago.anticipos }}</td></tr>
+                    <tr><td>Amortización de Préstamos</td><td class="amt">{{ pago.prestamos }}</td></tr>
+                    <tr><td>Multas y Atrasos</td><td class="amt">{{ pago.multas }}</td></tr>
+                    <tr><td>Rendición de Cuentas</td><td class="amt">{{ pago.rendicion_cuentas }}</td></tr>
+                    <tr><td>Fondo Pasanaku</td><td class="amt">{{ pago.pasanaku }}</td></tr>
+                    <tr class="row-tot">
+                        <td style="color:#be123c;"><div class="espaciador-totales">TOTAL RETENCIONES</div></td>
+                        <td class="amt" style="color:#be123c;"><div class="espaciador-totales">Bs. {{ pago.total_descuentos }}</div></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <table class="footer-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="40%" valign="middle" style="background-color: #10b981; border: 1px solid #059669; text-align: center; padding: 8px; border-radius: 4px;">
+                <div style="color: white; font-size: 14px; font-weight: bold; letter-spacing: 0.5px;">LÍQUIDO PAGABLE</div>
+                <div style="color: white; font-size: 28px; font-weight: bold; margin-top: 3px;">Bs. {{ pago.liquido_pagable }}</div>
+            </td>
+            
+            <td width="20%"></td>
+            
+            <td width="40%" valign="bottom" style="text-align: center;">
+                <div style="border-top: 0.5px solid #64748b; width: 85%; margin: 0 auto; padding-top: 4px; font-size: 8px; color: #64748b; font-weight: bold; text-transform: uppercase;">
+                    Firma de Conformidad (Recibí Conforme)<br>
+                    <span style="font-weight: normal; text-transform: capitalize; color: #1e293b;">{{ pago.empleado.nombre_completo }}</span><br>
+                    <span style="font-weight: normal; text-transform: capitalize; color: #1e293b;">C.I. {{ pago.empleado.ci }}</span>
+                </div>
+            </td>
+        </tr>
+    </table>
+    
+    {% if not forloop.last %}
+        <pdf:nextpage />
+    {% endif %}
+    
+    {% endfor %}
+</body>
+</html>
