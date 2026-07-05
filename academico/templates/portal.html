@@ -1,3 +1,6 @@
+{% extends 'base.html' %}
+{% block title %}Portal ERP - LIMA S.R.L.{% endblock %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,8 +42,6 @@
     </style>
 </head>
 <body class="h-screen w-full bg-[#F5F5F7] flex flex-col justify-between selection:bg-[#0071e3]/20 selection:text-[#0071e3]">
-
-    {% load static %}
 
     <header class="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200 h-14 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <nav class="w-full max-w-[1200px] px-6 flex items-center justify-between text-[11px] lg:text-xs font-normal">
@@ -120,7 +121,7 @@
                 </div>
             </a>
 
-            <a href="{% url 'flujo_caja' %}" class="orb-group flex flex-col items-center group w-72 lg:w-80">
+            <a href="/admin/" class="orb-group flex flex-col items-center group w-72 lg:w-80">
                 <div class="glass-orb w-72 h-72 lg:w-80 lg:h-80 rounded-full flex flex-col items-center justify-center relative overflow-hidden bg-[#020d24]">
                     
                     <img src="{% static 'administracion.jpg' %}" alt="Administración" class="absolute inset-0 w-full h-full object-cover object-center opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 apple-ease">
@@ -150,3 +151,4 @@
 
 </body>
 </html>
+{% endblock %}
