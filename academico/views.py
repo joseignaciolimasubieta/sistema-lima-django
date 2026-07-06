@@ -1537,7 +1537,7 @@ def editar_servicio(request, servicio_id):
         'servicio': servicio
     })
 
-@login_required
+@login_required(login_url='login')
 def portal_inicio(request):
     return render(request, 'portal.html')
 
