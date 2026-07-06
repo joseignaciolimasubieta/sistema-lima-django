@@ -128,7 +128,7 @@ WHITENOISE_MANIFEST_STRICT = False
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de Autenticación
-LOGIN_REDIRECT_URL = 'dashboard' # A dónde ir al entrar
+LOGIN_REDIRECT_URL = 'portal_inicio' # A dónde ir al entrar
 LOGIN_URL = 'login'              # La ruta de la pantalla de login
 LOGOUT_REDIRECT_URL = 'login'    # A dónde ir al salir
 
