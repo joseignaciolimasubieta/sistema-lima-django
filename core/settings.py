@@ -76,11 +76,10 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# Database
 DATABASES = {
     'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
-        conn_max_age=600
+        default=os.environ.get('DATABASE_URL'),
+        ssl_require=True
     )
 }
 
@@ -120,6 +119,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -127,9 +127,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de Autenticación
-LOGIN_REDIRECT_URL = 'portal_inicio' # A dónde ir al entrar
+LOGIN_REDIRECT_URL = 'dashboard' # A dónde ir al entrar
 LOGIN_URL = 'login'              # La ruta de la pantalla de login
-LOGOUT_REDIRECT_URL = '/login/'  # A dónde ir al salir
+LOGOUT_REDIRECT_URL = 'login'    # A dónde ir al salir
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -145,6 +145,3 @@ SESSION_COOKIE_AGE = 1800
 
 # 3. Guardar cambios en la sesión en cada petición
 SESSION_SAVE_EVERY_REQUEST = True
-
-STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
