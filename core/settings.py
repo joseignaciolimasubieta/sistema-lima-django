@@ -120,6 +120,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -127,7 +128,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Configuración de Autenticación
-LOGIN_REDIRECT_URL = 'dashboard' # A dónde ir al entrar
+LOGIN_REDIRECT_URL = 'portal_inicio' # A dónde ir al entrar
 LOGIN_URL = 'login'              # La ruta de la pantalla de login
 LOGOUT_REDIRECT_URL = 'login'    # A dónde ir al salir
 
