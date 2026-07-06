@@ -129,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuración de Autenticación
 LOGIN_REDIRECT_URL = 'portal_inicio' # A dónde ir al entrar
 LOGIN_URL = 'login'              # La ruta de la pantalla de login
-LOGOUT_REDIRECT_URL = 'login'    # A dónde ir al salir
+LOGOUT_REDIRECT_URL = '/login/'  # A dónde ir al salir
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
