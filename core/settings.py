@@ -76,15 +76,12 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres.dnvbtrxvzkksiyyzxmae',
-        'PASSWORD': 'nacho2002junio', # OJO: Aquí escribe tu contraseña real
-        'HOST': 'aws-1-sa-east-1.pooler.supabase.com',
-        'PORT': '5432', # Supabase asignó este puerto para tu Session Pooler
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600
+    )
 }
 
 
