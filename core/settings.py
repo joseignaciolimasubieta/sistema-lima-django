@@ -145,3 +145,6 @@ SESSION_COOKIE_AGE = 1800
 
 # 3. Guardar cambios en la sesión en cada petición
 SESSION_SAVE_EVERY_REQUEST = True
+
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
