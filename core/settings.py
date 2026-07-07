@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'academico',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -119,7 +120,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 WHITENOISE_MANIFEST_STRICT = False
 
 # Default primary key field type
@@ -146,3 +147,30 @@ SESSION_COOKIE_AGE = 1800
 
 # 3. Guardar cambios en la sesión en cada petición
 SESSION_SAVE_EVERY_REQUEST = True
+
+import os
+
+# ==============================================================
+# CONFIGURACIÓN DE ALMACENAMIENTO EN LA NUBE (SUPABASE S3)
+# ==============================================================
+
+# Leemos las credenciales desde el entorno (Render)
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME') # Ej: 'lima-media'
+AWS_S3_ENDPOINT_URL = os.environ.get('AWS_S3_ENDPOINT_URL')
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+
+# Evita que un archivo nuevo sobreescriba uno viejo si tienen el mismo nombre
+AWS_S3_FILE_OVERWRITE = False
+
+# Si estás usando Django 4.2 o superior, esta es la forma moderna de declararlo:
+if AWS_ACCESS_KEY_ID: # Solo usa la nube si las llaves existen
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
