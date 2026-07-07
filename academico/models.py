@@ -22,6 +22,10 @@ class Curso(models.Model):
     dias = models.CharField(max_length=100, null=True, blank=True) # Ej: Lunes a Jueves
     duracion = models.CharField(max_length=200, null=True, blank=True) # Ej: 2 Semanas, 8 Sesiones
     modalidad = models.CharField(max_length=50, null=True, blank=True)
+    # ==============================================================
+    # --- NUEVO: ENLACE PARA CREAR MÓDULOS (PADRE E HIJO) ---
+    # ==============================================================
+    modulo_padre = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcursos')
     
     # Precios
     inversion = models.DecimalField(max_digits=10, decimal_places=2, default=0)

@@ -475,8 +475,31 @@ def crear_inscripcion(request):
             vendedor=vendedor,
             registrado_por=registrado_por
         )
+        # =========================================================
+        # 🤖 NUEVA AUTOMATIZACIÓN: INYECCIÓN DE CURSOS DEL MÓDULO
+        # =========================================================
+        # Preguntamos a la base de datos si el curso que compró tiene hijos
+        subcursos = curso.subcursos.all()
+        
+        if subcursos.exists():
+            for subcurso in subcursos:
+                # Candado de seguridad: Inscribe al alumno en los 4 cursos solo si no estaba inscrito antes
+                if not Inscripcion.objects.filter(participante=participante, curso=subcurso).exists():
+                    Inscripcion.objects.create(
+                        participante=participante,
+                        curso=subcurso,
+                        fecha_inscripcion=fecha,
+                        importe=Decimal('0.00'), # BS. 0 PARA NO CLONAR EL DINERO EN EL FLUJO DE CAJA
+                        saldo_pendiente=Decimal('0.00'),
+                        banco=banco,
+                        forma_pago=forma_pago,
+                        modalidad=modalidad,
+                        vendedor=vendedor,
+                        registrado_por=registrado_por
+                    )
+        # =========================================================
+
         messages.success(request, 'Participante registrado con éxito.')
-        # Volvemos a la Súper Tabla
         return redirect('inscripciones')
     
     else:
