@@ -37,7 +37,14 @@ def dashboard(request):
     hoy = date.today()
     rango_fechas = request.GET.get('rango_fechas', '')
 
-    # 1. OPTIMIZACIÓN EXTREMA: Preparación de consultas base
+    # ==============================================================
+    # OPTIMIZACIÓN CRÍTICA: FALLBACK AL MES ACTUAL
+    # Evita ejecutar Inscripcion.objects.all() de toda la historia del sistema
+    # cuando el usuario entra por primera vez, reduciendo la carga en la red.
+    # ==============================================================
+    if not rango_fechas:
+        rango_fechas = hoy.strftime('%Y-%m')
+
     inscripciones_query = Inscripcion.objects.all()
     inscripciones_prev_query = Inscripcion.objects.none()
     tendencia_valida = False
@@ -80,13 +87,12 @@ def dashboard(request):
             inscripciones_query = inscripciones_query.filter(fecha_inscripcion=rango_fechas)
             tendencia_valida = False
 
-    # 2. MÉTRICAS GLOBALES FUSIONADAS (Evaluación directa en BD)
+    # 2. MÉTRICAS GLOBALES FUSIONADAS (Evaluación directa en BD via SQL)
     datos_globales = inscripciones_query.aggregate(
         total_ins=Count('id'),
         suma_ing=Sum('importe')
     )
     
-    # Optimizamos "datos_hoy" filtrando antes de agregar (evita escaneos masivos)
     datos_hoy = Inscripcion.objects.filter(fecha_inscripcion=hoy).aggregate(
         ins_hoy=Count('id'),
         ing_hoy=Sum('importe')
@@ -99,11 +105,9 @@ def dashboard(request):
 
     ticket_promedio = suma_ingresos / total_inscripciones if total_inscripciones > 0 else Decimal('0.00')
     
-    # Optimización: Cuenta directa filtrada, sin exclude y sin cargar objetos
     total_cursos_activos = Curso.objects.filter(fecha_finalizacion__gte=hoy).count()
 
-    # 3. REPORTE POR CURSO Y GRÁFICOS (Velocidad Nativa SQL)
-    # NUEVO: Añadimos 'modalidad' a los agrupadores (.values)
+    # 3. REPORTE POR CURSO Y GRÁFICOS (Agrupación nativa en Supabase)
     reporte_cursos_bd = inscripciones_query.values('curso__nombre', 'modalidad').annotate(
         num_inscritos=Count('id'),
         total_generado=Sum('importe')
@@ -114,13 +118,11 @@ def dashboard(request):
         datos_prev = inscripciones_prev_query.values('curso__nombre', 'modalidad').annotate(
             total=Sum('importe')
         )
-        # NUEVO: Usamos la combinación de curso y modalidad como llave única
         prev_totales = { f"{d['curso__nombre']}_{d['modalidad']}": (d['total'] or Decimal('0.00')) for d in datos_prev }
 
     reporte_cursos = []
     for item in reporte_cursos_bd:
         actual = item['total_generado'] or Decimal('0.00')
-        # NUEVO: Buscamos el registro anterior coincidiendo curso y modalidad
         llave_busqueda = f"{item['curso__nombre']}_{item['modalidad']}"
         anterior = prev_totales.get(llave_busqueda, Decimal('0.00'))
         
@@ -141,7 +143,8 @@ def dashboard(request):
             item['tendencia_texto'] = f'▼ {abs(variacion):.0f}%'
 
         reporte_cursos.append(item)
-    # 4. CÁLCULO OPTIMIZADO DE CUENTAS OPERATIVAS (MANTENIDO)
+
+    # 4. CÁLCULO OPTIMIZADO DE CUENTAS OPERATIVAS (Mapeado directo en RAM)
     cuentas_operativas = CuentaCaja.objects.exclude(nombre__icontains='AHORRO').order_by('codigo')
     
     totales_bd = MovimientoCaja.objects.filter(
@@ -151,7 +154,6 @@ def dashboard(request):
         t_salidas=Sum('monto', filter=Q(tipo='SALIDA'))
     )
     
-    # Conversión instantánea usando comprensión de diccionarios
     mapa_saldos = {
         t['cuenta_id']: {
             'in': t['t_entradas'] or Decimal('0.00'),
