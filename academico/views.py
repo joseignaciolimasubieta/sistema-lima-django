@@ -186,10 +186,8 @@ def dashboard(request):
 
 @login_required
 def participantes(request):
-    # Traemos todos los registros de la tabla Participante
-    lista_participantes = Participante.objects.all()
-    
-    # Enviamos los datos a la plantilla
+    # En lugar de traer todos, traemos los últimos 150 para que cargue al instante
+    lista_participantes = Participante.objects.all().order_by('-id')[:150]
     return render(request, 'participantes.html', {'participantes': lista_participantes})
 
 @login_required
@@ -355,89 +353,60 @@ def eliminar_curso(request, id):
     return redirect('cursos')
 @login_required
 def inscripciones(request):
-    # 1. Inicializamos los QuerySets base (quitamos el order_by inicial porque sorted() hará el trabajo pesado)
-    lista = Inscripcion.objects.select_related('participante', 'curso').filter(saldo_pendiente=0)
-    
-    ventas_extra = VentaServicio.objects.select_related('participante').all()
-    
     buscar = request.GET.get('buscar', '')
     rango_fechas = request.GET.get('rango_fechas', '')
 
-    # ==========================================
-    # 2. MOTOR DE BÚSQUEDA DE TEXTO UNIFICADO
-    # ==========================================
+    # 1. Inicializamos Queries (Sin descargar nada aún)
+    lista = Inscripcion.objects.select_related('participante', 'curso').filter(saldo_pendiente=0)
+    ventas_extra = VentaServicio.objects.select_related('participante').all()
+
+    # 2. Búsqueda de Texto
     if buscar:
-        # Filtramos las Inscripciones
         lista = lista.filter(
             Q(participante__nombre_completo__icontains=buscar) |
             Q(participante__celular__icontains=buscar) |
             Q(curso__nombre__icontains=buscar)
         )
-        # ¡CORRECCIÓN!: Filtramos también las Ventas de Servicio para que no se filtren registros basura
         ventas_extra = ventas_extra.filter(
             Q(participante__nombre_completo__icontains=buscar) |
             Q(participante__celular__icontains=buscar) |
             Q(tipo_servicio__icontains=buscar) |
             Q(detalle__icontains=buscar)
         )
-
-    # ==========================================
-    # 3. MOTOR DE FILTRADO POR FECHAS UNIFICADO (Sin duplicados)
-    # ==========================================
-    if rango_fechas:
-        # Caso A: Rango seleccionado con el mouse en el calendario ("YYYY-MM-DD a YYYY-MM-DD")
+    # 3. Filtro de Fechas
+    elif rango_fechas:
         if ' a ' in rango_fechas:
             fecha_inicio, fecha_fin = rango_fechas.split(' a ')
             lista = lista.filter(fecha_inscripcion__range=[fecha_inicio, fecha_fin])
             ventas_extra = ventas_extra.filter(fecha_venta__range=[fecha_inicio, fecha_fin])
-            
-        # Caso B: Si escribió solo el Año con el teclado (Ej: "2026")
         elif len(rango_fechas) == 4 and rango_fechas.isdigit():
             lista = lista.filter(fecha_inscripcion__year=rango_fechas)
             ventas_extra = ventas_extra.filter(fecha_venta__year=rango_fechas)
-            
-        # Caso C: Si escribió el Año y el Mes con el teclado (Ej: "2026-06")
         elif len(rango_fechas) == 7 and '-' in rango_fechas:
             anio, mes = rango_fechas.split('-')
             lista = lista.filter(fecha_inscripcion__year=anio, fecha_inscripcion__month=mes)
             ventas_extra = ventas_extra.filter(fecha_venta__year=anio, fecha_venta__month=mes)
-            
-        # Caso D: Si hizo clic en un solo día exacto
         else:
             lista = lista.filter(fecha_inscripcion=rango_fechas)
             ventas_extra = ventas_extra.filter(fecha_venta=rango_fechas)
+    # OPTIMIZACIÓN CLAVE: Si no hay filtro, solo mostramos el MES ACTUAL para no colapsar la memoria
+    else:
+        hoy = datetime.date.today()
+        lista = lista.filter(fecha_inscripcion__year=hoy.year, fecha_inscripcion__month=hoy.month)
+        ventas_extra = ventas_extra.filter(fecha_venta__year=hoy.year, fecha_venta__month=hoy.month)
 
-    # ==========================================
-    # 4. NORMALIZACIÓN Y ORDENAMIENTO CRONOLÓGICO
-    # ==========================================
+    # Ordenamiento en RAM, pero ahora solo de unos pocos registros (Ultra Rápido)
     def normalizar_fecha(obj):
-        if hasattr(obj, 'fecha_inscripcion'):
-            fecha = obj.fecha_inscripcion
-        else:
-            fecha = obj.fecha_venta
-            
-        if isinstance(fecha, datetime.datetime):
-            return fecha.date()
-        elif fecha is None:
-            return datetime.date.min 
-            
-        return fecha
+        fecha = obj.fecha_inscripcion if hasattr(obj, 'fecha_inscripcion') else obj.fecha_venta
+        return fecha.date() if isinstance(fecha, datetime.datetime) else (fecha or datetime.date.min)
 
-    # Combinamos ambos flujos filtrados. 
-    # reverse=False garantiza que lo más antiguo quede arriba y lo más nuevo se agregue al final.
-    lista_combinada = sorted(
-        chain(lista, ventas_extra),
-        key=normalizar_fecha,
-        reverse=False
-    )
+    lista_combinada = sorted(chain(lista, ventas_extra), key=normalizar_fecha, reverse=False)
 
-    contexto = {
+    return render(request, 'inscripciones.html', {
         'lista_combinada': lista_combinada, 
         'buscar': buscar,
         'rango_fechas': rango_fechas,
-    }
-    
-    return render(request, 'inscripciones.html', contexto)
+    })
 
 
 @login_required
@@ -2273,9 +2242,14 @@ def lista_prestamos(request):
         )
         
     # --- 2. CÁLCULO DE TOTALES PARA LAS TARJETAS (KPIs) ---
-    total_capital_prestado = sum(p.monto_prestado for p in prestamos)
-    total_recuperado = sum(p.pago_acumulado for p in prestamos)
-    saldo_por_cobrar = sum(p.saldo_restante for p in prestamos)
+    totales_bd = prestamos.aggregate(
+        t_capital=Sum('monto_prestado'),
+        t_pagos=Sum('pagos__monto') # Suma todos los pagos asociados
+    )
+    
+    total_capital_prestado = totales_bd['t_capital'] or Decimal('0.00')
+    total_recuperado = totales_bd['t_pagos'] or Decimal('0.00')
+    saldo_por_cobrar = total_capital_prestado - total_recuperado
 
     contexto = {
         'prestamos': prestamos,
