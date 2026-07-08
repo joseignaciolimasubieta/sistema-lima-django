@@ -485,13 +485,16 @@
             // 4. Cargamos los datos si estamos editando
             if (duracionInput.value) {
                 const txt = duracionInput.value.toUpperCase();
-                const matchSem = txt.match(/([\d\.]+)\s*SEMANA/);
-                const matchSes = txt.match(/([\d\.]+)\s*SESI/);
-                const matchHrs = txt.match(/([\d\.]+)\s*HORA/);
+                
+                // 🚀 CORRECCIÓN: Agregamos la coma (,) al buscador para que no corte los decimales
+                const matchSem = txt.match(/([\d\.,]+)\s*SEMANA/);
+                const matchSes = txt.match(/([\d\.,]+)\s*SESI/);
+                const matchHrs = txt.match(/([\d\.,]+)\s*HORA/);
 
-                if (matchSem) numSem.value = matchSem[1];
-                if (matchSes) numSes.value = matchSes[1];
-                if (matchHrs) numHrs.value = matchHrs[1];
+                // Reemplazamos la coma por punto al mostrarlo en pantalla para que el campo <input type="number"> lo entienda
+                if (matchSem) numSem.value = matchSem[1].replace(',', '.');
+                if (matchSes) numSes.value = matchSes[1].replace(',', '.');
+                if (matchHrs) numHrs.value = matchHrs[1].replace(',', '.');
             }
 
             // 5. Motor principal: Ajusta textos y precios
