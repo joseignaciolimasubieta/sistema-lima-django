@@ -124,7 +124,7 @@
                         <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Promedio</h3>
                         <div class="flex items-baseline gap-1">
                             <span class="text-sm font-bold text-slate-400">Bs.</span>
-                            <p class="text-3xl font-black text-slate-900">{{ ticket_promedio|default:"0"|floatformat:0 }}</p>
+                            <p class="text-3xl font-black text-slate-900">{{ ticket_promedio|default:"0.00"|floatformat:2 }}</p>
                         </div>
                     </div>
 
@@ -178,7 +178,7 @@
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
                                             </td>
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
-                                                Bs. {{ curso.total_generado|default:"0"|floatformat:0 }}
+                                                Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
                                             </td>
                                             <td class="py-3 px-4 text-center">
                                                 <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">
@@ -220,7 +220,7 @@
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
                                             </td>
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
-                                                Bs. {{ curso.total_generado|default:"0"|floatformat:0 }}
+                                                Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
                                             </td>
                                             <td class="py-3 px-4 text-center">
                                                 <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">

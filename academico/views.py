@@ -739,7 +739,7 @@ def crear_servicio(request):
 @login_required
 @user_passes_test(es_administrador)
 def honorarios(request):
-    lista_honorarios = Honorario.objects.filter(curso__subcursos__isnull=True).select_related('curso__docente').order_by('-id')
+    lista_honorarios = Honorario.objects.filter(curso__subcursos__isnull=True).select_related('curso__docente').order_by('-id') #QUITAMOS LOS SUBCURSOS PARA QUE NO SE REPITAN EN LA TABLA
     hoy = date.today()
     
     # 1. CAPTURAMOS LOS DATOS DEL NUEVO FORMULARIO
@@ -3079,7 +3079,7 @@ def generar_certificado_individual(request, inscripcion_id):
 @login_required
 def lista_cursos_certificados(request):
     # Traemos los cursos ordenados ocultando los Módulos Padres
-    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('-id')
+    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('-id') #QUITA los cursos que son padres (tienen subcursos)
     buscar = request.GET.get('buscar', '')
     mes_busqueda = request.GET.get('mes', '') 
     
