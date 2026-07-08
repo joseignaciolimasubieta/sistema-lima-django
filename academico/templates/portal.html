@@ -13,7 +13,9 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             margin: 0;
-            overflow: hidden; /* Mantiene la interfaz fija en pantalla completa */
+            /* 🔓 LIBERAMOS EL SCROLL PARA CELULARES */
+            overflow-x: hidden; /* Evita que la pantalla baile hacia los lados */
+            overflow-y: auto;   /* Permite deslizar hacia abajo perfectamente */
         }
         
         /* Curva física ultra-fluida de Apple */
