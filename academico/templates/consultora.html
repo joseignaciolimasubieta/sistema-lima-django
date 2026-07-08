@@ -18,20 +18,20 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toasts = document.querySelectorAll('.toast-message');
-        toasts.forEach(toast => {
-            setTimeout(() => {
-                toast.classList.remove('translate-x-10', 'opacity-0');
-                toast.classList.add('translate-x-0', 'opacity-100');
-            }, 100);
+        // Configurador del Buscador de Calendario
+        flatpickr("#mes_buscar", {
+            locale: "es",
+            disableMobile: true, // 📱 ¡ESTA ES LA LÍNEA MÁGICA PARA LOS CELULARES!
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                })
+            ],
+            altInput: true,
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
         });
-        setTimeout(() => {
-            toasts.forEach(toast => {
-                toast.classList.remove('translate-x-0', 'opacity-100');
-                toast.classList.add('translate-x-10', 'opacity-0');
-                setTimeout(() => toast.remove(), 500);
-            });
-        }, 4000);
     });
 </script>
 {% endif %}
