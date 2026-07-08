@@ -420,91 +420,103 @@ def crear_inscripcion(request):
         
         curso_id = request.POST.get('curso')
         fecha = request.POST.get('fecha_inscripcion')
-        importe = request.POST.get('importe')
-        saldo_p = request.POST.get('saldo_pendiente', '0.00')
+        
+        # Convertimos a Decimal de forma segura
+        importe = Decimal(str(request.POST.get('importe', '0.00') or '0.00'))
+        saldo_p = Decimal(str(request.POST.get('saldo_pendiente', '0.00') or '0.00'))
+        
         banco = request.POST.get('banco')
         forma_pago = request.POST.get('forma_pago')
         modalidad = request.POST.get('modalidad').upper()
         vendedor = request.POST.get('vendedor').upper()
         registrado_por = request.POST.get('registrado_por').upper()
         
-        # 2. Inteligencia: Buscamos si el alumno ya existe (evitando error de duplicados)
+        # 2. Inteligencia: Buscamos si el alumno ya existe
         participantes_existentes = Participante.objects.filter(nombre_completo=nombre.upper())
         
         if participantes_existentes.exists():
-            # Si hay uno o varios, tomamos el primero y le actualizamos el celular por si cambió
             participante = participantes_existentes.first()
             participante.celular = celular
             participante.save()
         else:
-            # Si no existe, lo creamos completamente nuevo
             participante = Participante.objects.create(
                 nombre_completo=nombre.upper(),
                 celular=celular
             )
         
-        # 3. Buscamos el curso que seleccionó en la lista
-        curso = Curso.objects.get(id=curso_id)
+        # 3. Buscamos el curso o módulo seleccionado
+        curso_seleccionado = Curso.objects.get(id=curso_id)
+        subcursos = curso_seleccionado.subcursos.all().order_by('id')
         
         # =========================================================
-        # 🛡️ PARCHE DE SEGURIDAD: PREVENCIÓN DE DOBLE INSCRIPCIÓN
+        # 🤖 CEREBRO DE DISTRIBUCIÓN MATEMÁTICA (COMO EN EL EXCEL)
         # =========================================================
-        # Buscamos si ya existe una inscripción idéntica (Mismo alumno, curso, modalidad e importe)
-        inscripcion_duplicada = Inscripcion.objects.filter(
-            participante=participante,
-            curso=curso,
-            modalidad=modalidad,
-            importe=importe
-        ).exists()
-        
-        if inscripcion_duplicada:
-            messages.error(request, f'ACCIÓN BLOQUEADA: El alumno {participante.nombre_completo} ya está registrado en el curso "{curso.nombre}" (Modalidad: {modalidad}). No se puede duplicar la inscripción.')
-            return redirect('inscripciones')
-        # =========================================================
-        
-        # 4. Guardamos la Inscripción final si pasó el filtro de seguridad
-        Inscripcion.objects.create(
-            participante=participante,
-            curso=curso,
-            fecha_inscripcion=fecha,
-            importe=importe,
-            saldo_pendiente=Decimal(str(saldo_p or '0.00')),
-            banco=banco,
-            forma_pago=forma_pago,
-            modalidad=modalidad,
-            vendedor=vendedor,
-            registrado_por=registrado_por
-        )
-        # =========================================================
-        # 🤖 NUEVA AUTOMATIZACIÓN: INYECCIÓN DE CURSOS DEL MÓDULO
-        # =========================================================
-        # Preguntamos a la base de datos si el curso que compró tiene hijos
-        subcursos = curso.subcursos.all()
-        
         if subcursos.exists():
-            for subcurso in subcursos:
-                # Candado de seguridad: Inscribe al alumno en los 4 cursos solo si no estaba inscrito antes
+            # ES UN MÓDULO: Dividimos el dinero entre sus cursos internos
+            cantidad = subcursos.count()
+            
+            # Calculamos la base para no perder centavos
+            importe_base = round(importe / cantidad, 2)
+            saldo_base = round(saldo_p / cantidad, 2)
+            
+            importe_acumulado = Decimal('0.00')
+            saldo_acumulado = Decimal('0.00')
+            
+            for i, subcurso in enumerate(subcursos):
+                # El último curso absorbe la diferencia exacta (Ej: el de 99 Bs.)
+                if i == cantidad - 1:
+                    importe_final = importe - importe_acumulado
+                    saldo_final = saldo_p - saldo_acumulado
+                else:
+                    importe_final = importe_base
+                    saldo_final = saldo_base
+                    importe_acumulado += importe_base
+                    saldo_acumulado += saldo_base
+                    
+                # Validamos duplicados individuales
                 if not Inscripcion.objects.filter(participante=participante, curso=subcurso).exists():
                     Inscripcion.objects.create(
                         participante=participante,
-                        curso=subcurso,
+                        curso=subcurso, # Guardamos el CURSO, ignoramos el Módulo
                         fecha_inscripcion=fecha,
-                        importe=Decimal('0.00'), # BS. 0 PARA NO CLONAR EL DINERO EN EL FLUJO DE CAJA
-                        saldo_pendiente=Decimal('0.00'),
+                        importe=importe_final,
+                        saldo_pendiente=saldo_final,
                         banco=banco,
                         forma_pago=forma_pago,
                         modalidad=modalidad,
                         vendedor=vendedor,
                         registrado_por=registrado_por
                     )
-        # =========================================================
+            messages.success(request, f'Alumno inscrito con éxito en los {cantidad} cursos correspondientes al {curso_seleccionado.nombre}.')
+            
+        else:
+            # ES UN CURSO NORMAL (SIN HIJOS)
+            inscripcion_duplicada = Inscripcion.objects.filter(
+                participante=participante, curso=curso_seleccionado, modalidad=modalidad
+            ).exists()
+            
+            if inscripcion_duplicada:
+                messages.error(request, f'ACCIÓN BLOQUEADA: El alumno {participante.nombre_completo} ya está registrado en el curso "{curso_seleccionado.nombre}".')
+                return redirect('inscripciones')
+                
+            Inscripcion.objects.create(
+                participante=participante,
+                curso=curso_seleccionado,
+                fecha_inscripcion=fecha,
+                importe=importe,
+                saldo_pendiente=saldo_p,
+                banco=banco,
+                forma_pago=forma_pago,
+                modalidad=modalidad,
+                vendedor=vendedor,
+                registrado_por=registrado_por
+            )
+            messages.success(request, 'Participante registrado con éxito.')
 
-        messages.success(request, 'Participante registrado con éxito.')
         return redirect('inscripciones')
     
     else:
         hoy = date.today()
-        # Orden inteligente: 1 (NO INICIÓ), 2 (EN CURSO), 3 (FINALIZADO)
         cursos = Curso.objects.select_related('docente').annotate(
             orden_estado=Case(
                 When(fecha_inicio__gt=hoy, then=Value(1)),
@@ -2711,75 +2723,96 @@ def liquidar_saldo_inscripcion(request, id):
 @login_required
 def crear_inscripcion_cc(request):
     if request.method == 'POST':
-        # 1. Ahora recibimos el texto ingresado en el formulario
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
         celular = request.POST.get('celular', '').strip()
         
         curso_id = request.POST.get('curso')
         fecha = request.POST.get('fecha_inscripcion')
         
-        # Datos financieros
         monto_pagado = Decimal(str(request.POST.get('monto_pagado', '0.00').strip() or '0.00'))
         saldo_pendiente = Decimal(str(request.POST.get('saldo_pendiente', '0.00').strip() or '0.00'))
         
-        # Datos logísticos
         banco = request.POST.get('banco')
         forma_pago = request.POST.get('forma_pago')
         modalidad = request.POST.get('modalidad', 'VIRTUAL').upper()
         vendedor = request.POST.get('vendedor', '').upper()
         registrado_por = request.POST.get('registrado_por', '').upper()
         
-        # 2. Creamos al Participante si no existe, o lo recuperamos
         participante, created = Participante.objects.get_or_create(
             nombre_completo=nombre_completo,
             defaults={'celular': celular}
         )
-        # Si el participante ya existía pero cambió de celular, lo actualizamos
         if not created and celular and participante.celular != celular:
             participante.celular = celular
             participante.save()
         
-        curso = get_object_or_404(Curso, id=curso_id)
+        curso_seleccionado = get_object_or_404(Curso, id=curso_id)
+        subcursos = curso_seleccionado.subcursos.all().order_by('id')
         
         # =========================================================
-        # 🛡️ PARCHE DE SEGURIDAD: PREVENCIÓN DE DOBLE INSCRIPCIÓN CON DEUDA
+        # 🤖 CEREBRO DE DISTRIBUCIÓN MATEMÁTICA PARA DEUDAS
         # =========================================================
-        inscripcion_duplicada = Inscripcion.objects.filter(
-            participante=participante,
-            curso=curso,
-            modalidad=modalidad,
-            importe=monto_pagado,
-            saldo_pendiente=saldo_pendiente
-        ).exists()
-        
-        if inscripcion_duplicada:
-            messages.error(request, f'ACCIÓN BLOQUEADA: El alumno {participante.nombre_completo} ya tiene registrado este plan de pagos (Anticipo: {monto_pagado} | Deuda: {saldo_pendiente}) en el curso "{curso.nombre}". No se puede duplicar.')
-            return redirect('cuentas_por_cobrar')
-        # =========================================================
-        
-        # 3. Guardamos la inscripción de Deuda si pasa la seguridad
-        Inscripcion.objects.create(
-            participante=participante,
-            curso=curso,
-            fecha_inscripcion=fecha,
-            importe=monto_pagado,
-            saldo_pendiente=saldo_pendiente,
-            banco=banco,
-            forma_pago=forma_pago,
-            modalidad=modalidad,
-            vendedor=vendedor,
-            registrado_por=registrado_por
-        )
-        
-        messages.success(request, f'Inscripción con deuda de Bs. {saldo_pendiente} registrada oficialmente.')
+        if subcursos.exists():
+            cantidad = subcursos.count()
+            
+            pago_base = round(monto_pagado / cantidad, 2)
+            deuda_base = round(saldo_pendiente / cantidad, 2)
+            
+            pago_acumulado = Decimal('0.00')
+            deuda_acumulada = Decimal('0.00')
+            
+            for i, subcurso in enumerate(subcursos):
+                if i == cantidad - 1:
+                    pago_final = monto_pagado - pago_acumulado
+                    deuda_final = saldo_pendiente - deuda_acumulada
+                else:
+                    pago_final = pago_base
+                    deuda_final = deuda_base
+                    pago_acumulado += pago_base
+                    deuda_acumulada += deuda_base
+                    
+                if not Inscripcion.objects.filter(participante=participante, curso=subcurso).exists():
+                    Inscripcion.objects.create(
+                        participante=participante,
+                        curso=subcurso, # Ignora el Módulo, guarda el Curso
+                        fecha_inscripcion=fecha,
+                        importe=pago_final,
+                        saldo_pendiente=deuda_final,
+                        banco=banco,
+                        forma_pago=forma_pago,
+                        modalidad=modalidad,
+                        vendedor=vendedor,
+                        registrado_por=registrado_por
+                    )
+            messages.success(request, f'Deuda distribuida e inscrita en los {cantidad} cursos del {curso_seleccionado.nombre}.')
+            
+        else:
+            inscripcion_duplicada = Inscripcion.objects.filter(
+                participante=participante, curso=curso_seleccionado, modalidad=modalidad
+            ).exists()
+            
+            if inscripcion_duplicada:
+                messages.error(request, f'ACCIÓN BLOQUEADA: El alumno ya tiene deuda registrada en el curso "{curso_seleccionado.nombre}".')
+                return redirect('cuentas_por_cobrar')
+            
+            Inscripcion.objects.create(
+                participante=participante,
+                curso=curso_seleccionado,
+                fecha_inscripcion=fecha,
+                importe=monto_pagado,
+                saldo_pendiente=saldo_pendiente,
+                banco=banco,
+                forma_pago=forma_pago,
+                modalidad=modalidad,
+                vendedor=vendedor,
+                registrado_por=registrado_por
+            )
+            messages.success(request, f'Inscripción con deuda registrada oficialmente.')
+            
         return redirect('cuentas_por_cobrar')
         
     else:
         hoy = date.today()
-        # Ordenamos usando una lógica matemática:
-        # 1 = No inició (fecha inicio > hoy)
-        # 2 = En curso (hoy está entre inicio y fin)
-        # 3 = Finalizado (fecha fin < hoy)
         cursos = Curso.objects.select_related('docente').annotate(
             orden_estado=Case(
                 When(fecha_inicio__gt=hoy, then=Value(1)),
@@ -2787,7 +2820,7 @@ def crear_inscripcion_cc(request):
                 default=Value(3),
                 output_field=IntegerField(),
             )
-        ).order_by('orden_estado', '-fecha_inicio') # Primero por estado, luego por más reciente
+        ).order_by('orden_estado', '-fecha_inicio') 
     
     return render(request, 'crear_inscripcion_cc.html', {
         'cursos': cursos,
