@@ -15,6 +15,9 @@ class CursoForm(forms.ModelForm):
     class Meta:
         model = Curso
         fields = '__all__'
+        widgets = {
+            'modulo_padre': forms.Select(attrs={'class': 'w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] transition-all shadow-sm appearance-none cursor-pointer'}),
+        }
 
 class InscripcionForm(forms.ModelForm):
     class Meta:
