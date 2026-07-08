@@ -1083,151 +1083,100 @@ def crear_pago(request):
     return render(request, 'crear_pago.html', {'empleados': empleados, 'cuentas': cuentas})
 @login_required
 def detalle_curso(request, curso_id):
-   
-
-    # 1. Buscamos el curso y calculamos los totales por modalidad
     curso = get_object_or_404(Curso, id=curso_id)
-    total_virtual = Inscripcion.objects.filter(curso=curso, modalidad='VIRTUAL').count()
-    total_presencial = Inscripcion.objects.filter(curso=curso, modalidad='PRESENCIAL').count()
-    
-    # 2. Control de la pestaña activa (Virtual o Presencial)
-    modalidad_param = request.GET.get('modalidad')
-    if modalidad_param:
-        modalidad_actual = modalidad_param.upper()
-    else:
-        if total_virtual > 0:
-            modalidad_actual = 'VIRTUAL'
-        elif total_presencial > 0:
-            modalidad_actual = 'PRESENCIAL'
-        else:
-            modalidad_actual = 'VIRTUAL'
-            
-    inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
+    inscripciones = Inscripcion.objects.filter(curso=curso).select_related('participante').order_by('participante__nombre_completo')
     
     # ==============================================================
-    # --- NUEVO: BUSCADOR POR NOMBRE DE ALUMNO ---
+    # 🤖 MOTOR INTELIGENTE DE ASISTENCIAS: SESIONES Y DÍAS EXACTOS
     # ==============================================================
-    buscar = request.GET.get('buscar', '').strip()
-    if buscar:
-        inscritos = inscritos.filter(participante__nombre_completo__icontains=buscar)
-    # ==============================================================
-
-    # --- 3. MOTOR INTELIGENTE: FILTRAR DÍAS EXACTOS DE CLASE ---
-    fechas_curso = []
-    
-    # Quitamos la obligación de que "dias" esté lleno, con solo tener las fechas funcionará
-    if curso.fecha_inicio and curso.fecha_finalizacion:
+    fechas_clases = []
+    if curso.fecha_inicio:
+        # 1. ESCÁNER DE DÍAS: Detecta los días sin importar cómo lo hayan escrito
+        dias_texto = (curso.dias or '').upper()
+        dias_map = {
+            'LUNES': 0, 'MARTES': 1, 'MIÉRCOLES': 2, 'MIERCOLES': 2, 
+            'JUEVES': 3, 'VIERNES': 4, 'SÁBADO': 5, 'SABADO': 5, 'DOMINGO': 6
+        }
         dias_validos = set()
-        # Si no escribieron días, lo tomamos como texto vacío para que no dé error
-        dias_texto = str(curso.dias).upper() if curso.dias else ""
         
-        if "LUNES A JUEVES" in dias_texto:
-            dias_validos = {0, 1, 2, 3}
-        elif "LUNES A MIERCOLES" in dias_texto or "LUNES A MIÉRCOLES" in dias_texto:
-            dias_validos = {0, 1, 2}
-        elif "LUNES A VIERNES" in dias_texto:
-            dias_validos = {0, 1, 2, 3, 4}
-        elif "FIN DE SEMANA" in dias_texto:
-            dias_validos = {5, 6}
-        elif "SABADO" in dias_texto or "SÁBADO" in dias_texto:
-            dias_validos = {5}
-        else:
-            # Búsqueda de días sueltos
-            if "LUNES" in dias_texto: dias_validos.add(0)
-            if "MARTES" in dias_texto: dias_validos.add(1)
-            if "MIERCOLES" in dias_texto or "MIÉRCOLES" in dias_texto: dias_validos.add(2)
-            if "JUEVES" in dias_texto: dias_validos.add(3)
-            if "VIERNES" in dias_texto: dias_validos.add(4)
-            if "SABADO" in dias_texto or "SÁBADO" in dias_texto: dias_validos.add(5)
-            if "DOMINGO" in dias_texto: dias_validos.add(6)
-            
-        # Si escribieron algo raro o lo dejaron en blanco, activamos de Lunes a Sábado por defecto
+        # A) Primero probamos si es un rango (Ej: LUNES A JUEVES)
+        if ' A ' in dias_texto:
+            partes = dias_texto.split(' A ')
+            if len(partes) == 2:
+                idx_ini = dias_map.get(partes[0].strip(), -1)
+                idx_fin = dias_map.get(partes[1].strip(), -1)
+                if idx_ini != -1 and idx_fin != -1:
+                    if idx_ini <= idx_fin:
+                        dias_validos.update(range(idx_ini, idx_fin + 1))
+                    else: # Si es de Viernes a Lunes (Pasa el fin de semana)
+                        dias_validos.update(range(idx_ini, 7))
+                        dias_validos.update(range(0, idx_fin + 1))
+        
+        # B) Si no es un rango, buscamos palabras sueltas (Ej: LUNES, MIERCOLES Y VIERNES)
         if not dias_validos:
-            dias_validos = {0, 1, 2, 3, 4, 5}
+            for nombre_dia, idx in dias_map.items():
+                if nombre_dia in dias_texto:
+                    dias_validos.add(idx)
+                    
+        # C) Red de seguridad: Si está vacío, asumimos Lunes a Viernes para no romper la tabla
+        if not dias_validos:
+            dias_validos = {0, 1, 2, 3, 4}
+            
+        dias_validos = list(dias_validos)
 
-        delta = curso.fecha_finalizacion - curso.fecha_inicio
-        
-        # --- NUEVO: LISTADO DE FERIADOS EN PYTHON (AÑO 2026) ---
-        feriados_bolivia = [
-            date(2026, 1, 1), date(2026, 1, 22), date(2026, 2, 16), date(2026, 2, 17),
-            date(2026, 4, 3), date(2026, 5, 1), date(2026, 6, 4), date(2026, 6, 22),
-            date(2026, 8, 6), date(2026, 11, 2), date(2026, 12, 25)
+        # Feriados de Bolivia 2026
+        feriados = [
+            "2026-01-01", "2026-01-22", "2026-02-16", "2026-02-17", 
+            "2026-04-03", "2026-05-01", "2026-06-04", "2026-06-22", 
+            "2026-08-06", "2026-11-02", "2026-12-25"
         ]
 
-        # Medida de seguridad: verificamos que la fecha final no sea antes que la de inicio
-        if delta.days >= 0:
-            for i in range(delta.days + 1):
-                dia = curso.fecha_inicio + timedelta(days=i)
-                
-                # ¡CONDICIÓN ACTUALIZADA!: El día de semana coincide Y NO ES FERIADO
-                if dia.weekday() in dias_validos and dia not in feriados_bolivia:
-                    fechas_curso.append(dia)
-                
-    # --- 4. GENERACIÓN DE LA MATRIZ DE ASISTENCIA REAL (¡OPTIMIZADA!) ---
-    alumnos_con_asistencia = []
-    
-    if inscritos and fechas_curso:
-        # Extraemos solo los IDs de los alumnos para buscar rápido
-        inscripciones_ids = [ins.id for ins in inscritos]
-        
-        # 1. Traemos TODAS las asistencias existentes de un solo golpe (1 sola consulta SQL)
-        asistencias_existentes = Asistencia.objects.filter(
-            inscripcion_id__in=inscripciones_ids,
-            fecha__in=fechas_curso
-        )
-        
-        # 2. Las guardamos en un diccionario rápido en memoria para buscarlas al instante
-        # Clave: (inscripcion_id, fecha) -> Valor: Objeto Asistencia
-        mapa_asistencias = {(a.inscripcion_id, a.fecha): a for a in asistencias_existentes}
-        
-        # 3. Preparamos una lista para guardar los cuadritos vacíos que falten
-        nuevas_asistencias = []
-        
-        for inscrito in inscritos:
-            for fecha in fechas_curso:
-                clave = (inscrito.id, fecha)
-                if clave not in mapa_asistencias:
-                    # Si no existe, preparamos el objeto en RAM (PERO NO LO GUARDAMOS TODAVÍA)
-                    nueva_asis = Asistencia(
-                        inscripcion=inscrito, 
-                        fecha=fecha, 
-                        estado='PENDIENTE'
-                    )
-                    nuevas_asistencias.append(nueva_asis)
-        
-        # 4. GUARDADO MASIVO: Guarda miles de registros en 1 sola consulta SQL
-        if nuevas_asistencias:
-            Asistencia.objects.bulk_create(nuevas_asistencias)
-            
-            # Recargamos el diccionario de forma segura para tener los IDs reales de la base de datos
-            asistencias_existentes = Asistencia.objects.filter(
-                inscripcion_id__in=inscripciones_ids,
-                fecha__in=fechas_curso
-            )
-            mapa_asistencias = {(a.inscripcion_id, a.fecha): a for a in asistencias_existentes}
+        # 2. Extraer número de sesiones exactas
+        import re
+        limite_sesiones = None
+        if curso.duracion:
+            match = re.search(r'(\d+)\s*SESI', curso.duracion.upper())
+            if match:
+                limite_sesiones = int(match.group(1))
 
-        # 5. Finalmente, armamos la matriz para el HTML usando solo la memoria RAM (ultra rápido)
-        for inscrito in inscritos:
-            asistencias_alumno = []
-            for fecha in fechas_curso:
-                asistencias_alumno.append(mapa_asistencias[(inscrito.id, fecha)])
-            
-            alumnos_con_asistencia.append({
-                'inscripcion': inscrito,
-                'asistencias': asistencias_alumno
-            })
-    
-    contexto = {
+        dia_actual = curso.fecha_inicio
+        
+        # 3. GENERAR EL CALENDARIO REAL
+        if limite_sesiones:
+            limite_seguridad = 100 # Evita que el sistema colapse
+            contador = 0
+            while len(fechas_clases) < limite_sesiones and contador < limite_seguridad:
+                # Solo agrega la columna si el día de la semana coincide y no es feriado
+                if dia_actual.weekday() in dias_validos and dia_actual.strftime('%Y-%m-%d') not in feriados:
+                    fechas_clases.append(dia_actual)
+                dia_actual += timedelta(days=1)
+                contador += 1
+        elif curso.fecha_finalizacion:
+            # Si no pusieron número de sesiones, se basa en la fecha final
+            delta = (curso.fecha_finalizacion - curso.fecha_inicio).days
+            for i in range(delta + 1):
+                dia = curso.fecha_inicio + timedelta(days=i)
+                if dia.weekday() in dias_validos and dia.strftime('%Y-%m-%d') not in feriados:
+                    fechas_clases.append(dia)
+                    
+    # 4. Inyectar datos de asistencias previas
+    asistencias_bd = Asistencia.objects.filter(inscripcion__curso=curso)
+    mapa_asistencias = {(a.inscripcion_id, a.fecha): a.estado for a in asistencias_bd}
+
+    tabla_asistencia = []
+    for ins in inscripciones:
+        fila = {'inscripcion': ins, 'asistencias': []}
+        for fecha in fechas_clases:
+            estado = mapa_asistencias.get((ins.id, fecha), '')
+            fila['asistencias'].append({'fecha': fecha, 'estado': estado})
+        tabla_asistencia.append(fila)
+
+    return render(request, 'detalle_curso.html', {
         'curso': curso,
-        'inscritos': inscritos,
-        'alumnos_con_asistencia': alumnos_con_asistencia,
-        'fechas_curso': fechas_curso,
-        'modalidad_actual': modalidad_actual,
-        'total_virtual': total_virtual,
-        'total_presencial': total_presencial,
-        'buscar': buscar,
-    }
-    return render(request, 'detalle_curso.html', contexto)
+        'fechas_clases': fechas_clases,
+        'tabla_asistencia': tabla_asistencia,
+        'total_inscritos': inscripciones.count()
+    })
 @csrf_exempt
 @login_required
 def toggle_asistencia(request):
