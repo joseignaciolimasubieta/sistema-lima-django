@@ -2613,15 +2613,36 @@ def eliminar_cliente(request, cliente_id):
     return redirect('crear_cliente')
 @login_required
 def cuentas_por_cobrar(request):
-    # Traemos solo las inscripciones que deben dinero
+    # 1. Atrapamos los parámetros que envía el buscador del HTML
+    buscar = request.GET.get('buscar', '').strip()
+    rango_fechas = request.GET.get('rango_fechas', '').strip()
+
+    # 2. Traemos solo las inscripciones que deben dinero por defecto
     cuentas = Inscripcion.objects.filter(saldo_pendiente__gt=0).select_related('participante', 'curso').order_by('-fecha_inscripcion')
     
-    # Calculamos el KPI global de cuentas por cobrar
+    # 3. APLICAMOS EL FILTRO DE TEXTO (Nombre o Celular)
+    if buscar:
+        cuentas = cuentas.filter(
+            Q(participante__nombre_completo__icontains=buscar) |
+            Q(participante__celular__icontains=buscar)
+        )
+        
+    # 4. APLICAMOS EL FILTRO DE FECHAS (Un día o un rango)
+    if rango_fechas:
+        if ' a ' in rango_fechas:
+            fecha_inicio, fecha_fin = rango_fechas.split(' a ')
+            cuentas = cuentas.filter(fecha_inscripcion__range=[fecha_inicio, fecha_fin])
+        else:
+            cuentas = cuentas.filter(fecha_inscripcion=rango_fechas)
+
+    # 5. Calculamos el KPI global (se recalculará automáticamente según lo que se haya filtrado)
     total_deuda = cuentas.aggregate(total=Sum('saldo_pendiente'))['total'] or 0
     
     return render(request, 'cuentas_por_cobrar.html', {
         'cuentas': cuentas,
-        'total_deuda': total_deuda
+        'total_deuda': total_deuda,
+        'buscar': buscar,             # Enviamos de vuelta para que no se borre del input
+        'rango_fechas': rango_fechas  # Enviamos de vuelta para que no se borre del calendario
     })
 
 @login_required
