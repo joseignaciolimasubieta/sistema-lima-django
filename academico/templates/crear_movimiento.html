@@ -86,10 +86,21 @@
     document.addEventListener('DOMContentLoaded', function() {
         flatpickr("#fecha", {
             locale: "es",
+            disableMobile: true, // 🚀 1. OBLIGA a usar este diseño en celulares
             dateFormat: "Y-m-d", 
             altInput: true,      
             altFormat: "j \\de F, Y", 
             defaultDate: new Date(), 
+            
+            // 🚀 2. PARCHE PARA IPHONE Y ANDROID: Evita que el teclado tape el calendario
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none');
+                }
+            },
+            
+            // Conservamos tu diseño original intacto
             altInputClass: "w-full h-10 bg-white border border-gray-200 rounded-xl pl-10 pr-4 text-sm font-bold text-black outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3] transition-all cursor-pointer hover:bg-gray-50 shadow-sm"
         });
     });
