@@ -16,6 +16,24 @@
     </div>
     {% endfor %}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-mensaje');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 3000);
+    });
+</script>
 {% endif %}
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
