@@ -83,9 +83,20 @@
     document.addEventListener('DOMContentLoaded', function() {
         flatpickr("#fecha", {
             locale: "es",
+            disableMobile: true, // 🚀 Obliga a usar el diseño web en celulares
             dateFormat: "Y-m-d", 
             altInput: true,      
             altFormat: "j \\de F, Y", 
+            
+            // 🚀 PARCHE PARA MÓVILES: Desactiva el teclado nativo para que no estorbe
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none');
+                }
+            },
+            
+            // Mantenemos tus clases de diseño originales
             altInputClass: "w-full h-10 bg-white border border-gray-200 rounded-xl pl-10 pr-4 text-sm font-bold text-black outline-none focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3] transition-all cursor-pointer hover:bg-gray-50 shadow-sm"
         });
     });

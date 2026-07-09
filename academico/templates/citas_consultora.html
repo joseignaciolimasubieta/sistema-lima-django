@@ -222,7 +222,16 @@
             altFormat: "j \\de F, Y",
             locale: "es",
             minDate: "today",
-            defaultDate: "today"
+            defaultDate: "today",
+            disableMobile: true, // 🚀 Fuerza diseño web interactivo en celulares
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none'); // 🚀 Bloquea teclado nativo
+                }
+            },
+            // Clonamos explícitamente tus clases de diseño Tailwind
+            altInputClass: "w-full h-11 bg-slate-50 border-2 border-slate-100 rounded-xl px-3 text-xs font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] transition-all cursor-pointer"
         });
 
         // 2. Inteligencia de Reloj en 24h (Solo 00 y 30)
