@@ -250,16 +250,31 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        
+        // Configurador del Buscador de Calendario
         flatpickr("#rango_fechas_dash", {
-            mode: "range",
-            dateFormat: "Y-m-d",
             locale: "es",
+            disableMobile: true, // Fuerza nuestro diseño personalizado
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                })
+            ],
             altInput: true,
-            altFormat: "d M Y",
-            // ACTUALIZAR ESTA LÍNEA CON LAS CLASES DEL BUSCADOR UNIFICADO:
-            altInputClass: "w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer"
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
+            
+            // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    // 1. Quita el candado que bloquea los toques en el celular
+                    instance.altInput.removeAttribute('readonly');
+                    // 2. Apaga el teclado nativo para que no estorbe
+                    instance.altInput.setAttribute('inputmode', 'none');
+                }
+            }
         });
+    
 
         // INICIALIZACIÓN DEL GRÁFICO REAL
         {% if reporte_cursos %}
