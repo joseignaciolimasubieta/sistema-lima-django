@@ -314,6 +314,22 @@
         document.getElementById('btn_abrir_calendario').addEventListener('click', function() {
             fp.open();
         });
+        // TRADUCTOR AUTOMÁTICO DE FECHAS AL CARGAR LA PÁGINA (Ej: 2026-07 a JULIO 2026)
+        const textoVisualCalendario = document.getElementById('texto_calendario_visual');
+        const inputMesOculto = document.querySelector('input[name="mes_buscar"]');
+        
+        if (textoVisualCalendario && inputMesOculto && inputMesOculto.value.includes('-')) {
+            const partes = inputMesOculto.value.split('-');
+            if (partes.length === 2) {
+                const year = partes[0];
+                const month = parseInt(partes[1], 10);
+                const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
+                
+                if (month >= 1 && month <= 12) {
+                    textoVisualCalendario.textContent = meses[month - 1] + ' ' + year;
+                }
+            }
+        }
            
 
         const urlParams = new URLSearchParams(window.location.search);
