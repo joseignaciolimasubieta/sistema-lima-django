@@ -73,10 +73,11 @@
 
                     <!-- Buscador de Mes / Periodo -->
                     <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <!-- Le agregamos pointer-events-none para que el ícono no bloquee tu dedo -->
                         <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        
+                        <!-- Quitamos el class="hidden" y lo dejamos visible -->
                         <input type="text" id="calendario_cursos" name="mes" value="{{ mes }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
                     </div>
                     
@@ -218,7 +219,7 @@
         // Configurador del Buscador de Calendario
         flatpickr("#calendario_cursos", {
             locale: "es",
-            disableMobile: true, // Fuerza nuestro diseño personalizado
+            disableMobile: true, // 📱 Evita usar el calendario nativo roto
             plugins: [
                 new monthSelectPlugin({
                     shorthand: false,
@@ -232,9 +233,9 @@
             // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
             onReady: function(selectedDates, dateStr, instance) {
                 if (instance.altInput) {
-                    // 1. Quita el candado que bloquea los toques en el celular
+                    // 1. Quita el candado que bloquea los toques en celulares
                     instance.altInput.removeAttribute('readonly');
-                    // 2. Apaga el teclado nativo para que no estorbe
+                    // 2. Apaga el teclado de letras para que no estorbe
                     instance.altInput.setAttribute('inputmode', 'none');
                 }
             }
