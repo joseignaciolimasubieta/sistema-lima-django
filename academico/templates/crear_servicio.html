@@ -237,13 +237,36 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         
-        // Se inyecta custom-input-icon para asegurar el margen del calendario
+        // 1. Calendario de Fecha Exacta
         flatpickr("#id_fecha", {
-            locale: "es", dateFormat: "Y-m-d", altInput: true, altFormat: "j \\de F, Y", defaultDate: new Date(), altInputClass: "custom-input custom-input-icon cursor-pointer"
+            locale: "es", 
+            disableMobile: true, // 🚀 Fuerza diseño web en celulares
+            dateFormat: "Y-m-d", 
+            altInput: true, 
+            altFormat: "j \\de F, Y", 
+            defaultDate: new Date(), 
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none'); // 🚀 Bloquea teclado nativo
+                }
+            },
+            altInputClass: "custom-input custom-input-icon cursor-pointer"
         });
 
+        // 2. Calendario de Mes
         flatpickr("#id_periodo", {
-            locale: "es", plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], altInput: true, altInputClass: "custom-input custom-input-icon cursor-pointer"
+            locale: "es", 
+            disableMobile: true, // 🚀 Fuerza diseño web en celulares
+            plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], 
+            altInput: true, 
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none'); // 🚀 Bloquea teclado nativo
+                }
+            },
+            altInputClass: "custom-input custom-input-icon cursor-pointer uppercase"
         });
 
         const selectCliente = document.getElementById('id_cliente');
