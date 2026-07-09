@@ -289,7 +289,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const fp = flatpickr("#calendario_planillas", {
+        const fp = flatpickr("#calendario_cursos", {
             locale: "es",
             disableMobile: true,
             plugins: [
@@ -309,6 +309,12 @@
                 }
             }
         });
+
+        // Conectar el clic del botón visual con el input oculto
+        document.getElementById('btn_abrir_calendario').addEventListener('click', function() {
+            fp.open();
+        });
+           
 
         const urlParams = new URLSearchParams(window.location.search);
         const imprimirId = urlParams.get('imprimir');
