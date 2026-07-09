@@ -66,7 +66,17 @@
 <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
 <script>
-    flatpickr("#fecha", { locale: "es", altInput: true, altFormat: "d F Y", altInputClass: "w-full h-12 bg-white border-2 border-gray-200 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:border-[#0071e3] text-center" });
-    flatpickr("#mes_descuento", { locale: "es", plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], altInput: true, altInputClass: "w-full h-12 bg-blue-50/40 border-2 border-blue-200 rounded-xl px-4 text-sm font-black text-[#0071e3] uppercase outline-none focus:border-[#0071e3] text-center" });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Captura automáticamente cualquier input de fecha generado por tus formularios de Django
+        flatpickr("input[type='date']", {
+            locale: "es",
+            disableMobile: true, // 🚀 LA CLAVE: Evita que el celular use su calendario nativo defectuoso
+            dateFormat: "Y-m-d", // Formato estándar limpio para que la base de datos no sufra rechazos
+            altInput: true,
+            altFormat: "d \\de F, Y", // Formato visual elegante y legible (Ej: 09 de Julio, 2026)
+            // Esta clase clona tu diseño estilizado para la nueva entrada visual interactiva
+            altInputClass: "w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black outline-none focus:bg-white focus:border-[#0071e3] transition-all shadow-sm cursor-pointer uppercase layout-fecha-movil"
+        });
+    });
 </script>
 {% endblock %}
