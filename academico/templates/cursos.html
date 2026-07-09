@@ -72,16 +72,12 @@
                     <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
 
                     <!-- Buscador de Mes / Periodo -->
-                    <div class="relative w-full sm:w-36 h-8 flex items-center bg-transparent group-focus-within:bg-gray-50/50 rounded-full transition-colors cursor-pointer" id="btn_abrir_calendario">
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
                         <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
                         
-                        <div id="texto_calendario_visual" class="w-full h-full pl-8 pr-2 flex items-center text-[10px] font-bold {% if mes_buscar %}text-black{% else %}text-gray-400{% endif %} uppercase select-none pointer-events-none">
-                            {% if mes_buscar %}{{ mes_buscar }}{% else %}PERIODO...{% endif %}
-                        </div>
-
-                        <input type="text" id="calendario_cursos" name="mes_buscar" value="{{ mes_buscar }}" class="absolute opacity-0 w-0 h-0 pointer-events-none">
+                        <input type="text" id="calendario_cursos" name="mes_buscar" value="{{ mes_buscar }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
                     </div>
                     
                     <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
@@ -219,30 +215,29 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const fp = flatpickr("#calendario_cursos", {
+        // Configurador del Buscador de Calendario
+        flatpickr("#calendario_cursos", {
             locale: "es",
-            disableMobile: true,
+            disableMobile: true, // Fuerza nuestro diseño personalizado
             plugins: [
                 new monthSelectPlugin({
                     shorthand: false,
                     dateFormat: "Y-m",
                     altFormat: "F Y",
-                    theme: "light"
                 })
             ],
-            onChange: function(selectedDates, dateStr, instance) {
-                const textoVisual = document.getElementById('texto_calendario_visual');
-                if (dateStr) {
-                    textoVisual.textContent = instance.formatDate(selectedDates[0], "F Y");
-                    textoVisual.classList.remove('text-gray-400');
-                    textoVisual.classList.add('text-black');
+            altInput: true,
+            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
+            
+            // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    // 1. Quita el candado que bloquea los toques en el celular
+                    instance.altInput.removeAttribute('readonly');
+                    // 2. Apaga el teclado nativo para que no estorbe
+                    instance.altInput.setAttribute('inputmode', 'none');
                 }
             }
-        });
-
-        // Conectar el clic del botón visual con el input oculto
-        document.getElementById('btn_abrir_calendario').addEventListener('click', function() {
-            fp.open();
         });
     });
 </script>
