@@ -36,11 +36,16 @@
                     <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
 
                     <!-- Buscador de Mes / Periodo -->
-                    <div class="relative w-full sm:w-36 h-8 flex items-center">
-                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                    <div class="relative w-full sm:w-36 h-8 flex items-center bg-transparent group-focus-within:bg-gray-50/50 rounded-full transition-colors cursor-pointer" id="btn_abrir_calendario">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        <input type="text" id="mes_buscar" name="mes_buscar" value="{{ mes_buscar }}" class="hidden" placeholder="MES...">
+                        
+                        <div id="texto_calendario_visual" class="w-full h-full pl-8 pr-2 flex items-center text-[10px] font-bold {% if mes_buscar %}text-black{% else %}text-gray-400{% endif %} uppercase select-none pointer-events-none">
+                            {% if mes_buscar %}{{ mes_buscar }}{% else %}PERIODO...{% endif %}
+                        </div>
+
+                        <input type="text" id="calendario_anticipos" name="mes_buscar" value="{{ mes_buscar }}" class="absolute opacity-0 w-0 h-0 pointer-events-none">
                     </div>
                     
                     <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
@@ -114,20 +119,32 @@
 <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
 <script>
-    document.querySelectorAll('.periodo-formatear').forEach(el => {
-        let val = el.textContent.trim();
-        if(val && val.includes('-')) {
-            let parts = val.split('-');
-            if(parts.length >= 2) {
-                let year = parts[0];
-                let monthIndex = parseInt(parts[1], 10) - 1;
-                const meses = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'];
-                if(monthIndex >= 0 && monthIndex < 12) {
-                    el.textContent = meses[monthIndex] + " " + year;
+    document.addEventListener('DOMContentLoaded', function() {
+        const fp = flatpickr("#calendario_anticipos", {
+            locale: "es",
+            disableMobile: true,
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: false,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y",
+                    theme: "light"
+                })
+            ],
+            onChange: function(selectedDates, dateStr, instance) {
+                const textoVisual = document.getElementById('texto_calendario_visual');
+                if (dateStr) {
+                    textoVisual.textContent = instance.formatDate(selectedDates[0], "F Y");
+                    textoVisual.classList.remove('text-gray-400');
+                    textoVisual.classList.add('text-black');
                 }
             }
-        }
+        });
+
+        // Conectar el clic del botón visual con el input oculto
+        document.getElementById('btn_abrir_calendario').addEventListener('click', function() {
+            fp.open();
+        });
     });
-    flatpickr("#mes_buscar", { locale: "es", plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], altInput: true, altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" });
 </script>
 {% endblock %}
