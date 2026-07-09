@@ -44,7 +44,7 @@
     <header class="fixed top-0 inset-x-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-200 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-h-[56px] flex flex-col justify-center">
         <nav class="w-full max-w-[1200px] mx-auto px-4 md:px-6 py-3 md:py-0 flex flex-col md:flex-row md:items-center justify-between text-[11px] md:text-[12px]">
             
-            <div class="flex items-center justify-between w-full md:w-auto">
+            <div class="flex items-center justify-between w-full md:w-[220px] shrink-0">
                 <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group shrink-0 outline-none">
                     <svg class="w-6 h-6 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path>
@@ -59,9 +59,9 @@
                 </button>
             </div>
             
-            <div id="menu-colapsable" class="hidden md:flex flex-col md:flex-row items-start md:items-center justify-center gap-4 xl:gap-7 w-full md:w-auto tracking-wide mt-4 md:mt-0 pt-4 md:pt-0 border-t border-gray-200 md:border-none">
+            <div id="menu-colapsable" class="hidden md:flex flex-col md:flex-row items-start md:items-center md:flex-1 md:justify-between gap-4 xl:gap-7 w-full tracking-wide mt-4 md:mt-0 pt-4 md:pt-0 border-t border-gray-200 md:border-none">
                 
-                <div class="flex flex-col md:flex-row items-start md:items-left gap-5 md:gap-4 xl:gap-7 w-full md:w-auto">
+                <div class="flex flex-col md:flex-row items-start md:items-center md:justify-center gap-5 md:gap-4 xl:gap-7 w-full md:flex-1">
                     {% with url_name=request.resolver_match.url_name %}
                         
                         {% if url_name == 'consultora' or url_name == 'crear_servicio' or url_name == 'editar_servicio' or url_name == 'crear_cliente' or 'cita' in url_name or 'archivo' in url_name %}
@@ -88,7 +88,7 @@
                     {% endwith %}
                 </div>
 
-                <div class="flex items-center justify-between w-full md:w-auto gap-5 mt-4 md:mt-0 pb-2 md:pb-0">
+                <div class="flex items-center justify-between md:justify-end w-full md:w-[220px] shrink-0 gap-5 mt-4 md:mt-0 pb-2 md:pb-0">
                     <div class="flex items-center gap-2">
                         <div class="w-6 h-6 rounded-full bg-[#0071e3] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
                             {% if request.user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}A{% endif %}
