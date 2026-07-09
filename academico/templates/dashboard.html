@@ -26,11 +26,12 @@
                 </div>
 
                 <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[22rem] group focus-within:border-[#0071e3] transition-all shrink-0">
-                    <div class="relative w-full h-8 flex items-center">
-                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                    <div class="relative w-full sm:w-36 h-8 flex items-center">
+                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        <input type="text" name="rango_fechas" id="rango_fechas_dash" value="{{ rango_fechas }}" placeholder="BUSCAR POR FECHA..." class="hidden">
+                        
+                        <input type="text" id="rango_fechas_dash" name="rango_fechas" value="{{ rango_fechas }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="BUSCAR POR FECHA...">
                     </div>
                     
                     <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">
