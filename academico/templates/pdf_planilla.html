@@ -9,7 +9,7 @@
         }
         body {
             font-family: Helvetica, Arial, sans-serif;
-            font-size: 7px; /* Tamaño base para el cuerpo del texto, ajustable según necesidades */
+            font-size: 7px; 
             color: #000000;
             background-color: #ffffff;
         }
@@ -35,11 +35,11 @@
             margin-bottom: 5px;
         }
 
-        /* Tabla Matriz Principal - Bloqueada al 100.0% exacto para evitar cortes */
+        /* Tabla Matriz Principal */
         table.grid {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed; /* Mantiene la tabla firme */
+            table-layout: fixed; 
         }
         table.grid th, table.grid td {
             border: 0.5px solid #000000;
@@ -54,7 +54,6 @@
             text-align: center;
         }
         
-        /* Alineación forzada para evitar desconfiguraciones del motor */
         .text-left { text-align: left !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
@@ -63,23 +62,13 @@
         /* Firmas inferiores */
         table.signatures-container {
             width: 100%;
-            margin-top: 75px; /* Separación ampliada respecto a la tabla principal */
+            margin-top: 75px; 
             border-collapse: collapse;
+            table-layout: fixed; /* Asegura el respeto a los anchos */
         }
         table.signatures-container td {
             padding: 0;
             border: none;
-        }
-        table.bloque-firma {
-            width: 80%; 
-            border-collapse: collapse;
-        }
-        .linea-superior {
-            border-top: none !important;
-            padding-top: 3px;
-            text-align: center;
-            font-size: 7px;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -104,8 +93,8 @@
 
     <table width="100%" style="margin-bottom: 2px;">
         <tr>
-            <td width="115%"></td>
-            <td width="4%" style="text-align: left; font-size: 8px; white-space: nowrap;">
+            <td width="85%"></td>
+            <td width="15%" style="text-align: right; font-size: 8px; white-space: nowrap;">
                 <span class="bold">Mes:</span> {{ mes_nombre|default:"-" }}<br/>
                 <span class="bold">Año:</span> {{ anio_nombre }}
             </td>
@@ -206,28 +195,28 @@
 
     <table class="signatures-container">
         <tr>
-            <td width="38%" style="text-align: center; vertical-align: bottom;">
-                __________________________________________
+            <td width="25%" style="text-align: center; vertical-align: bottom;">
+                _________________________________
             </td>
-            <td width="68%" style="text-align: center; vertical-align: bottom;">
-                __________________________________________
+            <td width="25%" style="text-align: center; vertical-align: bottom;">
+                _________________________________
             </td>
-            <td width="48%" style="text-align: center; vertical-align: bottom;">
-                __________________________________________
+            <td width="25%" style="text-align: center; vertical-align: bottom;">
+                _________________________________
             </td>
-            <td width="40%"></td> </tr>
-        
+            <td width="25%"></td> 
+        </tr>
         <tr>
-            <td width="38%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
+            <td width="25%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
                 REPRESENTANTE LEGAL
             </td>
-            <td width="68%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
+            <td width="25%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
                 CI REPRESENTANTE LEGAL
             </td>
-            <td width="48%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
+            <td width="25%" style="text-align: center; vertical-align: top; font-size: 7px; font-weight: bold; padding-top: 3px;">
                 FIRMA
             </td>
-            <td width="40%" style="text-align: right; vertical-align: top; font-size: 8.5px; padding-top: 3px; padding-right: 5px;">
+            <td width="25%" style="text-align: right; vertical-align: top; font-size: 8.5px; padding-top: 3px; padding-right: 5px;">
                 <span class="bold">FECHA DE EMISIÓN:</span> {% now "d/m/Y" %}
             </td>
         </tr>

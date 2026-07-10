@@ -1463,7 +1463,7 @@ def pagar_honorario(request, honorario_id):
     p.drawCentredString(150, height - 515, "Firma del Docente Receptor")
     
     p.line(width - 230, height - 500, width - 70, height - 500)
-    p.drawCentredString(width - 150, height - 515, "Administración / LIMA S.R.L.")
+    p.drawCentredString(width - 150, height - 515, "Administración / G. E. \"LIMA\" S.R.L.")
     
     p.showPage()
     p.save()
