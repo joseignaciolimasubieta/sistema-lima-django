@@ -4,11 +4,8 @@
 <div class="max-w-3xl mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
     
     <div class="mb-10 flex flex-col items-center text-center gap-3">
-        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center mb-2 border border-amber-100 shadow-sm">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-        </div>
+        
         <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tight">Confirmar Liquidación.</h1>
-        <p class="text-lg font-medium text-gray-500 max-w-xl leading-relaxed">Estás a punto de registrar la salida de dinero y cerrar permanentemente esta cuenta de honorarios.</p>
     </div>
 
     <form method="POST" target="_blank" onsubmit="setTimeout(() => { window.location.href = '{% url 'honorarios' %}'; }, 1000);" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative">
@@ -17,20 +14,19 @@
         <div class="bg-slate-50 px-8 py-6 border-b-2 border-slate-200 flex justify-between items-center">
             <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                 <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Resumen de Liquidación - LIMA S.R.L.
+                Resumen de Liquidación
             </h3>
-            <span class="px-3 py-1 rounded-full bg-[#0071e3]/10 text-[#0071e3] border border-[#0071e3]/20 text-[9px] font-black uppercase tracking-widest shadow-sm">ID: #{{ honorario.id }}</span>
         </div>
 
         <div class="p-8 space-y-6">
             
             <div class="flex flex-col gap-4 pb-6 border-b border-gray-100">
                 <div class="flex justify-between items-center">
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Docente Beneficiario</span>
+                    <span class="text-[11px] font-bold text-black uppercase tracking-widest">Docente </span>
                     <span class="text-sm font-black text-black uppercase">{{ honorario.curso.docente.nombre }}</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Curso Impartido</span>
+                    <span class="text-[11px] font-bold text-black uppercase tracking-widest">Curso Impartido</span>
                     <span class="text-sm font-bold text-[#0071e3] uppercase text-right max-w-[65%] leading-tight">{{ honorario.curso.nombre }}</span>
                 </div>
             </div>
@@ -54,11 +50,11 @@
             <div class="pt-4">
                 <label class="block text-[11px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                     <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    ¿De qué cuenta saldrá este dinero?
+                    CUENTA DE ORIGEN DEL PAGO
                 </label>
                 <div class="relative">
                     <select name="cuenta_origen_id" required class="w-full h-14 bg-slate-50 border-2 border-slate-200 rounded-xl px-4 text-sm font-bold text-black outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer uppercase">
-                        <option value="" disabled selected>-- Elija una Cuenta (Ej: Banco, Caja Chica) --</option>
+                        <option value="" disabled selected>SELECCIONE UNA CUENTA</option>
                         {% for c in cuentas %}
                             <option value="{{ c.id }}">{{ c.codigo }} - {{ c.nombre }}</option>
                         {% endfor %}
@@ -67,9 +63,6 @@
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 font-bold mt-3 uppercase tracking-widest text-center sm:text-left">
-                    Esta salida se registrará automáticamente en tu módulo de Flujo de Caja.
-                </p>
             </div>
 
         </div>

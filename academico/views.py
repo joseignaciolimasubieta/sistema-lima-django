@@ -1410,8 +1410,8 @@ def pagar_honorario(request, honorario_id):
     p.rect(0, height - 80, width, 80, fill=True, stroke=False)
     
     p.setFillColor(colors.white)
-    p.setFont("Helvetica-Bold", 22)
-    p.drawString(40, height - 48, "LIMA S.R.L.")
+    p.setFont("Helvetica-Bold", 18)
+    p.drawString(40, height - 48, "GRUPO EMPRESARIAL \"LIMA\" S.R.L.")
     p.setFont("Helvetica", 10)
     p.drawString(40, height - 64, "Gestión Académica Profesional")
     
@@ -1450,7 +1450,7 @@ def pagar_honorario(request, honorario_id):
     p.drawString(60, height - 280, "Honorario Base Acordado:")
     p.drawRightString(width - 60, height - 280, f"Bs. {honorario.honorario_total:.2f}")
     
-    p.drawString(60, height - 305, "Menos Anticipos Registrados:")
+    p.drawString(60, height - 305, "Anticipos Registrados:")
     p.setFillColor(colors.HexColor("#b91c1c"))
     p.drawRightString(width - 60, height - 305, f"- Bs. {honorario.anticipo:.2f}")
     
