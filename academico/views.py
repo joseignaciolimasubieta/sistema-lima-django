@@ -816,21 +816,17 @@ def imprimir_recibo(request, inscripcion_id):
     # Buscamos la inscripción exacta que queremos imprimir
     inscripcion = get_object_or_404(Inscripcion, id=inscripcion_id)
     
-    # Cargamos el diseño HTML del recibo
-    template = get_template('recibo_pdf.html')
     contexto = {'inscripcion': inscripcion}
-    html = template.render(contexto)
     
-    # Preparamos la respuesta como un archivo PDF
-    response = HttpResponse(content_type='application/pdf')
-    # "inline" permite verlo en el navegador. Si quisieras forzar la descarga, usarías "attachment;"
+    # 1. Renderizamos el HTML como string
+    html_string = render_to_string('recibo_pdf.html', contexto)
+    
+    # 2. Generamos el PDF con WeasyPrint
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 3. Preparamos la respuesta
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Recibo_LIMA_{inscripcion.participante.nombre_completo}.pdf"'
-    
-    # Convertimos el HTML a PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Hubo un error al generar el recibo PDF.')
     
     return response
 
@@ -1003,8 +999,8 @@ def descargar_pdf_planilla(request):
     contexto = {
         'pagos': pagos,
         'empresa': empresa,
-        'mes_nombre': mes_nombre,      # <-- NUEVO
-        'anio_nombre': anio_nombre,    # <-- NUEVO
+        'mes_nombre': mes_nombre,
+        'anio_nombre': anio_nombre,
         't_salario_base': t_salario_base,
         't_bono_antiguedad': t_bono_antiguedad,
         't_bono_ventas': t_bono_ventas,
@@ -1017,17 +1013,13 @@ def descargar_pdf_planilla(request):
         't_liquido_pagable': t_liquido_pagable,
     }
     
-    template = get_template('pdf_planilla.html')
-    html = template.render(contexto)
+    # Renderizamos y pasamos a WeasyPrint
+    html_string = render_to_string('pdf_planilla.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
     
-    response = HttpResponse(content_type='application/pdf')
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="Planilla_Ministerio_Sueldos.pdf"'
     
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Hubo un error al generar el PDF de la planilla.')
-        
     return response
 @login_required
 @user_passes_test(es_administrador)
@@ -1261,40 +1253,6 @@ def toggle_asistencia(request):
             
         asistencia.save()
         return JsonResponse({'status': 'ok', 'nuevo_estado': asistencia.estado})
-
-@login_required
-def descargar_pdf_asistencia(request, curso_id):
-    # 1. Traemos los datos del curso y la modalidad actual
-    curso = get_object_or_404(Curso, id=curso_id)
-    modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
-    
-    # 2. Traemos a los alumnos correspondientes
-    inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
-    
-    # 3. Preparamos los datos para enviarlos a la plantilla PDF
-    contexto = {
-        'curso': curso,
-        'inscritos': inscritos,
-        'modalidad_actual': modalidad_actual,
-    }
-    
-    # 4. Enlazamos con la plantilla HTML exclusiva para el PDF
-    template = get_template('pdf_asistencia.html')
-    html = template.render(contexto)
-    
-    # 5. Creamos la respuesta en formato PDF
-    response = HttpResponse(content_type='application/pdf')
-    # Quita la palabra 'attachment;' si quieres que el PDF se abra en una nueva pestaña en lugar de descargarse directo
-    response['Content-Disposition'] = f'attachment; filename="Lista_{curso.nombre}_{modalidad_actual}.pdf"'
-    
-    # Renderizamos el PDF (Esta línea asume que usas xhtml2pdf)
-    from xhtml2pdf import pisa
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Hubo un error al generar el PDF')
-    
-    return response
 
 @login_required
 @user_passes_test(es_administrador)
@@ -1829,38 +1787,32 @@ def generar_certificados_curso(request, curso_id):
     ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
     ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
     
-    template = get_template('pdf_certificados.html')
-    
     # 2. Creamos la carpeta ZIP virtual en la memoria
     buffer_zip = BytesIO()
     
     with zipfile.ZipFile(buffer_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
         for inscrito in inscritos:
-            # Preparamos los datos del alumno actual
             contexto = {
                 'curso': curso,
                 'inscrito': inscrito,
                 'ruta_imagen': ruta_imagen,
                 'ruta_fuente': ruta_fuente,
             }
-            html = template.render(contexto)
             
-            # Creamos el PDF en la memoria
-            pdf_buffer = BytesIO()
-            pisa_status = pisa.CreatePDF(html, dest=pdf_buffer)
+            # Generamos el HTML y PDF para el alumno
+            html_string = render_to_string('pdf_certificados.html', contexto)
+            pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
             
-            if not pisa_status.err:
-                # Nombre del archivo para este alumno específico
-                nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
-                nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
-                
-                # Metemos el PDF dentro de la carpeta ZIP
-                archivo_zip.writestr(nombre_archivo, pdf_buffer.getvalue())
+            # Nombre del archivo
+            nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+            nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
+            
+            # Guardamos los bytes directamente en el ZIP
+            archivo_zip.writestr(nombre_archivo, pdf_bytes)
 
-    # 3. Preparamos la carpeta comprimida para ser descargada
+    # 3. Preparamos la descarga
     buffer_zip.seek(0)
     response = HttpResponse(buffer_zip, content_type='application/zip')
-    # "attachment" fuerza la descarga de la carpeta .zip
     response['Content-Disposition'] = f'attachment; filename="Certificados_{curso.nombre}_{modalidad_actual}.zip"'
     
     return response
@@ -2579,10 +2531,7 @@ def imprimir_recibo_pago(request, pago_id):
     pago = get_object_or_404(PagoPrestamo, id=pago_id)
     empresa = DatosEmpresa.objects.first()
     
-    # --- CORRECCIÓN: Definimos la variable prestamo correctamente desde el pago ---
     prestamo = pago.prestamo
-    
-    # Determinamos de forma dinámica el saldo anterior al abono
     saldo_anterior = prestamo.saldo_restante + pago.monto
     
     contexto = {
@@ -2594,15 +2543,12 @@ def imprimir_recibo_pago(request, pago_id):
         'nuevo_saldo': prestamo.saldo_restante,
     }
     
-    template = get_template('recibo_pago_pdf.html')
-    html = template.render(contexto)
+    # Renderizamos y pasamos a WeasyPrint
+    html_string = render_to_string('recibo_pago_pdf.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
     
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename=\"Recibo_Cuota_{pago.id:05d}.pdf\"'
-    
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('Error crítico al compilar el recibo de caja.')
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="Recibo_Cuota_{pago.id:05d}.pdf"'
         
     return response
 
@@ -3077,33 +3023,25 @@ def generar_certificado_individual(request, inscripcion_id):
 
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
     ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
-    
-    # 🚀 NUEVO: Ruta absoluta de la fuente Montserrat
     ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
     
-    template = get_template('pdf_certificados.html')
     contexto = {
         'curso': curso,
-        'inscrito': inscrito, # (OJO: en la otra función esto dice 'inscritos')
+        'inscrito': inscrito, 
         'ruta_imagen': ruta_imagen,
-        'ruta_fuente': ruta_fuente, # <--- NUEVO: Enviamos la fuente
+        'ruta_fuente': ruta_fuente, 
     }
     
-    html = template.render(contexto)
-    # ... (resto del código)
+    # Renderizamos y pasamos a WeasyPrint
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
     
-    response = HttpResponse(content_type='application/pdf')
-    # "inline" hace que se abra en una nueva pestaña súper rápido, en vez de obligar a descargar
+    # Devolvemos el PDF
     nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename="Certificado_{nombre_limpio}.pdf"'
     
-    # Crear el PDF
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    
-    if pisa_status.err:
-        return HttpResponse('Tuvimos algunos errores <pre>' + html + '</pre>')
     return response
-
 @login_required
 def lista_cursos_certificados(request):
     # Traemos los cursos ordenados ocultando los Módulos Padres
