@@ -5,16 +5,16 @@
     <style>
         @page {
             size: legal landscape; /* Formato Oficio Horizontal */
-            margin: 0.4cm 0.5cm 0.4cm 0.5cm;
+            margin: 0.4cm 0.4cm 0.4cm 0.4cm; /* Márgenes aprovechados al máximo */
         }
         body {
             font-family: Helvetica, Arial, sans-serif;
-            font-size: 6.5px; 
+            font-size: 6px; /* Ajuste milimétrico para 25 columnas */
             color: #000000;
             background-color: #ffffff;
         }
         
-        /* Matriz Principal: Clon exacto de la imagen */
+        /* Matriz Principal: Blindada para WeasyPrint */
         table.grid {
             width: 100%;
             border-collapse: collapse;
@@ -22,42 +22,27 @@
         }
         table.grid th, table.grid td {
             border: 0.5px solid #000000;
-            padding: 3px 1px; 
+            padding: 2px 1px; /* Padding reducido para evitar desbordes */
             vertical-align: middle;
             word-wrap: break-word;
         }
         table.grid th {
             font-weight: bold;
-            font-size: 5px; /* Tamaño optimizado para evitar cortes */
+            font-size: 4.8px; 
             background-color: #ffffff;
             text-align: center;
-            line-height: 1.2;
+            line-height: 1.1;
         }
         
-        .text-left { text-align: left !important; padding-left: 3px !important; }
+        .text-left { text-align: left !important; padding-left: 2px !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
         .bold { font-weight: bold; }
 
-        /* Contenedor flotante para Mes/Año como en el Excel */
-        .mes-ano-box {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 15%;
-            border-collapse: collapse;
-        }
-        .mes-ano-box td {
-            border: 1px solid #000000;
-            padding: 2px 5px;
-            font-weight: bold;
-            font-size: 7.5px;
-        }
-
         /* Firmas inferiores */
         table.signatures-container {
             width: 100%;
-            margin-top: 75px; 
+            margin-top: 60px; 
             border-collapse: collapse;
             table-layout: fixed;
         }
@@ -69,44 +54,48 @@
 </head>
 <body>
 
-    <div style="position: relative; width: 100%; margin-bottom: 25px;">
-        <div style="width: 70%; float: left; font-size: 8px;">
-            <span class="bold">NOMBRE O RAZÓN SOCIAL:</span> {{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}<br/>
-            <span class="bold">Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO:</span> {{ empresa.nro_ministerio|default:'1234561702-01' }}
-        </div>
-        <div style="width: 30%; float: right; text-align: right; font-size: 8px;">
-            <span class="bold">Nº DE NIT:</span> {{ empresa.nit|default:'11544144015' }}<br/>
-            <span class="bold">Nº DE EMPLEADOR (Caja de Salud):</span> {{ empresa.nro_caja_salud|default:'111-7-9133' }}<br/>
-            <span class="bold">Página:</span> 1 de 1
-        </div>
-        <div style="clear: both;"></div>
-
-        <div style="text-align: center; font-size: 11px; font-weight: bold; margin-top: 15px;">PLANILLA DE SUELDOS Y SALARIOS</div>
-        <div style="text-align: center; font-size: 7.5px; margin-bottom: 10px;">(En Bolivianos)</div>
-
-        <table class="mes-ano-box">
-            <tr>
-                <td style="text-align: left;">Mes</td>
-                <td style="text-align: center;">{{ mes_nombre|default:"JUNIO"|upper }}</td>
-            </tr>
-            <tr>
-                <td style="text-align: left;">Año</td>
-                <td style="text-align: center;">{{ anio_nombre|default:"2026" }}</td>
-            </tr>
-        </table>
-    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 5px;">
+        <tr>
+            <td style="width: 35%; vertical-align: top; font-size: 7.5px; line-height: 1.3;">
+                <span class="bold">NOMBRE O RAZÓN SOCIAL:</span> {{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}<br/>
+                <span class="bold">Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO:</span> {{ empresa.nro_ministerio|default:'1234561702-01' }}
+            </td>
+            
+            <td style="width: 30%; text-align: center; vertical-align: bottom;">
+                <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px;">PLANILLA DE SUELDOS Y SALARIOS</div>
+                <div style="font-size: 7.5px;">(En Bolivianos)</div>
+            </td>
+            
+            <td style="width: 35%; text-align: right; vertical-align: top; font-size: 7.5px; line-height: 1.3;">
+                <span class="bold">Nº DE NIT:</span> {{ empresa.nit|default:'11544144015' }}<br/>
+                <span class="bold">Nº DE EMPLEADOR (Caja de Salud):</span> {{ empresa.nro_caja_salud|default:'111-7-9133' }}<br/>
+                <span class="bold">Página:</span> 1 de 1
+                
+                <table align="right" style="border-collapse: collapse; text-align: left; margin-top: 5px; width: 110px;">
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 2px 4px; font-weight: bold; font-size: 7.5px;">Mes</td>
+                        <td style="border: 1px solid #000; padding: 2px 4px; text-align: center; font-size: 7.5px;">{{ mes_nombre|default:"JUNIO"|upper }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 2px 4px; font-weight: bold; font-size: 7.5px;">Año</td>
+                        <td style="border: 1px solid #000; padding: 2px 4px; text-align: center; font-size: 7.5px;">{{ anio_nombre|default:"2026" }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
     <table class="grid">
         <thead>
             <tr>
-                <th width="1.2%">Nº</th>
-                <th width="4.2%">Documento de<br/>identidad</th>
-                <th width="12.0%">Apellidos y nombres</th>
+                <th width="1.5%">Nº</th>
+                <th width="4.5%">Documento de<br/>identidad</th>
+                <th width="11.0%">Apellidos y nombres</th>
                 <th width="3.5%">País de<br/>nacionalidad</th>
-                <th width="3.5%">Fecha de<br/>nacimiento</th>
+                <th width="4.0%">Fecha de<br/>nacimiento</th>
                 <th width="1.5%">Sexo<br/>(F/M)</th>
-                <th width="7.5%">Ocupación que<br/>desempeña</th>
-                <th width="3.5%">Fecha de<br/>ingreso</th>
+                <th width="7.0%">Ocupación que<br/>desempeña</th>
+                <th width="4.0%">Fecha de<br/>ingreso</th>
                 <th width="3.5%">Haber<br/>Básico</th>
                 <th width="2.0%">Horas<br/>pagadas<br/>(Día)</th>
                 <th width="2.0%">Días<br/>pagados<br/>(Mes)</th>
@@ -114,10 +103,10 @@
                 <th width="3.5%">Haber<br/>Ganado</th>
                 <th width="3.5%">Bono de<br/>Antigüedad</th>
                 <th width="3.5%">Bono de<br/>producción</th>
-                <th width="3.0%">Subsidio<br/>de frontera</th>
+                <th width="2.5%">Subsidio<br/>de frontera</th>
                 <th width="3.0%">Trabajo<br/>extraordi-<br/>nario y nocturno</th>
                 <th width="3.0%">Pago<br/>dominical y<br/>domingo trabajado</th>
-                <th width="3.0%">Otros bonos</th>
+                <th width="3.5%">Otros bonos</th>
                 <th width="5.5%">TOTAL<br/>GANADO</th>
                 
                 <th width="3.5%">Aporte a la<br/>Gestora</th>
@@ -125,7 +114,7 @@
                 <th width="4.5%">Anticipo y<br/>Otros<br/>descuentos</th>
                 <th width="5.5%">TOTAL<br/>DESCUENTOS</th>
                 <th width="5.5%">LÍQUIDO<br/>PAGABLE</th>
-                <th width="6.1%">Firma</th>
+                <th width="6.0%">Firma</th>
             </tr>
         </thead>
         <tbody>
