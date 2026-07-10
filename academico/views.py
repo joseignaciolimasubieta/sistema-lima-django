@@ -260,6 +260,32 @@ def cursos(request):
     return render(request, 'cursos.html', contexto)
 
 @login_required
+def descargar_pdf_asistencia(request, curso_id):
+    # 1. Traemos los datos del curso y la modalidad actual
+    curso = get_object_or_404(Curso, id=curso_id)
+    modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
+    
+    # 2. Traemos a los alumnos correspondientes
+    inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
+    
+    # 3. Preparamos los datos
+    contexto = {
+        'curso': curso,
+        'inscritos': inscritos,
+        'modalidad_actual': modalidad_actual,
+    }
+    
+    # 4. Renderizamos y pasamos a WeasyPrint
+    html_string = render_to_string('pdf_asistencia.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 5. Creamos la respuesta
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Lista_{curso.nombre}_{modalidad_actual}.pdf"'
+    
+    return response
+
+@login_required
 @user_passes_test(es_administrador)
 def crear_curso(request):
     if request.method == 'POST':
