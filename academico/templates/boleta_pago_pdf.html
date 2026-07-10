@@ -4,34 +4,36 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            size: letter; /* Tamaño Carta */
+            /* 🚀 CAMBIO CLAVE: Tamaño Oficio (Legal) para que sea más larga y entren las 2 copias sin saltar de página */
+            size: legal; 
             margin: 1cm 1.5cm; 
         }
         body { font-family: Helvetica, Arial, sans-serif; color: #000; font-size: 10px; }
         
-        .header-table { width: 100%; margin-bottom: 15px; }
+        .header-table { width: 100%; margin-bottom: 12px; }
         .title { font-size: 15px; font-weight: bold; text-align: center; }
         .subtitle { font-size: 10px; text-align: center; margin-top: 2px; }
         
-        /* 1. Tabla Plana de Datos (Sin anidación) */
-        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        /* 1. Tabla Plana de Datos */
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .info-table td { border: 1px solid #000; padding: 4px 6px; font-size: 9.5px; }
         .lbl { font-weight: bold; background-color: #f5f5f5; }
         
-        /* 2. Tabla Plana de Cálculos (Sin anidación) */
-        .calc-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        /* 2. Tabla Plana de Cálculos */
+        .calc-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
         .calc-table th, .calc-table td { border: 1px solid #000; padding: 5px; font-size: 9.5px; }
         .calc-table th { background-color: #e5e5e5; font-weight: bold; text-align: center; }
         .amt { text-align: right; }
         .tot { font-weight: bold; background-color: #e5e5e5; }
         
-        .liquido-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .liquido-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         .liquido-table td { border: 1px solid #000; padding: 6px; font-weight: bold; font-size: 12px; }
         
-        .firma-area { text-align: center; margin-top: 45px; }
+        .firma-area { text-align: center; margin-top: 35px; }
         .linea-firma { border-top: 1px solid #000; width: 250px; margin: 0 auto; padding-top: 4px; font-weight: bold; }
         
-        .cut-line { border-top: 1px dashed #000; margin: 40px 0; width: 100%; }
+        /* 🚀 Ajuste: Menos margen en la línea de recorte para ahorrar espacio vertical */
+        .cut-line { border-top: 1px dashed #000; margin: 25px 0; width: 100%; }
     </style>
 </head>
 <body>
