@@ -6,7 +6,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-from xhtml2pdf import pisa
+#from xhtml2pdf import pisa
+from weasyprint import HTML
+from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Honorario
@@ -2528,16 +2530,16 @@ def imprimir_boleta(request, pago_id):
         'mes_literal': mes_literal, # <--- Se lo enviamos al HTML
     }
 
-    template = get_template('boleta_pago_pdf.html')
-    html = template.render(contexto)
+    # 2. Renderizamos el HTML como un string (texto)
+    html_string = render_to_string('boleta_pago_pdf.html', contexto)
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Boleta_{pago.empleado.nombre_completo}_{pago.mes_correspondiente}.pdf"'
+    # 3. WEASYPRINT EN ACCIÓN: Genera el PDF con soporte completo de CSS
+    # base_url permite que cargue imágenes locales si las tuvieras
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
 
-    pisa_status = pisa.CreatePDF(html, dest=response)
-
-    if pisa_status.err:
-        return HttpResponse('Error crítico al compilar la boleta PDF.')
+    # 4. Devolvemos el PDF al navegador
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="Boleta_Pago_{pago.empleado.nombre_completo}.pdf"'
 
     return response
 
