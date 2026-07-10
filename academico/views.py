@@ -584,6 +584,7 @@ def flujo_caja(request):
     cuentas_ahorro = []
     total_operativo = Decimal('0.00')
     total_ahorro = Decimal('0.00')
+    total_salud = Decimal('0.00') # 🚀 NUEVO: Variable para el fondo de salud
     
     # Ahora el bucle solo lee de la RAM, no de la base de datos = Carga instantánea
     for cuenta in cuentas_caja:
@@ -596,8 +597,11 @@ def flujo_caja(request):
         elif cuenta.codigo in ['005', '006', '007']:
             cuentas_ahorro.append(cuenta)
             total_ahorro += cuenta.saldo_actual
+        elif cuenta.codigo == '008': # 🚀 NUEVO: Captura el fondo de salud
+            total_salud += cuenta.saldo_actual
 
-    total_absoluto = total_operativo + total_ahorro
+    # 🚀 ACTUALIZADO: Sumamos también la salud al gran total absoluto de caja
+    total_absoluto = total_operativo + total_ahorro + total_salud
     
     # Obtenemos los totales generales sumando directamente de la RAM
     total_entradas = sum(item['in'] for item in mapa_saldos.values())
@@ -615,6 +619,7 @@ def flujo_caja(request):
         'cuentas_ahorro': cuentas_ahorro,
         'total_operativo': total_operativo,
         'total_ahorro': total_ahorro,
+        'total_salud': total_salud,
         'total_absoluto': total_absoluto,
     }
 
