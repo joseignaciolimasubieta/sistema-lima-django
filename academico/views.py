@@ -6,7 +6,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-#from xhtml2pdf import pisa
+from xhtml2pdf import pisa
 from weasyprint import HTML
 from pathlib import Path
 from django.template.loader import render_to_string
@@ -927,9 +927,8 @@ def descargar_pdf_planilla(request):
     pagos = PagoSueldo.objects.select_related('empleado').all().order_by('-fecha_pago')
     
     mes_buscar = request.GET.get('mes_buscar', '')
-    buscar = request.GET.get('buscar', '').strip() # <-- NUEVO: Atrapamos el texto buscado
+    buscar = request.GET.get('buscar', '').strip()
     
-    # --- NUEVO: APLICAMOS EL FILTRO DE TEXTO AL PDF ---
     if buscar:
         pagos = pagos.filter(
             Q(empleado__nombre_completo__icontains=buscar) |
@@ -939,9 +938,8 @@ def descargar_pdf_planilla(request):
     if mes_buscar:
         pagos = pagos.filter(mes_correspondiente=mes_buscar)
         
-    # --- LÓGICA: Separar Mes en Literal y Año ---
     mes_nombre = ""
-    anio_nombre = "2026"  # Año por defecto seguro
+    anio_nombre = "2026"
     
     periodo_referencia = mes_buscar
     if not periodo_referencia and pagos.exists():
@@ -1014,14 +1012,20 @@ def descargar_pdf_planilla(request):
         't_liquido_pagable': t_liquido_pagable,
     }
     
-    # Renderizamos y pasamos a WeasyPrint
+    # 1. Renderizamos la plantilla a String
     html_string = render_to_string('pdf_planilla.html', contexto)
-    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
     
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="Planilla_Ministerio_Sueldos.pdf"'
+    # 2. Volvemos a usar pisa (xhtml2pdf) en lugar de WeasyPrint
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html_string.encode("UTF-8")), result)
     
-    return response
+    # 3. Retornamos el archivo
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="Planilla_Ministerio_Sueldos.pdf"'
+        return response
+    else:
+        return HttpResponse("Error al generar el PDF de la planilla", status=400)
 @login_required
 @user_passes_test(es_administrador)
 def crear_pago(request):

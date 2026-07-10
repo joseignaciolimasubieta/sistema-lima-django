@@ -6,6 +6,7 @@ whitenoise==6.11.0
 reportlab
 openpyxl
 weasyprint
+xhtml2pdf
 apscheduler
 django-storages
 boto3
