@@ -7,13 +7,12 @@
             size: letter landscape;
             margin: 0; 
             background-image: url("{{ ruta_imagen }}"); 
-            
-            /* --- NUEVO: OBLIGATORIO PARA WEASYPRINT --- */
+            /* OBLIGATORIO PARA WEASYPRINT: */
             background-position: center;
             background-size: 100% 100%; 
         }
 
-        /* 🚀 Cargamos el archivo físico de Montserrat en el PDF */
+        /* Cargamos el archivo físico de Montserrat en el PDF */
         @font-face {
             font-family: 'MontserratPDF';
             src: url("{{ ruta_fuente }}");
@@ -28,39 +27,61 @@
         .certificado-pagina {
             width: 100%;
             height: 100%;
+            position: relative; /* Clave para poder mover el texto libremente sobre el fondo */
         }
 
         /* ========================================================= */
-        /* ESTILOS DE TIPOGRAFÍA                                     */
+        /* ESTILOS Y POSICIONES EXACTAS DE LOS TEXTOS                */
         /* ========================================================= */
         
         .nombre-alumno {
-            font-family: 'Times New Roman', Times, serif; /* <--- TIPO DE LETRA */
+            font-family: 'Times New Roman', Times, serif;
             font-style: italic;
             font-size: 46px;
             font-weight: bold;
             color: #927a2e; 
+            text-align: center; /* Usamos CSS en lugar de align="center" */
             margin: 0;
             padding: 0;
+            
+            /* -- POSICIÓN -- */
+            position: absolute;
+            top: 360px; /* ↕️ Cambia este valor para subir o bajar el nombre en la línea */
+            left: 0;
+            width: 100%;
         }
         
         .nombre-curso {
-            font-family: 'Times New Roman', Times, serif; /* <--- TIPO DE LETRA */
-            font-style: italic; /* <--- TIPO DE LETRA CURSIVA */
+            font-family: 'Times New Roman', Times, serif; 
+            font-style: italic; 
             font-size: 30px;
             font-weight: bold;
             color: #1e3a8a; 
+            text-align: center;
             margin: 0;
             padding: 0;
+            
+            /* -- POSICIÓN -- */
+            position: absolute;
+            top: 510px; /* ↕️ Cambia este valor para subir o bajar el curso */
+            left: 0;
+            width: 100%;
         }
 
         .texto-fecha {
-            font-family: 'MontserratPDF', sans-serif; /* <--- APLICAMOS LA NUEVA FUENTE */
+            font-family: 'MontserratPDF', sans-serif; 
             font-size: 14px; 
             color: #927a2e; 
             line-height: 1.8; 
+            text-align: center;
             margin: 0;
             padding: 0;
+            
+            /* -- POSICIÓN -- */
+            position: absolute;
+            top: 570px; /* ↕️ Cambia este valor para subir o bajar la duración */
+            left: 10%; /* Le damos un 10% de margen a los lados */
+            width: 80%;
         }
     </style>
 </head>
@@ -68,18 +89,13 @@
     
     <div class="certificado-pagina">
         
-        <pdf:spacer height="235" /> <!-- Ajustar Espacio entre la parte superior y el nombre del alumno -->
+        <!-- Ya no usamos pdf:spacer, el CSS 'top' arriba controla la posición -->
         
-        <p class="nombre-alumno" align="center">{{ inscrito.participante.nombre_completo|upper }}</p>
+        <p class="nombre-alumno">{{ inscrito.participante.nombre_completo|upper }}</p>
         
-        <pdf:spacer height="65" /> <!-- Ajustar Espacio entre el nombre y el curso -->
-
+        <p class="nombre-curso">{{ curso.nombre|upper }}</p>
         
-        <p class="nombre-curso" align="center">{{ curso.nombre|upper }}</p>
-        
-        <pdf:spacer height="25" /> <!-- Ajustar Espacio entre el curso y la fecha -->
-        
-        <p class="texto-fecha" align="center">
+        <p class="texto-fecha">
             REALIZADO DEL {{ curso.fecha_inicio|date:"d" }} DE {{ curso.fecha_inicio|date:"F"|upper }} 
             AL {{ curso.fecha_finalizacion|date:"d" }} DE {{ curso.fecha_finalizacion|date:"F"|upper }} 
             DEL AÑO 
