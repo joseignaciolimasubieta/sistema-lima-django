@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            /* 🚀 CAMBIO CLAVE: Tamaño Oficio (Legal) para que sea más larga y entren las 2 copias sin saltar de página */
-            size: legal; 
+            size: legal; /* Tamaño Oficio */
             margin: 1cm 1.5cm; 
         }
         body { font-family: Helvetica, Arial, sans-serif; color: #000; font-size: 10px; }
         
-        .header-table { width: 100%; margin-bottom: 12px; }
+        /* 🚀 CAMBIO CLAVE: table-layout: fixed fuerza proporciones exactas */
+        .header-table { width: 100%; margin-bottom: 12px; table-layout: fixed; }
         .title { font-size: 15px; font-weight: bold; text-align: center; }
         .subtitle { font-size: 10px; text-align: center; margin-top: 2px; }
         
@@ -32,7 +32,6 @@
         .firma-area { text-align: center; margin-top: 35px; }
         .linea-firma { border-top: 1px solid #000; width: 250px; margin: 0 auto; padding-top: 4px; font-weight: bold; }
         
-        /* 🚀 Ajuste: Menos margen en la línea de recorte para ahorrar espacio vertical */
         .cut-line { border-top: 1px dashed #000; margin: 25px 0; width: 100%; }
     </style>
 </head>
@@ -41,13 +40,15 @@
     
     <table class="header-table" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="25%"></td>
-            <td width="50%" align="center">
+            <td style="width: 33.33%;"></td>
+            
+            <td style="width: 33.33%; text-align: center;">
                 <div class="title">BOLETA DE PAGO</div>
                 <div class="subtitle">(EXPRESADOS EN BOLIVIANOS)</div>
                 <div class="subtitle">CORRESPONDIENTE AL MES DE {{ mes_literal|upper }}</div>
             </td>
-            <td width="25%" align="right" valign="top" style="font-size: 10px; font-weight: bold;">
+            
+            <td style="width: 33.33%; text-align: right; vertical-align: top; font-size: 10px; font-weight: bold;">
                 Copia {{ copia }}<br>
                 N° {{ pago.id|stringformat:"04d" }}
             </td>
