@@ -1153,8 +1153,8 @@ def detalle_curso(request, curso_id):
         # Feriados de Bolivia
         feriados_bolivia = [
             date(2026, 1, 1), date(2026, 1, 22), date(2026, 2, 16), date(2026, 2, 17),
-            date(2026, 4, 3), date(2026, 5, 1), date(2026, 6, 4), date(2026, 6, 22),
-            date(2026, 8, 6), date(2026, 11, 2), date(2026, 12, 25)
+            date(2026, 4, 3), date(2026, 5, 1), date(2026, 6, 4), date(2026, 6, 5), date(2026, 6, 22),
+            date(2026, 7, 16), date(2026, 8, 6), date(2026, 8, 7), date(2026, 11, 2), date(2026, 12, 25)
         ]
 
         # E) Leemos las sesiones exactas (Soporta "SESIONES" o "CLASES")
