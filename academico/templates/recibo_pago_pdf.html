@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <style>
         @page {
-            size: letter; /* Tamaño estandarizado con la boleta de honorarios */
-            margin: 0; /* Sin márgenes para que la franja azul ocupe todo el ancho */
+            size: letter; 
+            margin: 0; 
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            color: #1f2937; /* Gris oscuro para el texto general */
+            color: #1f2937; 
         }
         
         /* =================================================== */
@@ -104,7 +104,7 @@
             text-align: right;
         }
         .amount-red {
-            color: #b91c1c; /* Rojo para el abono */
+            color: #b91c1c; 
             font-weight: bold;
         }
         .fin-line {
@@ -119,7 +119,7 @@
         .fin-total-amount {
             font-size: 16px;
             font-weight: bold;
-            color: #16a34a; /* Verde para el saldo */
+            color: #16a34a; 
             text-align: right;
         }
 
@@ -129,10 +129,11 @@
         .signatures {
             margin-top: 120px;
             width: 100%;
+            table-layout: fixed; /* Previene deformaciones en WeasyPrint */
         }
         .signatures td {
             text-align: center;
-            vertical-align: bottom;
+            vertical-align: top; /* <--- CORRECCIÓN: Alineación desde arriba */
         }
         .sig-line {
             border-top: 1px solid #9ca3af;
@@ -147,10 +148,11 @@
 </head>
 <body>
     
+    <!-- FRANJA AZUL -->
     <div class="header-banner">
         <div class="company-name">
             GRUPO EMPRESARIAL "LIMA" S.R.L.<br>
-            <span class="company-sub">Gestión Académica Profesional</span>
+            <span class="company-sub"></span>
         </div>
         <div class="header-right">
             <p>Fecha de Pago: {{ pago.fecha_pago|date:"d/m/Y" }}</p>
@@ -159,10 +161,12 @@
         <div style="clear: both;"></div>
     </div>
 
+    <!-- CUERPO PRINCIPAL -->
     <div class="content">
         <div class="title">RECIBO DE AMORTIZACIÓN DE PRÉSTAMO</div>
         <div class="divider"></div>
 
+        <!-- INFORMACIÓN GENERAL -->
         <table class="info-table">
             <tr>
                 <td class="label">Recibido de:</td>
@@ -182,6 +186,7 @@
             </tr>
         </table>
 
+        <!-- CUADRO DE CÁLCULOS FINANCIEROS -->
         <div class="financial-box">
             <table class="fin-table">
                 <tr>
@@ -202,6 +207,7 @@
             </table>
         </div>
 
+        <!-- BLOQUE DE FIRMAS -->
         <table class="signatures">
             <tr>
                 <td width="50%">
