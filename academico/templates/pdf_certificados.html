@@ -7,9 +7,13 @@
             size: letter landscape;
             margin: 0; 
             background-image: url("{{ ruta_imagen }}"); 
+            
+            /* --- NUEVO: OBLIGATORIO PARA WEASYPRINT --- */
+            background-position: center;
+            background-size: 100% 100%; 
         }
 
-        /* 🚀 NUEVO: Cargamos el archivo físico de Montserrat en el PDF */
+        /* 🚀 Cargamos el archivo físico de Montserrat en el PDF */
         @font-face {
             font-family: 'MontserratPDF';
             src: url("{{ ruta_fuente }}");

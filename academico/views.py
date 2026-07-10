@@ -8,6 +8,7 @@ from reportlab.lib import colors
 from django.template.loader import get_template
 #from xhtml2pdf import pisa
 from weasyprint import HTML
+from pathlib import Path
 from django.template.loader import render_to_string
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -1810,8 +1811,10 @@ def generar_certificados_curso(request, curso_id):
         archivo_fondo = 'certificado.jpg'
 
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
-    ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
+    
+    # NUEVO: .as_uri() genera el formato file:/// perfecto para WeasyPrint
+    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
+    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
     template = get_template('pdf_certificados.html')
     
@@ -3052,10 +3055,10 @@ def generar_certificado_individual(request, inscripcion_id):
     # ... (código de selección de imagen que ya tienes) ...
 
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
     
-    # 🚀 NUEVO: Ruta absoluta de la fuente Montserrat
-    ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
+    # NUEVO: Aplicamos la misma solución aquí
+    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
+    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
     template = get_template('pdf_certificados.html')
     contexto = {
