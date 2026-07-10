@@ -260,32 +260,6 @@ def cursos(request):
     return render(request, 'cursos.html', contexto)
 
 @login_required
-def descargar_pdf_asistencia(request, curso_id):
-    # 1. Traemos los datos del curso y la modalidad actual
-    curso = get_object_or_404(Curso, id=curso_id)
-    modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
-    
-    # 2. Traemos a los alumnos correspondientes
-    inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
-    
-    # 3. Preparamos los datos
-    contexto = {
-        'curso': curso,
-        'inscritos': inscritos,
-        'modalidad_actual': modalidad_actual,
-    }
-    
-    # 4. Renderizamos y pasamos a WeasyPrint
-    html_string = render_to_string('pdf_asistencia.html', contexto)
-    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-    
-    # 5. Creamos la respuesta
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Lista_{curso.nombre}_{modalidad_actual}.pdf"'
-    
-    return response
-
-@login_required
 @user_passes_test(es_administrador)
 def crear_curso(request):
     if request.method == 'POST':
@@ -1281,6 +1255,32 @@ def toggle_asistencia(request):
         return JsonResponse({'status': 'ok', 'nuevo_estado': asistencia.estado})
 
 @login_required
+def descargar_pdf_asistencia(request, curso_id):
+    # 1. Traemos los datos del curso y la modalidad actual
+    curso = get_object_or_404(Curso, id=curso_id)
+    modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
+    
+    # 2. Traemos a los alumnos correspondientes
+    inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
+    
+    # 3. Preparamos los datos
+    contexto = {
+        'curso': curso,
+        'inscritos': inscritos,
+        'modalidad_actual': modalidad_actual,
+    }
+    
+    # 4. Renderizamos y pasamos a WeasyPrint
+    html_string = render_to_string('pdf_asistencia.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 5. Creamos la respuesta
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Lista_{curso.nombre}_{modalidad_actual}.pdf"'
+    
+    return response
+
+@login_required
 @user_passes_test(es_administrador)
 def registrar_anticipo(request, honorario_id):
     # Buscamos el honorario específico usando su ID
@@ -1813,17 +1813,21 @@ def generar_certificados_curso(request, curso_id):
     ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
     ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
     
+    template = get_template('pdf_certificados.html')
+    
     # 2. Creamos la carpeta ZIP virtual en la memoria
     buffer_zip = BytesIO()
     
     with zipfile.ZipFile(buffer_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
         for inscrito in inscritos:
+            # Preparamos los datos del alumno actual
             contexto = {
                 'curso': curso,
                 'inscrito': inscrito,
                 'ruta_imagen': ruta_imagen,
                 'ruta_fuente': ruta_fuente,
             }
+            html = template.render(contexto)
             
             # Generamos el HTML y PDF para el alumno
             html_string = render_to_string('pdf_certificados.html', contexto)
@@ -3049,13 +3053,16 @@ def generar_certificado_individual(request, inscripcion_id):
 
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
     ruta_imagen = os.path.join(ruta_actual, 'static', archivo_fondo).replace('\\', '/')
+    
+    # 🚀 NUEVO: Ruta absoluta de la fuente Montserrat
     ruta_fuente = os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf').replace('\\', '/')
     
+    template = get_template('pdf_certificados.html')
     contexto = {
         'curso': curso,
-        'inscrito': inscrito, 
+        'inscrito': inscrito, # (OJO: en la otra función esto dice 'inscritos')
         'ruta_imagen': ruta_imagen,
-        'ruta_fuente': ruta_fuente, 
+        'ruta_fuente': ruta_fuente, # <--- NUEVO: Enviamos la fuente
     }
     
     # Renderizamos y pasamos a WeasyPrint
@@ -3068,6 +3075,7 @@ def generar_certificado_individual(request, inscripcion_id):
     response['Content-Disposition'] = f'inline; filename="Certificado_{nombre_limpio}.pdf"'
     
     return response
+
 @login_required
 def lista_cursos_certificados(request):
     # Traemos los cursos ordenados ocultando los Módulos Padres
