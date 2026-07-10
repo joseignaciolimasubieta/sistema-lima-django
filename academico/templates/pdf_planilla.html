@@ -9,33 +9,12 @@
         }
         body {
             font-family: Helvetica, Arial, sans-serif;
-            font-size: 7px; 
+            font-size: 6.5px; 
             color: #000000;
             background-color: #ffffff;
         }
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .header-table td {
-            padding: 1px;
-            vertical-align: top;
-            font-size: 8px;
-        }
-        .title {
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 2px;
-            margin-bottom: 1px;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 7.5px;
-            margin-bottom: 5px;
-        }
-
-        /* Tabla Matriz Principal */
+        
+        /* Matriz Principal: Clon exacto de la imagen */
         table.grid {
             width: 100%;
             border-collapse: collapse;
@@ -43,28 +22,44 @@
         }
         table.grid th, table.grid td {
             border: 0.5px solid #000000;
-            padding: 4px 1px; 
+            padding: 3px 1px; 
             vertical-align: middle;
             word-wrap: break-word;
         }
         table.grid th {
             font-weight: bold;
-            font-size: 5.5px; 
+            font-size: 5px; /* Tamaño optimizado para evitar cortes */
             background-color: #ffffff;
             text-align: center;
+            line-height: 1.2;
         }
         
-        .text-left { text-align: left !important; }
+        .text-left { text-align: left !important; padding-left: 3px !important; }
         .text-right { text-align: right !important; }
         .text-center { text-align: center !important; }
         .bold { font-weight: bold; }
+
+        /* Contenedor flotante para Mes/Año como en el Excel */
+        .mes-ano-box {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 15%;
+            border-collapse: collapse;
+        }
+        .mes-ano-box td {
+            border: 1px solid #000000;
+            padding: 2px 5px;
+            font-weight: bold;
+            font-size: 7.5px;
+        }
 
         /* Firmas inferiores */
         table.signatures-container {
             width: 100%;
             margin-top: 75px; 
             border-collapse: collapse;
-            table-layout: fixed; /* Asegura el respeto a los anchos */
+            table-layout: fixed;
         }
         table.signatures-container td {
             padding: 0;
@@ -74,120 +69,115 @@
 </head>
 <body>
 
-    <table class="header-table">
-        <tr>
-            <td width="65%">
-                <span class="bold">NOMBRE O RAZÓN SOCIAL:</span> {{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}<br/>
-                <span class="bold">Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO:</span> {{ empresa.nro_ministerio|default:'1234561702-01' }}
-            </td>
-            <td width="35%" class="text-right">
-                <span class="bold">Nº DE NIT:</span> {{ empresa.nit|default:'11544144015' }}<br/>
-                <span class="bold">Nº DE EMPLEADOR (Caja de Salud):</span> {{ empresa.nro_caja_salud|default:'111-7-9133' }}<br/>
-                <span class="bold">Página:</span> 1 de 1
-            </td>
-        </tr>
-    </table>
+    <div style="position: relative; width: 100%; margin-bottom: 25px;">
+        <div style="width: 70%; float: left; font-size: 8px;">
+            <span class="bold">NOMBRE O RAZÓN SOCIAL:</span> {{ empresa.razon_social|default:'GRUPO EMPRESARIAL "LIMA" S.R.L.' }}<br/>
+            <span class="bold">Nº IDENTIFICADOR DEL EMPLEADOR ANTE EL MINISTERIO DE TRABAJO:</span> {{ empresa.nro_ministerio|default:'1234561702-01' }}
+        </div>
+        <div style="width: 30%; float: right; text-align: right; font-size: 8px;">
+            <span class="bold">Nº DE NIT:</span> {{ empresa.nit|default:'11544144015' }}<br/>
+            <span class="bold">Nº DE EMPLEADOR (Caja de Salud):</span> {{ empresa.nro_caja_salud|default:'111-7-9133' }}<br/>
+            <span class="bold">Página:</span> 1 de 1
+        </div>
+        <div style="clear: both;"></div>
 
-    <div class="title">PLANILLA DE SUELDOS Y SALARIOS</div>
-    <div class="subtitle">(En Bolivianos)</div>
+        <div style="text-align: center; font-size: 11px; font-weight: bold; margin-top: 15px;">PLANILLA DE SUELDOS Y SALARIOS</div>
+        <div style="text-align: center; font-size: 7.5px; margin-bottom: 10px;">(En Bolivianos)</div>
 
-    <table width="100%" style="margin-bottom: 2px;">
-        <tr>
-            <td width="85%"></td>
-            <td width="15%" style="text-align: right; font-size: 8px; white-space: nowrap;">
-                <span class="bold">Mes:</span> {{ mes_nombre|default:"-" }}<br/>
-                <span class="bold">Año:</span> {{ anio_nombre }}
-            </td>
-        </tr>
-    </table>
+        <table class="mes-ano-box">
+            <tr>
+                <td style="text-align: left;">Mes</td>
+                <td style="text-align: center;">{{ mes_nombre|default:"JUNIO"|upper }}</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">Año</td>
+                <td style="text-align: center;">{{ anio_nombre|default:"2026" }}</td>
+            </tr>
+        </table>
+    </div>
 
     <table class="grid">
         <thead>
             <tr>
-                <th width="2.0%">Nº</th>
-                <th width="4.5%">Documento de<br/>identidad</th>
-                <th width="11.0%">Apellidos y nombres</th>
-                <th width="4.0%">Fecha de<br/>nacimiento</th>
-                <th width="2.0%">Sexo<br/>(F/M)</th>
-                <th width="6.0%">Ocupación que<br/>desempeña</th>
-                <th width="4.0%">Fecha de<br/>ingreso</th>
+                <th width="1.2%">Nº</th>
+                <th width="4.2%">Documento de<br/>identidad</th>
+                <th width="12.0%">Apellidos y nombres</th>
+                <th width="3.5%">País de<br/>nacionalidad</th>
+                <th width="3.5%">Fecha de<br/>nacimiento</th>
+                <th width="1.5%">Sexo<br/>(F/M)</th>
+                <th width="7.5%">Ocupación que<br/>desempeña</th>
+                <th width="3.5%">Fecha de<br/>ingreso</th>
+                <th width="3.5%">Haber<br/>Básico</th>
+                <th width="2.0%">Horas<br/>pagadas<br/>(Día)</th>
+                <th width="2.0%">Días<br/>pagados<br/>(Mes)</th>
                 
-                <th width="4.5%">Haber<br/>Básico</th>
-                <th width="3.5%">Horas<br/>pagadas<br/>(Día)</th>
-                <th width="3.5%">Días<br/>pagados<br/>(Mes)</th>
+                <th width="3.5%">Haber<br/>Ganado</th>
+                <th width="3.5%">Bono de<br/>Antigüedad</th>
+                <th width="3.5%">Bono de<br/>producción</th>
+                <th width="3.0%">Subsidio<br/>de frontera</th>
+                <th width="3.0%">Trabajo<br/>extraordi-<br/>nario y nocturno</th>
+                <th width="3.0%">Pago<br/>dominical y<br/>domingo trabajado</th>
+                <th width="3.0%">Otros bonos</th>
+                <th width="5.5%">TOTAL<br/>GANADO</th>
                 
-                <th width="4.0%">Haber<br/>Ganado</th>
-                <th width="4.0%">Bono de<br/>Antigüedad</th>
-                <th width="3.5%">Bono de<br/>Ventas</th>
-                <th width="3.5%">Subsidio<br/>de frontera</th>
-                <th width="4.0%">Trabajo<br/>extraordinario<br/>y nocturno</th>
-                <th width="4.0%">Pago<br/>dominical y<br/>dom. trabajado</th>
-                <th width="3.5%">Otros<br/>bonos</th>
-                <th width="4.5%">TOTAL<br/>GANADO</th>
-                
-                <th width="4.0%">Aporte a<br/>las AFPs</th>
-                <th width="3.0%">RC-IVA</th>
-                <th width="4.0%">Otros<br/>descuentos</th>
-                <th width="4.5%">TOTAL<br/>DESCUENTOS</th>
-                
-                <th width="4.5%">LÍQUIDO<br/>PAGABLE</th>
-                <th width="4.0%">Firma</th>
+                <th width="3.5%">Aporte a la<br/>Gestora</th>
+                <th width="2.5%">RC-IVA</th>
+                <th width="4.5%">Anticipo y<br/>Otros<br/>descuentos</th>
+                <th width="5.5%">TOTAL<br/>DESCUENTOS</th>
+                <th width="5.5%">LÍQUIDO<br/>PAGABLE</th>
+                <th width="6.1%">Firma</th>
             </tr>
         </thead>
         <tbody>
             {% for pago in pagos %}
             <tr>
                 <td class="text-center">{{ forloop.counter }}</td>
-                <td class="text-right">{{ pago.empleado.ci }}</td>
+                <td class="text-center">{{ pago.empleado.ci }}</td>
                 <td class="text-left">{{ pago.empleado.nombre_completo }}</td>
+                <td class="text-center">{{ pago.empleado.nacionalidad|default:"BOLIVIA" }}</td>
                 <td class="text-center">{% if pago.empleado.fecha_nacimiento %}{{ pago.empleado.fecha_nacimiento|date:"d/m/Y" }}{% else %}-{% endif %}</td>
-                <td class="text-center">{% if pago.empleado.sexo %}{{ pago.empleado.sexo }}{% else %}V{% endif %}</td>
-                <td class="text-left">{{ pago.empleado.cargo }}</td>
+                <td class="text-center">{% if pago.empleado.sexo %}{{ pago.empleado.sexo }}{% else %}M{% endif %}</td>
+                <td class="text-center">{{ pago.empleado.cargo }}</td>
                 <td class="text-center">{% if pago.empleado.fecha_ingreso %}{{ pago.empleado.fecha_ingreso|date:"d/m/Y" }}{% else %}-{% endif %}</td>
+                <td class="text-center">{{ pago.salario_base|floatformat:2 }}</td>
+                <td class="text-center">8</td>
+                <td class="text-center">30</td>
                 
-                <td class="text-right">{{ pago.salario_base }}</td>
-                <td class="text-right">8</td>
-                <td class="text-right">30</td>
+                <td class="text-center">{{ pago.salario_base|floatformat:2 }}</td>
+                <td class="text-center">{% if pago.bono_antiguedad %}{{ pago.bono_antiguedad|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center">{% if pago.bono_ventas %}{{ pago.bono_ventas|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center">0,00</td>
+                <td class="text-center">0,00</td>
+                <td class="text-center">0,00</td>
+                <td class="text-center">{% if pago.total_otros_bonos > 0 %}{{ pago.total_otros_bonos|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center bold">{{ pago.total_ganado|floatformat:2 }}</td>
                 
-                <td class="text-right">{{ pago.salario_base }}</td>
-                <td class="text-right">{% if pago.bono_antiguedad %}{{ pago.bono_antiguedad }}{% else %}0.00{% endif %}</td>
-                <td class="text-right">{% if pago.bono_ventas %}{{ pago.bono_ventas }}{% else %}0.00{% endif %}</td>
-                <td class="text-right">0.00</td>
-                <td class="text-right">0.00</td>
-                <td class="text-right">0.00</td>
-                <td class="text-right">{% if pago.total_otros_bonos > 0 %}{{ pago.total_otros_bonos }}{% else %}0.00{% endif %}</td>
-                <td class="text-right bold">{{ pago.total_ganado }}</td>
+                <td class="text-center">{% if pago.aportes_afp %}{{ pago.aportes_afp|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center">{% if pago.rc_iva %}{{ pago.rc_iva|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center">{% if pago.total_otros_descuentos > 0 %}{{ pago.total_otros_descuentos|floatformat:2 }}{% else %}0,00{% endif %}</td>
+                <td class="text-center bold">{{ pago.total_descuentos|floatformat:2 }}</td>
                 
-                <td class="text-right">{% if pago.aportes_afp %}{{ pago.aportes_afp }}{% else %}0.00{% endif %}</td>
-                <td class="text-right">{% if pago.rc_iva %}{{ pago.rc_iva }}{% else %}0.00{% endif %}</td>
-                <td class="text-right">{% if pago.total_otros_descuentos > 0 %}{{ pago.total_otros_descuentos }}{% else %}0.00{% endif %}</td>
-                <td class="text-right bold">{{ pago.total_descuentos }}</td>
-                
-                <td class="text-right bold">{{ pago.liquido_pagable }}</td>
+                <td class="text-center bold">{{ pago.liquido_pagable|floatformat:2 }}</td>
                 <td> </td>
             </tr>
             {% endfor %}
             
             <tr>
-                <td colspan="7" class="text-center bold">TOTALES:</td>
+                <td colspan="11" class="text-center bold">TOTALES</td>
                 
-                <td class="text-right bold">{{ t_salario_base }}</td>
-                <td class="text-right bold"> </td>
-                <td class="text-right bold"> </td>
-                
-                <td class="text-right bold">{{ t_salario_base }}</td>
-                <td class="text-right bold">{{ t_bono_antiguedad }}</td>
-                <td class="text-right bold">{{ t_bono_ventas }}</td>
-                <td class="text-right bold">0.00</td>
-                <td class="text-right bold">0.00</td>
-                <td class="text-right bold">0.00</td>
-                <td class="text-right bold">{{ t_otros_bonos_combinados }}</td>
-                <td class="text-right bold">{{ t_total_ganado }}</td>
-                <td class="text-right bold">{{ t_aportes_afp }}</td>
-                <td class="text-right bold">{{ t_rc_iva }}</td>
-                <td class="text-right bold">{{ t_otros_descuentos_combinados }}</td>
-                <td class="text-right bold">{{ t_total_descuentos }}</td>
-                <td class="text-right bold">{{ t_liquido_pagable }}</td>
+                <td class="text-center bold">{{ t_salario_base|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_bono_antiguedad|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_bono_ventas|floatformat:2 }}</td>
+                <td class="text-center bold">0,00</td>
+                <td class="text-center bold">0,00</td>
+                <td class="text-center bold">0,00</td>
+                <td class="text-center bold">{{ t_otros_bonos_combinados|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_total_ganado|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_aportes_afp|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_rc_iva|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_otros_descuentos_combinados|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_total_descuentos|floatformat:2 }}</td>
+                <td class="text-center bold">{{ t_liquido_pagable|floatformat:2 }}</td>
                 <td> </td>
             </tr>
         </tbody>
