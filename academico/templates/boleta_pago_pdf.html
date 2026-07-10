@@ -73,7 +73,7 @@
             <td class="lbl">F. Ingreso:</td><td>{{ pago.empleado.fecha_ingreso|date:"d/m/Y" }}</td>
         </tr>
         <tr>
-            <td class="lbl">Nro Pat. AFP:</td><td>{{ empresa.nro_patronal_afp|default:'-' }}</td>
+            <td class="lbl"></td><td>{{ empresa.nro_patronal_afp|default:'-' }}</td>
             <td class="lbl">Antigüedad:</td><td>{{ antiguedad|upper }}</td>
         </tr>
     </table>
@@ -85,7 +85,7 @@
         </tr>
         <tr>
             <td>Salario Ganado</td><td class="amt">{{ pago.salario_base }}</td>
-            <td>Aportes AFPs</td><td class="amt">{{ pago.aportes_afp }}</td>
+            <td>Gestora Pública</td><td class="amt">{{ pago.aportes_afp }}</td>
         </tr>
         <tr>
             <td>Bono de Antigüedad</td><td class="amt">{{ pago.bono_antiguedad }}</td>
