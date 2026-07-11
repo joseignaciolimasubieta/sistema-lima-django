@@ -263,19 +263,21 @@ def cursos(request):
 @login_required
 @user_passes_test(es_administrador)
 def crear_curso(request):
+    hoy = date.today()
+    
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES)
         
-        # Filtramos para que solo acepte módulos reales en la validación
+        # Filtramos módulos y exigimos que su fecha de finalización sea hoy o en el futuro
         form.fields['modulo_padre'].queryset = Curso.objects.filter(
             Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).filter(
+            Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).order_by('-id')
 
         if form.is_valid():
-            # 1. Guardamos el curso en la base de datos
             curso = form.save()
             
-            # 2. Extracción segura del texto de duración (TU LÓGICA ORIGINAL)
             texto_duracion = str(
                 getattr(curso, 'duracion', 
                 getattr(curso, 'horario', 
@@ -285,7 +287,6 @@ def crear_curso(request):
             horas_numericas = 0
             carga_calculada = "0 horas"
             
-            # 3. Cálculo automático de la carga horaria
             try:
                 buscar_sesiones = re.search(r'(\d+)\s*(?:sesion|clase)', texto_duracion)
                 if buscar_sesiones:
@@ -301,7 +302,6 @@ def crear_curso(request):
                 horas_numericas = 0
                 carga_calculada = "0 horas"
 
-            # 4. Cálculo de Honorario (Horas * Bs. 22)
             monto_automatizado = horas_numericas * 22
 
             Honorario.objects.create(
@@ -312,7 +312,6 @@ def crear_curso(request):
                 estado='PENDIENTE'
             )
             
-            # ¡NUEVO! Dispara la ventanita azul de éxito
             messages.success(request, 'El curso fue registrado y sus honorarios calculados con éxito.')
             return redirect('cursos')
         else:
@@ -320,30 +319,33 @@ def crear_curso(request):
     else:
         form = CursoForm()
         
-        # Filtramos para que el menú desplegable solo muestre los módulos
+        # Aplicamos el mismo filtro temporal para el GET (cuando recién carga la página)
         form.fields['modulo_padre'].queryset = Curso.objects.filter(
             Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).filter(
+            Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).order_by('-id')
         
     return render(request, 'crear_curso.html', {'form': form, 'editando': False})
-
 
 @login_required
 @user_passes_test(es_administrador)
 def editar_curso(request, id):
     curso = get_object_or_404(Curso, id=id) 
+    hoy = date.today()
     
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES, instance=curso)
         
-        # Filtramos y nos aseguramos de excluir el propio curso para que no sea padre de sí mismo
+        # Filtro de módulos + Ocultar finalizados + Excluir a sí mismo
         form.fields['modulo_padre'].queryset = Curso.objects.filter(
             Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).filter(
+            Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).exclude(id=curso.id).order_by('-id')
 
         if form.is_valid():
             form.save()
-            # ¡NUEVO! Dispara la ventanita azul de actualización
             messages.success(request, 'La información del curso se actualizó correctamente.')
             return redirect('cursos')
         else:
@@ -351,9 +353,11 @@ def editar_curso(request, id):
     else:
         form = CursoForm(instance=curso)
         
-        # Filtramos el menú desplegable visualmente
+        # El mismo filtro para cuando se abre el formulario de edición
         form.fields['modulo_padre'].queryset = Curso.objects.filter(
             Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).filter(
+            Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).exclude(id=curso.id).order_by('-id')
     
     context = {
