@@ -265,6 +265,12 @@ def cursos(request):
 def crear_curso(request):
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES)
+        
+        # Filtramos para que solo acepte módulos reales en la validación
+        form.fields['modulo_padre'].queryset = Curso.objects.filter(
+            Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).order_by('-id')
+
         if form.is_valid():
             # 1. Guardamos el curso en la base de datos
             curso = form.save()
@@ -314,6 +320,11 @@ def crear_curso(request):
     else:
         form = CursoForm()
         
+        # Filtramos para que el menú desplegable solo muestre los módulos
+        form.fields['modulo_padre'].queryset = Curso.objects.filter(
+            Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).order_by('-id')
+        
     return render(request, 'crear_curso.html', {'form': form, 'editando': False})
 
 
@@ -324,6 +335,12 @@ def editar_curso(request, id):
     
     if request.method == 'POST':
         form = CursoForm(request.POST, request.FILES, instance=curso)
+        
+        # Filtramos y nos aseguramos de excluir el propio curso para que no sea padre de sí mismo
+        form.fields['modulo_padre'].queryset = Curso.objects.filter(
+            Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).exclude(id=curso.id).order_by('-id')
+
         if form.is_valid():
             form.save()
             # ¡NUEVO! Dispara la ventanita azul de actualización
@@ -333,6 +350,11 @@ def editar_curso(request, id):
             messages.error(request, 'Ocurrió un error al actualizar. Verifique los datos.')
     else:
         form = CursoForm(instance=curso)
+        
+        # Filtramos el menú desplegable visualmente
+        form.fields['modulo_padre'].queryset = Curso.objects.filter(
+            Q(nombre__icontains='modulo') | Q(nombre__icontains='módulo')
+        ).exclude(id=curso.id).order_by('-id')
     
     context = {
         'form': form,
