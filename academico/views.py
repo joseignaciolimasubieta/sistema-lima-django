@@ -274,6 +274,9 @@ def crear_curso(request):
         ).filter(
             Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).order_by('-id')
+        
+        # --- NUEVO: Cambiamos el texto por defecto ---
+        form.fields['modulo_padre'].empty_label = "SELECCIONE UN MÓDULO"
 
         if form.is_valid():
             curso = form.save()
@@ -326,6 +329,9 @@ def crear_curso(request):
             Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).order_by('-id')
         
+        # --- NUEVO: Cambiamos el texto por defecto ---
+        form.fields['modulo_padre'].empty_label = "SELECCIONE UN MÓDULO"
+        
     return render(request, 'crear_curso.html', {'form': form, 'editando': False})
 
 @login_required
@@ -343,6 +349,9 @@ def editar_curso(request, id):
         ).filter(
             Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).exclude(id=curso.id).order_by('-id')
+        
+        # --- NUEVO: Cambiamos el texto por defecto ---
+        form.fields['modulo_padre'].empty_label = "SELECCIONE UN MÓDULO"
 
         if form.is_valid():
             form.save()
@@ -359,6 +368,9 @@ def editar_curso(request, id):
         ).filter(
             Q(fecha_finalizacion__gte=hoy) | Q(fecha_finalizacion__isnull=True)
         ).exclude(id=curso.id).order_by('-id')
+        
+        # --- NUEVO: Cambiamos el texto por defecto ---
+        form.fields['modulo_padre'].empty_label = "SELECCIONE UN MÓDULO"
     
     context = {
         'form': form,
