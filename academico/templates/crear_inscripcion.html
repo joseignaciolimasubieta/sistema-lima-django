@@ -105,6 +105,11 @@
                         <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
+                        <button type="button" id="btn-mostrar-qr" onclick="abrirModalQR()" 
+                                class="hidden inline-flex items-center justify-center gap-2 mt-3 h-9 px-5 rounded-full bg-[#0071e3]/10 hover:bg-[#0071e3]/20 text-[#0071e3] text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-[#0071e3]/20">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                            Ver QR de Depósito
+                        </button>
                     </div>
                 </div>
                 
@@ -151,20 +156,7 @@
                     </div>
                 </div>
 
-                <div id="contenedor-qr" class="hidden md:col-span-3 mt-4 p-8 bg-white border-2 border-dashed border-blue-200 rounded-3xl flex flex-col items-center justify-center transition-all shadow-sm">
-                    <div class="flex items-center gap-2 mb-6">
-                        <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-                        <p class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest">Escanea para pagar vía QR</p>
-                    </div>
-                    
-                    <div class="p-2 bg-gray-50 rounded-2xl shadow-sm border border-gray-200">
-                        <img src="{% static 'IMG_6078.PNG' %}" alt="QR Empresa" class="w-64 h-64 md:w-72 md:h-72 rounded-xl object-contain">
-                    </div>
-                    
-                    <p class="text-[10px] font-bold text-gray-500 mt-5 text-center uppercase tracking-widest leading-relaxed">
-                        CUENTA EMPRESARIAL <br> <span class="text-black font-black">LIMA S.R.L.</span>
-                    </p>
-                </div>
+                
             </div>
         </div>
             
@@ -178,6 +170,22 @@
             </button>
         </div>
     </form>
+</div>
+<div id="modal-qr" class="hidden fixed inset-0 z-[999] bg-gray-900/40 backdrop-blur-sm flex items-center justify-center transition-opacity opacity-0 duration-300">
+    <div id="modal-qr-content" class="bg-white rounded-3xl shadow-2xl p-6 max-w-sm w-full mx-4 relative transform transition-all scale-95 duration-300">
+        
+        <button type="button" onclick="cerrarModalQR()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-full p-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        
+        <h3 class="text-lg font-bold text-center text-gray-900 mb-4">Código QR Autorizado</h3>
+        
+        <img src="{% static 'RUTA_DE_TU_IMAGEN_QR.jpg' %}" alt="Código QR" class="w-full h-auto rounded-xl shadow-sm border border-gray-200">
+        
+        <button type="button" onclick="cerrarModalQR()" class="mt-5 w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-xl transition-colors">
+            Cerrar
+        </button>
+    </div>
 </div>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -277,10 +285,12 @@
             }
         });
 
-        // 3. LÓGICA DE PAGOS Y QR
+        
+
+        // 3. LÓGICA DE PAGOS Y QR (¡ACTUALIZADA!)
         const selectFormaPago = document.querySelector('select[name="forma_pago"]');
         const selectBanco = document.querySelector('select[name="banco"]');
-        const contenedorQr = document.getElementById('contenedor-qr');
+        const btnMostrarQR = document.getElementById('btn-mostrar-qr'); // <--- AHORA BUSCAMOS EL BOTÓN
 
         function verificarQR() {
             if (selectFormaPago.value === 'Efectivo') {
@@ -289,18 +299,57 @@
                 selectBanco.value = 'BANCO';
             }
 
+            // Si es depósito, mostramos el BOTÓN en lugar de la imagen
             if (selectFormaPago.value === 'Depósito' && selectBanco.value === 'BANCO') {
-                contenedorQr.classList.remove('hidden');
-                contenedorQr.classList.add('animate-fade-in-down');
+                if(btnMostrarQR) {
+                    btnMostrarQR.classList.remove('hidden');
+                    btnMostrarQR.classList.add('animate-fade-in-down');
+                }
             } else {
-                contenedorQr.classList.add('hidden');
+                if(btnMostrarQR) {
+                    btnMostrarQR.classList.add('hidden');
+                }
             }
         }
 
-        selectFormaPago.addEventListener('change', verificarQR);
-        selectBanco.addEventListener('change', verificarQR);
-        verificarQR(); // Ejecución inicial
-    });
+        if(selectFormaPago && selectBanco) {
+            selectFormaPago.addEventListener('change', verificarQR);
+            selectBanco.addEventListener('change', verificarQR);
+            verificarQR(); // Ejecución inicial
+        }
+    }); // <-- AQUÍ TERMINA EL document.addEventListener
+
+    // =========================================================
+    // --- NUEVAS FUNCIONES PARA LA VENTANA FLOTANTE DEL QR ---
+    // =========================================================
+    function abrirModalQR() {
+        const modal = document.getElementById('modal-qr');
+        const contenido = document.getElementById('modal-qr-content');
+        
+        modal.classList.remove('hidden');
+        
+        // Pequeño retraso para que la animación de entrada se vea fluida
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            contenido.classList.remove('scale-95');
+            contenido.classList.add('scale-100');
+        }, 10);
+    }
+
+    function cerrarModalQR() {
+        const modal = document.getElementById('modal-qr');
+        const contenido = document.getElementById('modal-qr-content');
+        
+        // Animación suave de salida
+        modal.classList.add('opacity-0');
+        contenido.classList.remove('scale-100');
+        contenido.classList.add('scale-95');
+        
+        // Espera a que termine la animación visual para ocultarlo del código
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300); 
+    }
 </script>
 
 <style>
