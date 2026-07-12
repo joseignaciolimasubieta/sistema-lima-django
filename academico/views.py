@@ -222,29 +222,31 @@ def crear_docente(request):
 
 @login_required
 def cursos(request):
-    # Traemos los cursos ordenados por los más recientes
-    lista_cursos = Curso.objects.select_related('docente').all().order_by('-id')
+    hoy = date.today()
+    # 1. Filtramos y aplicamos el orden inteligente
+    lista_cursos = Curso.objects.select_related('docente').annotate(
+        orden_estado=Case(
+            When(fecha_inicio__gt=hoy, then=Value(1)), # Futuros
+            When(fecha_inicio__lte=hoy, fecha_finalizacion__gte=hoy, then=Value(2)), # En curso
+            default=Value(3), # Finalizados
+            output_field=IntegerField(),
+        )
+    ).order_by('orden_estado', '-fecha_inicio') # Ordena por prioridad y luego por fecha descendente
     
-    # Capturamos lo que el usuario escriba en el buscador de texto
     buscar = request.GET.get('buscar', '')
-    
-    # ¡SOLUCIÓN!: Ahora atrapamos 'mes' (que es el name correcto del input en tu HTML)
     mes_busqueda = request.GET.get('mes', '') 
     
-    # 1. FILTRO DE TEXTO
+    # 2. FILTRO DE TEXTO
     if buscar:
         lista_cursos = lista_cursos.filter(
             Q(nombre__icontains=buscar) |
             Q(docente__nombre__icontains=buscar)
         )
         
-    # 2. FILTRO DE CALENDARIO (MESES)
+    # 3. FILTRO DE CALENDARIO (MESES)
     if mes_busqueda:
         try:
-            # El input envía "2026-06"
             anio, mes = mes_busqueda.split('-')
-            
-            # Filtramos los cursos cuya fecha de inicio sea en ese año y mes
             lista_cursos = lista_cursos.filter(
                 fecha_inicio__year=anio, 
                 fecha_inicio__month=mes
@@ -255,7 +257,7 @@ def cursos(request):
     contexto = {
         'cursos': lista_cursos,
         'buscar': buscar,
-        'mes_buscar': mes_busqueda # Mantenemos el valor para el placeholder
+        'mes_buscar': mes_busqueda
     }
     return render(request, 'cursos.html', contexto)
 
