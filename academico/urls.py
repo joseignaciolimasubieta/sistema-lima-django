@@ -82,6 +82,9 @@ urlpatterns = [
     path('rrhh/anticipos/eliminar/<int:anticipo_id>/', views.eliminar_anticipo, name='eliminar_anticipo'),
     path('consultora/crear-cliente/', views.crear_cliente, name='crear_cliente'), 
     path('api/buscar-cliente/', views.api_buscar_cliente, name='api_buscar_cliente'), 
+    # --- MÓDULO DE CONTROL DE ASISTENCIA ---
+    path('api/asistencia/rfid/', views.registrar_asistencia_rfid, name='registrar_asistencia_rfid'),
+    path('empleados/asistencia/', views.asistencia_empleados, name='asistencia_empleados'),
     
     # --- MÓDULO DE PRÉSTAMOS Y FINANCIERA ---
     path('financiera/prestamos/', views.lista_prestamos, name='lista_prestamos'), 
