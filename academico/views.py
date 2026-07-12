@@ -29,7 +29,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.db.models.functions import TruncMonth, TruncYear
 from datetime import date, timedelta
-from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado  # Importamos las tablas de la base de datos
+from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
 
 def es_administrador(user):
