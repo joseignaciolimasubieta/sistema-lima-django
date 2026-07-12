@@ -60,11 +60,23 @@
 
                 <script>
                     function irAlFinal() {
-                        // En el Flujo de Caja, esto bajará suavemente hasta el último movimiento registrado
-                        window.scrollTo({
-                            top: document.body.scrollHeight,
-                            behavior: 'smooth'
-                        });
+                        // 1. Buscamos todas las filas de la tabla de movimientos
+                        const filas = document.querySelectorAll('table tbody tr');
+                        
+                        if (filas.length > 0) {
+                            // 2. Seleccionamos la última fila y nos desplazamos hacia ella
+                            const ultimaFila = filas[filas.length - 1];
+                            ultimaFila.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'end' 
+                            });
+                        } else {
+                            // Respaldo por si la tabla estuviera vacía
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
                     }
                 </script>
                 

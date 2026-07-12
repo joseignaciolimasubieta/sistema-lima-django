@@ -43,10 +43,23 @@
                 </button>
                 <script>
                     function irAlFinal() {
-                        window.scrollTo({
-                            top: document.body.scrollHeight,
-                            behavior: 'smooth'
-                        });
+                        // 1. Buscamos todas las filas de la tabla
+                        const filas = document.querySelectorAll('table tbody tr');
+                        
+                        if (filas.length > 0) {
+                            // 2. Seleccionamos la última fila y nos desplazamos hacia ella
+                            const ultimaFila = filas[filas.length - 1];
+                            ultimaFila.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'end' 
+                            });
+                        } else {
+                            // Respaldo por si la tabla estuviera vacía
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
                     }
                 </script>
                 <a href="{% url 'inscripciones' %}" class="inline-flex items-center gap-3 px-6 py-2.5 bg-white border border-gray-200 rounded-full text-[#1d1d1f] font-semibold text-[14px] shadow-sm hover:shadow hover:bg-gray-50 transition-all duration-300 ease-in-out shrink-0">
