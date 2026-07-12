@@ -123,8 +123,7 @@
                 <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
                     <tr>
                         <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
-                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Participante</th>
-                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Celular</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Participante<br>Celular</th>
                         <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Curso / Mes</th>
                         <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Turno</th>
                         <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Modalidad</th>
@@ -149,11 +148,10 @@
                             
                             <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
                                 {{ item.participante }}
-                            </td>
-                            
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
                                 {{ item.participante.celular|default:"-" }}
                             </td>
+                            
+                            
                             
                             <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
                                 <div class="font-bold text-black group-hover:text-white transition-colors text-[11px]">{{ item.curso.nombre|default:item.curso }}</div>
@@ -172,7 +170,7 @@
                             <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
                                 {{ item.banco|default:"-" }}
                             </td>
-                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                            <td class="px-2 py-2.5 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
                                 {{ item.importe|default:"0,00" }}
                             </td>
                             <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
@@ -207,11 +205,9 @@
                             
                             <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
                                 {{ item.participante.nombre_completo }}
-                            </td>
-                            
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
                                 {{ item.participante.celular|default:"-" }}
                             </td>
+                            
                             
                             <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
                                 <div class="font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] uppercase">{{ item.tipo_servicio }}</div>
@@ -226,7 +222,7 @@
                             <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
                                 {{ item.banco|default:"-" }}
                             </td>
-                            <td class="px-2.0 py-2.5 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                            <td class="px-2 py-2.5 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
                                 {{ item.importe|default:"0,00" }}
                             </td>       
                             <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
