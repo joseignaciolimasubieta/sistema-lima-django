@@ -43,22 +43,19 @@
                 </button>
                 <script>
                     function irAlFinal() {
-                        // 1. Buscamos todas las filas de la tabla
                         const filas = document.querySelectorAll('table tbody tr');
                         
-                        if (filas.length > 0) {
-                            // 2. Seleccionamos la última fila y nos desplazamos hacia ella
-                            const ultimaFila = filas[filas.length - 1];
-                            ultimaFila.scrollIntoView({ 
+                        // Si hay al menos 2 registros, vamos al penúltimo (índice length - 2)
+                        if (filas.length >= 2) {
+                            const penultimoRegistro = filas[filas.length - 2];
+                            penultimoRegistro.scrollIntoView({ 
                                 behavior: 'smooth', 
-                                block: 'end' 
+                                block: 'center' // Cambiamos a 'center' para que lo veas justo en medio
                             });
-                        } else {
-                            // Respaldo por si la tabla estuviera vacía
-                            window.scrollTo({
-                                top: document.body.scrollHeight,
-                                behavior: 'smooth'
-                            });
+                        } 
+                        // Si solo hay 1 registro, vamos a ese
+                        else if (filas.length === 1) {
+                            filas[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                     }
                 </script>
