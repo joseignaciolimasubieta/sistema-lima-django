@@ -956,3 +956,32 @@ class AnticipoEmpleado(models.Model):
         ).first()
         if fantasma:
             fantasma.delete()
+            
+class AsistenciaEmpleado(models.Model):
+    ESTADOS_ASISTENCIA = [
+        ('PUNTUAL', 'Puntual'),
+        ('RETRASO', 'Retraso'),
+        ('FALTA', 'Falta'),
+    ]
+    TIPO_MARCADO = [
+        ('INGRESO', 'Ingreso'),
+        ('SALIDA', 'Salida'),
+    ]
+    
+    # Vinculado a tu tabla Empleado existente
+    empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='asistencias_laborales')
+    fecha = models.DateField(default=date.today)
+    hora = models.TimeField(auto_now_add=True)  # Se registra la hora exacta automáticamente
+    tipo = models.CharField(max_length=20, choices=TIPO_MARCADO)
+    estado = models.CharField(max_length=20, choices=ESTADOS_ASISTENCIA, default='PUNTUAL')
+    
+    # Guardamos los minutos exactos de retraso para tus reportes
+    minutos_retraso = models.IntegerField(default=0) 
+
+    class Meta:
+        verbose_name = "Asistencia de Empleado"
+        verbose_name_plural = "Asistencias de Empleados"
+        ordering = ['-fecha', '-hora'] # Ordena mostrando lo más reciente primero
+
+    def __str__(self):
+        return f"{self.empleado.nombre_completo} - {self.fecha} {self.hora} ({self.tipo})"

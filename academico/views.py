@@ -7,6 +7,7 @@ from reportlab.lib import colors
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from weasyprint import HTML
+from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
 from django.contrib import messages
@@ -3397,3 +3398,94 @@ def eliminar_afiche_marketing(request, curso_id):
         
     return redirect('marketing')
 
+@csrf_exempt
+def registrar_asistencia_rfid(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ci_empleado = data.get('ci')
+            
+            if not ci_empleado:
+                return JsonResponse({'status': 'error', 'mensaje': 'No se recibió el CI del empleado'}, status=400)
+                
+            # 1. Buscamos al empleado por su CI
+            empleado = get_object_or_404(Empleado, ci=ci_empleado)
+            
+            # 2. Obtenemos la hora actual en Bolivia
+            ahora = timezone.localtime(timezone.now())
+            
+            # 3. Determinamos si es INGRESO o SALIDA
+            # Si el último marcado de hoy fue ingreso, este es salida. Si no hay marcados, es ingreso.
+            ultimo_marcado = AsistenciaEmpleado.objects.filter(
+                empleado=empleado, 
+                fecha=ahora.date()
+            ).order_by('-hora').first()
+            
+            tipo_marcado = 'INGRESO'
+            if ultimo_marcado and ultimo_marcado.tipo == 'INGRESO':
+                tipo_marcado = 'SALIDA'
+                
+            # 4. Lógica de Retrasos y Multas (Solo se calcula en el INGRESO)
+            estado_asistencia = 'PUNTUAL'
+            minutos_retraso = 0
+            
+            # SUPONGAMOS QUE LA HORA DE ENTRADA LÍMITE ES 08:30 AM
+            hora_limite = ahora.replace(hour=8, minute=30, second=0, microsecond=0)
+            
+            if tipo_marcado == 'INGRESO' and ahora > hora_limite:
+                estado_asistencia = 'RETRASO'
+                diferencia = ahora - hora_limite
+                minutos_retraso = int(diferencia.total_seconds() / 60)
+                
+            # 5. Guardamos el registro en la nueva tabla
+            nueva_asistencia = AsistenciaEmpleado.objects.create(
+                empleado=empleado,
+                fecha=ahora.date(),
+                tipo=tipo_marcado,
+                estado=estado_asistencia,
+                minutos_retraso=minutos_retraso
+            )
+            
+            # 6. Descuento Automático en Planilla (Si hay retraso)
+            if minutos_retraso > 0:
+                # Ejemplo: Multa de 1 Bs. por cada minuto de retraso (Ajusta esto a tu regla real)
+                multa_bs = Decimal(minutos_retraso * 1.00) 
+                mes_actual = ahora.strftime('%Y-%m') # Genera "2026-07"
+                
+                # Buscamos la planilla del empleado de este mes, o la creamos si es el primer día
+                pago_sueldo, creado = PagoSueldo.objects.get_or_create(
+                    empleado=empleado,
+                    mes_correspondiente=mes_actual,
+                    defaults={
+                        'fecha_pago': ahora.date(),
+                        'salario_base': empleado.salario_base,
+                    }
+                )
+                
+                # Sumamos la multa al historial de la planilla y guardamos
+                pago_sueldo.multas += multa_bs
+                pago_sueldo.save()
+
+                return JsonResponse({
+                    'status': 'retraso', 
+                    'minutos': minutos_retraso,
+                    'mensaje': f'Se registró {tipo_marcado} de {empleado.nombre_completo}. Multa de Bs. {multa_bs} por {minutos_retraso} min de retraso.'
+                })
+            
+            # Si llegó a tiempo o es salida
+            return JsonResponse({
+                'status': 'ok', 
+                'mensaje': f'Se registró {tipo_marcado} de {empleado.nombre_completo} exitosamente.'
+            })
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
+    
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
+
+@login_required
+@user_passes_test(es_administrador)
+def asistencia_empleados(request):
+    # Traemos todo el historial de marcados, ordenado por el más reciente primero
+    asistencias = AsistenciaEmpleado.objects.all().order_by('-fecha', '-hora')
+    return render(request, 'asistencia_empleados.html', {'asistencias': asistencias})

@@ -69,12 +69,14 @@
                             <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                             <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
 
-                        {% elif url_name == 'flujo_caja' or url_name == 'arqueo_caja' or url_name == 'historial_arqueos' or url_name == 'planillas' or url_name == 'lista_prestamos' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' or url_name == 'buscar_boletas' or url_name == 'crear_pago' or url_name == 'editar_pago' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' %}
+                        {% elif url_name == 'flujo_caja' or url_name == 'arqueo_caja' or url_name == 'historial_arqueos' or url_name == 'planillas' or url_name == 'lista_prestamos' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' or url_name == 'buscar_boletas' or url_name == 'crear_pago' or url_name == 'editar_pago' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' or url_name == 'asistencia_empleados' %}
                             <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if 'caja' in url_name and 'arqueo' not in url_name or 'movimiento' in url_name %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
                             <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if 'arqueo' in url_name %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
                             <a href="{% url 'planillas' %}" class="apple-nav-link {% if 'planillas' in url_name or 'boletas' in url_name or 'pago' in url_name and 'prestamo' not in url_name %}apple-nav-link-active{% endif %}">Planillas Salariales</a>
+                            
+                            <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if 'asistencia' in url_name %}apple-nav-link-active{% endif %}">Control Asistencia</a>
+                            
                             <a href="{% url 'lista_prestamos' %}" class="apple-nav-link {% if 'prestamo' in url_name %}apple-nav-link-active{% endif %}">Financiera</a>
-
                         {% else %}
                             <a href="{% url 'dashboard' %}" class="apple-nav-link {% if url_name == 'dashboard' %}apple-nav-link-active{% endif %}">Reportes</a>
                             <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>

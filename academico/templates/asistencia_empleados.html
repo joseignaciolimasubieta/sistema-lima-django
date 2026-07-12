@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+            <h1 class="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Control de Asistencia.</h1>
+            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mt-2">Historial de Ingresos y Salidas del Personal</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto scrollbar-delgada">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b-2 border-slate-200">
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Empleado</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center whitespace-nowrap">Fecha</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center whitespace-nowrap">Hora</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center whitespace-nowrap">Tipo</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center whitespace-nowrap">Estado</th>
+                        <th class="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right whitespace-nowrap">Retraso</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for a in asistencias %}
+                    <tr class="hover:bg-slate-50/50 transition-colors group">
+                        <td class="px-6 py-4 text-sm font-bold text-gray-900 whitespace-nowrap">
+                            {{ a.empleado.nombre_completo|upper }}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-xs font-bold text-gray-600 text-center whitespace-nowrap">
+                            {{ a.fecha|date:"d/m/Y" }}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-sm font-black text-[#0071e3] text-center whitespace-nowrap">
+                            {{ a.hora|time:"H:i:s" }}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            {% if a.tipo == 'INGRESO' %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100/50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                                    Ingreso
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100/50 text-amber-700 text-[10px] font-black uppercase tracking-widest">
+                                    Salida
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-center whitespace-nowrap">
+                            {% if a.estado == 'PUNTUAL' %}
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">PUNTUAL</span>
+                            {% elif a.estado == 'RETRASO' %}
+                                <span class="text-xs font-black text-rose-500 uppercase tracking-widest">RETRASO</span>
+                            {% else %}
+                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ a.estado }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            {% if a.minutos_retraso > 0 %}
+                                <span class="inline-flex items-center justify-center h-6 px-2 rounded bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-black">
+                                    {{ a.minutos_retraso }} MIN
+                                </span>
+                            {% else %}
+                                <span class="text-gray-300 text-sm font-black">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center opacity-40">
+                                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">No hay registros de asistencia aún</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .scrollbar-delgada::-webkit-scrollbar { height: 8px; width: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+</style>
+
+{% endblock %}
