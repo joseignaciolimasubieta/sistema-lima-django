@@ -99,12 +99,14 @@
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Destino del Dinero</label>
                     <div class="relative">
                         <select name="banco" required class="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-[#0071e3] uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
-                            <option value="ADMINISTRACIÓN">001 - ADMINISTRACIÓN</option>
-                            <option value="BANCO">002 - BANCO</option>
+                            <option value="ADMINISTRACIÓN" {% if inscripcion.banco|upper == 'ADMINISTRACIÓN' or inscripcion.banco|upper == 'CAJA' %}selected{% endif %}>001 - ADMINISTRACIÓN</option>
+                            <option value="BANCO" {% if inscripcion.banco|upper == 'BANCO' %}selected{% endif %}>002 - BANCO</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
+                        
+                        <!-- BOTÓN DEL QR -->
                         <button type="button" id="btn-mostrar-qr" onclick="abrirModalQR()" 
                                 class="hidden inline-flex items-center justify-center gap-2 mt-3 h-9 px-5 rounded-full bg-[#0071e3]/10 hover:bg-[#0071e3]/20 text-[#0071e3] text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95 border border-[#0071e3]/20">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
