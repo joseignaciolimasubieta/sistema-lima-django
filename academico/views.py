@@ -444,6 +444,20 @@ def inscripciones(request):
 
     lista_combinada = sorted(chain(lista, ventas_extra), key=normalizar_fecha, reverse=False)
 
+    # 1. Ajusta la función normalizar_fecha para que incluya el ID como segundo criterio
+    def criterio_ordenamiento(obj):
+        # Primero usamos la fecha
+        fecha = obj.fecha_inscripcion if hasattr(obj, 'fecha_inscripcion') else obj.fecha_venta
+        fecha_val = fecha.date() if isinstance(fecha, datetime.datetime) else (fecha or datetime.date.min)
+        
+        # Segundo usamos el ID (esto mantiene los registros de un mismo lote juntos)
+        id_val = obj.id 
+        
+        return (fecha_val, id_val)
+
+    # 2. Ordenamos usando este criterio combinado (reverse=True para ver lo más nuevo primero)
+    lista_combinada = sorted(chain(lista, ventas_extra), key=criterio_ordenamiento, reverse=True)
+
     return render(request, 'inscripciones.html', {
         'lista_combinada': lista_combinada, 
         'buscar': buscar,
