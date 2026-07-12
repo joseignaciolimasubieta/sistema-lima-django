@@ -91,6 +91,9 @@ urlpatterns = [
     path('planillas/boleta/<int:pago_id>/', views.imprimir_boleta, name='imprimir_boleta'),     
     path('financiera/prestamos/recibo/<int:pago_id>/', views.imprimir_recibo_pago, name='imprimir_recibo_pago'), 
     path('consultora/eliminar-cliente/<int:cliente_id>/', views.eliminar_cliente, name='eliminar_cliente'), 
+
+    # Ruta para el sistema de asistencia
+    path('api/asistencia-rfid/', views.registrar_asistencia_rfid, name='api_rfid'),
 ]
 
 if settings.DEBUG:

@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, F, Sum, Count, Case, When, Value, IntegerField
 from django.db.models.deletion import ProtectedError
-from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -3381,3 +3380,62 @@ def eliminar_afiche_marketing(request, curso_id):
         messages.success(request, f'El arte gráfico del curso "{curso.nombre}" fue eliminado para liberar espacio.')
         
     return redirect('marketing')
+
+@csrf_exempt  # Desactiva el CSRF temporalmente solo para esta ruta para que Node.js pueda conectarse sin problemas
+def registrar_asistencia_rfid(request):
+    if request.method == 'POST':
+        try:
+            # 1. Recibimos los datos en formato JSON desde Node.js
+            data = json.loads(request.body)
+            ci_empleado = data.get('ci')
+            
+            # 2. Buscamos al empleado en la base de datos de Django
+            empleado = Empleado.objects.filter(ci=ci_empleado).first()
+            if not empleado:
+                return JsonResponse({'status': 'error', 'mensaje': 'Empleado no encontrado en el ERP'}, status=404)
+
+            # 3. Determinamos la hora actual del servidor y la hora límite de ingreso
+            ahora = datetime.datetime.now()
+            
+            # Configuramos la hora de entrada oficial (Ej: 08:00 AM con tolerancia hasta las 08:10 AM)
+            hora_limite = ahora.replace(hour=8, minute=10, second=0, microsecond=0)
+            
+            minutos_retraso = 0
+            if ahora > hora_limite:
+                diferencia = ahora - hora_limite
+                minutos_retraso = int(diferencia.total_seconds() / 60)
+
+            # 4. Aplicamos la lógica financiera si llegó tarde
+            if minutos_retraso > 0:
+                # Cobramos 1 Bs por cada minuto de retraso (puedes cambiar este valor)
+                multa_bs = Decimal(minutos_retraso * 1.00) 
+                
+                mes_actual = ahora.strftime('%Y-%m') # Genera "2026-07"
+                
+                # Buscamos la planilla del empleado de este mes, o la creamos si es el primer día
+                pago_sueldo, creado = PagoSueldo.objects.get_or_create(
+                    empleado=empleado,
+                    mes_correspondiente=mes_actual,
+                    defaults={
+                        'fecha_pago': ahora.date(),
+                        'salario_base': empleado.salario_base,
+                    }
+                )
+                
+                # Sumamos la multa al historial de la planilla y guardamos
+                pago_sueldo.multas += multa_bs
+                pago_sueldo.save() # Esto también actualizará el Flujo de Caja por la automatización que ya tienes
+
+                return JsonResponse({
+                    'status': 'retraso', 
+                    'minutos': minutos_retraso,
+                    'mensaje': f'Asistencia registrada. Se aplicó una multa de Bs. {multa_bs} por {minutos_retraso} min de retraso.'
+                })
+            
+            # Si llegó a tiempo, solo confirmamos
+            return JsonResponse({'status': 'ok', 'mensaje': 'Asistencia registrada a tiempo. Sin multas.'})
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
+    
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
