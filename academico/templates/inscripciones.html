@@ -52,11 +52,25 @@
 
                 <script>
                     function irAlFinal() {
-                        // Busca el último elemento de la tabla o el final de la página
-                        window.scrollTo({
-                            top: document.body.scrollHeight,
-                            behavior: 'smooth'
-                        });
+                        // 1. Buscamos todas las filas dentro del cuerpo de la tabla
+                        const filas = document.querySelectorAll('table tbody tr');
+                        
+                        if (filas.length > 0) {
+                            // 2. Seleccionamos la última fila disponible
+                            const ultimaFila = filas[filas.length - 1];
+                            
+                            // 3. Nos desplazamos suavemente hasta esa fila específica
+                            ultimaFila.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'end' 
+                            });
+                        } else {
+                            // Si la tabla está vacía, bajamos al final de la página como respaldo
+                            window.scrollTo({
+                                top: document.body.scrollHeight,
+                                behavior: 'smooth'
+                            });
+                        }
                     }
                 </script>
                                 
