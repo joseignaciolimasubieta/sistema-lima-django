@@ -36,6 +36,19 @@
             
             <!-- FILA SUPERIOR: BOTÓN VOLVER -->
             <div class="flex flex-wrap items-center justify-end gap-4 w-full">
+                <button onclick="irAlFinal()" 
+                        class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    Ir al Ultimo Registro
+                </button>
+                <script>
+                    function irAlFinal() {
+                        window.scrollTo({
+                            top: document.body.scrollHeight,
+                            behavior: 'smooth'
+                        });
+                    }
+                </script>
                 <a href="{% url 'inscripciones' %}" class="inline-flex items-center gap-3 px-6 py-2.5 bg-white border border-gray-200 rounded-full text-[#1d1d1f] font-semibold text-[14px] shadow-sm hover:shadow hover:bg-gray-50 transition-all duration-300 ease-in-out shrink-0">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

@@ -47,7 +47,7 @@
                 <button onclick="irAlFinal()" 
                         class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                    Ir al final
+                    Ir al Ultimo Registro
                 </button>
 
                 <script>
@@ -299,13 +299,13 @@
             placeholder: "SELECCIONA FECHAS..."
         });
 
-        const filas = document.querySelectorAll('table tbody tr');
-        if (filas.length > 0) {
+        //const filas = document.querySelectorAll('table tbody tr');
+        //if (filas.length > 0) {
             // Selecciona la última fila
-            const ultimaFila = filas[filas.length - 1];
+            //const ultimaFila = filas[filas.length - 1];
             // Hace scroll hasta ella
-            ultimaFila.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+            //ultimaFila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        //}
 
         const btnEdicion = document.getElementById('btn-toggle-edicion');
         const colsEdicion = document.querySelectorAll('.col-edicion');
