@@ -456,7 +456,7 @@ def inscripciones(request):
         return (fecha_val, id_val)
 
     # 2. Ordenamos usando este criterio combinado (reverse=True para ver lo más nuevo primero)
-    lista_combinada = sorted(chain(lista, ventas_extra), key=criterio_ordenamiento, reverse=True)
+    lista_combinada = sorted(chain(lista, ventas_extra), key=criterio_ordenamiento, reverse=False)
 
     return render(request, 'inscripciones.html', {
         'lista_combinada': lista_combinada, 
