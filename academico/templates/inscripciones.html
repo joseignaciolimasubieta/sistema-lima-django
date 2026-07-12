@@ -50,6 +50,19 @@
                 </a>
                 
             </div>
+            <button onclick="irAlFinal()" class="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-black transition-all">
+                Ir al último registro
+            </button>
+
+            <script>
+                function irAlFinal() {
+                    // Esto hace un scroll suave hacia el final de la página o hacia el último elemento de la tabla
+                    window.scrollTo({
+                        top: document.body.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            </script>
 
             <div class="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
                 
@@ -282,6 +295,14 @@
             locale: "es",
             placeholder: "SELECCIONA FECHAS..."
         });
+
+        const filas = document.querySelectorAll('table tbody tr');
+        if (filas.length > 0) {
+            // Selecciona la última fila
+            const ultimaFila = filas[filas.length - 1];
+            // Hace scroll hasta ella
+            ultimaFila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
         const btnEdicion = document.getElementById('btn-toggle-edicion');
         const colsEdicion = document.querySelectorAll('.col-edicion');
