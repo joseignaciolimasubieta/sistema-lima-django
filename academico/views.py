@@ -5,8 +5,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-from xhtml2pdf import pisa
-from weasyprint import HTML
+#from xhtml2pdf import pisa
+#from weasyprint import HTML
 from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
@@ -3426,20 +3426,29 @@ def registrar_asistencia_rfid(request):
             if ultimo_marcado and ultimo_marcado.tipo == 'INGRESO':
                 tipo_marcado = 'SALIDA'
                 
-            # 5. Lógica de Retrasos y Multas (Solo se calcula en el INGRESO)
+            # 5. Lógica de Horarios PERSONALIZADA (Solo se calcula en el INGRESO)
             estado_asistencia = 'PUNTUAL'
             minutos_retraso = 0
             
-            # SUPONGAMOS QUE LA HORA DE ENTRADA LÍMITE ES 08:30 AM
-            hora_limite = ahora.replace(hour=8, minute=30, second=0, microsecond=0)
-            
-            if tipo_marcado == 'INGRESO' and ahora > hora_limite:
-                estado_asistencia = 'RETRASO'
-                diferencia = ahora - hora_limite
-                minutos_retraso = int(diferencia.total_seconds() / 60)
+            if tipo_marcado == 'INGRESO':
+                # Convertimos las horas de ingreso personal del empleado a un objeto completo de tiempo
+                hora_limite = ahora.replace(
+                    hour=empleado.hora_ingreso.hour, 
+                    minute=empleado.hora_ingreso.minute, 
+                    second=0, microsecond=0
+                )
                 
-            # 6. Guardamos el registro en la nueva tabla
-            nueva_asistencia = AsistenciaEmpleado.objects.create(
+                # Le sumamos sus minutos de tolerancia personales
+                hora_limite_con_tolerancia = hora_limite + timedelta(minutos=empleado.tolerancia_minutos)
+                
+                # Si se pasó de su hora límite con tolerancia, marcamos retraso
+                if ahora > hora_limite_con_tolerancia:
+                    estado_asistencia = 'RETRASO'
+                    diferencia = ahora - hora_limite
+                    minutos_retraso = int(diferencia.total_seconds() / 60)
+                
+            # 6. Guardamos el registro en la tabla de Asistencias (¡Sin tocar la tabla de planillas!)
+            AsistenciaEmpleado.objects.create(
                 empleado=empleado,
                 fecha=ahora.date(),
                 tipo=tipo_marcado,
@@ -3447,27 +3456,12 @@ def registrar_asistencia_rfid(request):
                 minutos_retraso=minutos_retraso
             )
             
-            # 7. Descuento Automático en Planilla (Si hay retraso)
-            if minutos_retraso > 0:
-                # Ejemplo: Multa de 1 Bs. por cada minuto de retraso (Ajusta esto a tu regla real)
-                multa_bs = Decimal(minutos_retraso * 1.00) 
-                mes_actual = ahora.strftime('%Y-%m') # Genera "2026-07"
-                
-                # Buscamos si ya existe una planilla de sueldo creada manualmente para este mes
-                pago_sueldo = PagoSueldo.objects.filter(
-                    empleado=empleado,
-                    mes_correspondiente=mes_actual
-                ).first()
-                
-                # Solo si la planilla YA existe, le sumamos la multa automáticamente
-                if pago_sueldo:
-                    pago_sueldo.multas += multa_bs
-                    pago_sueldo.save()
-
+            # 7. Mensaje de respuesta de éxito para la pantalla del ESP32
+            if estado_asistencia == 'RETRASO':
                 return JsonResponse({
                     'status': 'retraso', 
                     'minutos': minutos_retraso,
-                    'mensaje': f'Se registró {tipo_marcado} de {empleado.nombre_completo}. Multa de Bs. {multa_bs} por {minutos_retraso} min de retraso.'
+                    'mensaje': f'Se registró {tipo_marcado}. Retraso de {minutos_retraso} min guardado.'
                 })
             
             # Si llegó a tiempo o es salida

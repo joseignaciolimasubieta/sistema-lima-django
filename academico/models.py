@@ -485,23 +485,31 @@ class PagoSueldo(models.Model):
                 )
 
     def save(self, *args, **kwargs):
-        from decimal import Decimal
-        es_nuevo = self.pk is None 
-        super().save(*args, **kwargs) 
+        # 1. AUTO-CALCULAR MULTAS POR RETRASOS
+        # Extraemos el año y mes del campo mes_correspondiente (Ej: '2026-07')
+        if self.mes_correspondiente and '-' in self.mes_correspondiente:
+            anio, mes = self.mes_correspondiente.split('-')
+            
+            # Buscamos y sumamos todos los minutos de retraso de este empleado en ese mes
+            retrasos = self.empleado.asistencias_laborales.filter(
+                fecha__year=anio,
+                fecha__month=mes
+            ).aggregate(total=Sum('minutos_retraso'))
+            
+            minutos_totales = retrasos['total'] or 0
+            
+            # COSTO DE MULTA: Asumimos Bs. 1 por cada minuto. (Cambia el '1.00' si es distinto)
+            self.multas = Decimal(minutos_totales) * Decimal('1.00')
+
+        # 2. CALCULAR LÍQUIDO PAGABLE AUTOMÁTICAMENTE
+        bonos = self.bonos or Decimal('0.00')
+        multas = self.multas or Decimal('0.00')
+        anticipos = self.anticipos_descontados or Decimal('0.00')
+        prestamos = self.prestamos_descontados or Decimal('0.00')
         
-        self.sincronizar_caja_sueldos()
+        self.liquido_pagable = self.salario_base + bonos - multas - anticipos - prestamos
         
-        # Amortiza el Préstamo
-        if es_nuevo and self.prestamos > 0:
-            monto_a_descontar = Decimal(str(self.prestamos))
-            prestamos_activos = Prestamo.objects.filter(empleado=self.empleado, estado='ACTIVO').order_by('fecha_prestamo')
-            for p in prestamos_activos:
-                if monto_a_descontar <= 0:
-                    break
-                abono = min(monto_a_descontar, p.saldo_restante)
-                if abono > 0:
-                    PagoPrestamo.objects.create(prestamo=p, fecha_pago=self.fecha_pago, monto=abono, es_descuento_planilla=True)
-                    monto_a_descontar -= abono
+        super().save(*args, **kwargs)
 
         # ==============================================================
         # --- NUEVA AUTOMATIZACIÓN: CERRAR ANTICIPOS DEL MES ---
