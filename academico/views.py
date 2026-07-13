@@ -2072,7 +2072,8 @@ def obtener_datos_empleado_pago(request, empleado_id):
         'comisiones_certificados': 0.00,
         'bono_consultora': 0.00,
         'descuento_prestamo': 0.00,
-        'descuento_anticipo': 0.00 
+        'descuento_anticipo': 0.00,
+        'multas': 0.00  
     }
 
     if not mes_str:
@@ -2165,6 +2166,19 @@ def obtener_datos_empleado_pago(request, empleado_id):
         
         total_anticipos = sum(ant.monto for ant in anticipos_activos)
         datos['descuento_anticipo'] = float(total_anticipos)
+        # =========================================================
+        # 7. CÁLCULO DE MULTAS POR RETRASOS (ASISTENCIA)
+        # =========================================================
+        asistencias_mes = AsistenciaEmpleado.objects.filter(
+            empleado=empleado,
+            fecha__year=anio,
+            fecha__month=mes
+        ).aggregate(total_retraso=Sum('minutos_retraso'))
+        
+        minutos_totales = asistencias_mes['total_retraso'] or 0
+        
+        # Asumimos Bs. 1 por cada minuto de retraso. (Ajusta este 1.00 si cobras distinto)
+        datos['multas'] = float(Decimal(minutos_totales) * Decimal('1.00'))
 
     except Exception as e:
         print(f"Error en automatización de sueldos y préstamos: {e}")
