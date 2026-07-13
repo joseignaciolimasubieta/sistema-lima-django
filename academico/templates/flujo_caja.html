@@ -157,18 +157,18 @@
                         
                         <td class="px-4 py-3 text-right whitespace-nowrap">
                             <span class="font-black text-xs transition-colors {% if mov.tipo == 'ENTRADA' %}text-emerald-600 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
-                                {% if mov.tipo == 'ENTRADA' %}{{ mov.monto }}{% else %}-{% endif %}
+                                {% if mov.tipo == 'ENTRADA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
                             </span>
                         </td>
             
                         <td class="px-4 py-3 text-right whitespace-nowrap">
                             <span class="font-black text-xs transition-colors {% if mov.tipo == 'SALIDA' %}text-red-500 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
-                                {% if mov.tipo == 'SALIDA' %}{{ mov.monto }}{% else %}-{% endif %}
+                                {% if mov.tipo == 'SALIDA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
                             </span>
                         </td>
 
                         <td class="px-5 py-3 text-right font-black text-[#0071e3] group-hover:text-blue-100 transition-colors text-xs whitespace-nowrap">
-                            Bs. {{ mov.saldo_calculado }}
+                            Bs. {{ mov.saldo_calculado|floatformat:"2g" }}
                         </td>
             
                         <td class="col-edicion hidden px-4 py-3 text-center whitespace-nowrap bg-gray-50/50 group-hover:bg-transparent transition-colors">
@@ -206,17 +206,17 @@
                         
                         <td class="px-4 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-emerald-600">Bs. {{ total_entradas }}</span>
+                            <span class="text-sm font-black text-emerald-600">Bs. {{ total_entradas|floatformat:"2g" }}</span>
                         </td>
                         
                         <td class="px-4 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-red-500">Bs. {{ total_salidas }}</span>
+                            <span class="text-sm font-black text-red-500">Bs. {{ total_salidas|floatformat:"2g" }}</span>
                         </td>
 
                         <td class="px-5 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-[#0071e3]">Bs. {{ saldo_total }}</span>
+                            <span class="text-sm font-black text-[#0071e3]">Bs. {{ saldo_total|floatformat:"2g" }}</span>
                         </td>
 
                         <td class="col-edicion hidden px-4 py-4 bg-slate-100 border-l border-slate-200"></td>
@@ -268,13 +268,13 @@
                     {% for cuenta in cuentas_operativas %}
                     <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ cuenta.nombre }}</span>
-                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual }}</span>
+                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual|floatformat:"2g" }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
-                    <span class="text-lg font-bold text-black">Bs. {{ total_operativo }}</span>
+                    <span class="text-lg font-bold text-black">Bs. {{ total_operativo|floatformat:"2g" }}</span>
                 </div>
             </div>
 
@@ -289,13 +289,13 @@
                     {% for cuenta in cuentas_ahorro %}
                     <div class="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors">
                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ cuenta.nombre }}</span>
-                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual }}</span>
+                        <span class="text-sm font-bold text-black">Bs. {{ cuenta.saldo_actual|floatformat:"2g" }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 <div class="pt-4 border-t border-gray-100 flex justify-between items-center">
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Subtotal</span>
-                    <span class="text-lg font-bold text-black">Bs. {{ total_ahorro }}</span>
+                    <span class="text-lg font-bold text-black">Bs. {{ total_ahorro|floatformat:"2g" }}</span>
                 </div>
             </div>
 
@@ -309,23 +309,23 @@
                     <div class="space-y-5">
                         <div class="flex justify-between items-center border-b border-gray-800 pb-4">
                             <span class="text-xs font-medium text-gray-400">Suma Operativa</span>
-                            <span class="text-sm font-bold text-white">Bs. {{ total_operativo }}</span>
+                            <span class="text-sm font-bold text-white">Bs. {{ total_operativo|floatformat:"2g" }}</span>
                         </div>
                         <div class="flex justify-between items-center border-b border-gray-800 pb-4">
                             <span class="text-xs font-medium text-gray-400">Suma Ahorro</span>
-                            <span class="text-sm font-bold text-white">Bs. {{ total_ahorro }}</span>
+                            <span class="text-sm font-bold text-white">Bs. {{ total_ahorro|floatformat:"2g" }}</span>
                         </div>
                         
                         <div class="flex justify-between items-center border-b border-gray-800 pb-4">
                             <span class="text-xs font-medium text-gray-400">Suma Salud</span>
-                            <span class="text-sm font-bold text-white">Bs. {{ total_salud }}</span>
+                            <span class="text-sm font-bold text-white">Bs. {{ total_salud|floatformat:"2g" }}</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-8 bg-[#1c1c1e] p-6 rounded-2xl border border-gray-800 text-center">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">Capital Absoluto (Caja Fuerte)</p>
-                    <h3 class="text-1xl md:text-2xl font-bold text-white tracking-tight">Bs. {{ total_absoluto }}</h3>
+                    <h3 class="text-1xl md:text-2xl font-bold text-white tracking-tight">Bs. {{ total_absoluto|floatformat:"2g" }}</h3>
                 </div>
             </div>
         </div>

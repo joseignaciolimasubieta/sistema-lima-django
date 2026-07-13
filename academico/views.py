@@ -3453,19 +3453,16 @@ def registrar_asistencia_rfid(request):
                 multa_bs = Decimal(minutos_retraso * 1.00) 
                 mes_actual = ahora.strftime('%Y-%m') # Genera "2026-07"
                 
-                # Buscamos la planilla del empleado de este mes, o la creamos si es el primer día
-                pago_sueldo, creado = PagoSueldo.objects.get_or_create(
+                # Buscamos si ya existe una planilla de sueldo creada manualmente para este mes
+                pago_sueldo = PagoSueldo.objects.filter(
                     empleado=empleado,
-                    mes_correspondiente=mes_actual,
-                    defaults={
-                        'fecha_pago': ahora.date(),
-                        'salario_base': empleado.salario_base,
-                    }
-                )
+                    mes_correspondiente=mes_actual
+                ).first()
                 
-                # Sumamos la multa al historial de la planilla y guardamos
-                pago_sueldo.multas += multa_bs
-                pago_sueldo.save()
+                # Solo si la planilla YA existe, le sumamos la multa automáticamente
+                if pago_sueldo:
+                    pago_sueldo.multas += multa_bs
+                    pago_sueldo.save()
 
                 return JsonResponse({
                     'status': 'retraso', 
