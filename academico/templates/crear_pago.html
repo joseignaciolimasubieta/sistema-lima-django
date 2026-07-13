@@ -44,7 +44,7 @@
 
                     <div class="space-y-2 md:col-span-1">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha de Ejecución</label>
-                        <input type="text" id="fecha_pago" name="fecha_pago" required value="{{ pago.fecha_pago|date:'Y-m-d'|default:'' }}" placeholder="SELECCIONAR FECHA..." class="hidden">
+                        <input type="text" id="fecha_pago" name="fecha_pago" required value="{% if pago %}{{ pago.fecha_pago|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}" placeholder="SELECCIONAR FECHA..." class="hidden">
                     </div>
 
                     <div class="space-y-2 md:col-span-1">
