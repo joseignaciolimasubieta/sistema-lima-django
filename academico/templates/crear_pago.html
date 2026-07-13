@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     inyectar('bono_consultora', data.bono_consultora);
                     inyectar('prestamos', data.descuento_prestamo);
                     inyectar('anticipos', data.descuento_anticipo, true);
+                    inyectar('multas', data.multas, true);
 
                     calcularTotales();
                     if (pCarga) pCarga.classList.add('hidden');
