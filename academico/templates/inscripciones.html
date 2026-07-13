@@ -233,7 +233,7 @@
                                 {{ item.vendedor|default:"-" }}
                             </td>
                             <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
-                                {{ item.comision|default:0|floatformat:2 }}
+                                {{ item.comision|default:0|floatformat:3 }}
                             </td>
                             <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
                                 {{ item.registrado_por|default:"-" }}
@@ -374,17 +374,16 @@
 
             function limpiarNumero(texto) {
                 if (!texto || texto.trim() === "-") return 0;
+                // Dejamos solo números, puntos, comas y signo menos
                 let limpio = texto.replace(/[^0-9.,-]/g, '').trim();
                 if (!limpio) return 0;
-                if (limpio.includes('.') && limpio.includes(',')) {
-                    limpio = limpio.replace(/\./g, '').replace(',', '.');
-                } else if (limpio.includes(',')) {
-                    if (limpio.indexOf(',') === limpio.length - 3) {
-                        limpio = limpio.replace(',', '.');
-                    } else {
-                        limpio = limpio.replace(/,/g, '');
-                    }
-                }
+                
+                // En el formato de Bolivia: 
+                // 1. Borramos todos los puntos (que separan los miles)
+                limpio = limpio.replace(/\./g, '');
+                // 2. Convertimos la coma en punto (para que la matemática de JavaScript lo entienda como decimal)
+                limpio = limpio.replace(',', '.');
+                
                 return parseFloat(limpio) || 0;
             }
 
