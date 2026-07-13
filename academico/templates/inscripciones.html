@@ -179,7 +179,7 @@
                                 {{ item.vendedor|default:"-" }}
                             </td>
                             <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
-                                {{ item.comision|default:0|floatformat:2 }}
+                                {{ item.comision|default:0|floatformat:3 }}
                             </td>
                             <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
                                 {{ item.registrado_por|default:"-" }}
@@ -391,21 +391,22 @@
             celdasImporte.forEach(celda => { sumaImporte += limpiarNumero(celda.textContent); });
             celdasComision.forEach(celda => { sumaComision += limpiarNumero(celda.textContent); });
 
-            function formatearMoneda(valor) {
-                return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            // Le añadimos la opción de decidir cuántos decimales máximos queremos
+            function formatearMoneda(valor, decimalesMaximos = 2) {
+                return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: decimalesMaximos });
             }
 
             document.getElementById('total-participantes').innerHTML = `
-                
                 <span class="text-black font-black text-sm">${totalRegistros}</span>
             `;
+            
             document.getElementById('total-importe').innerHTML = `
-                
-                <span class="text-black font-black text-sm">Bs. ${formatearMoneda(sumaImporte)}</span>
+                <span class="text-black font-black text-sm">Bs. ${formatearMoneda(sumaImporte, 2)}</span>
             `;
+            
+            // Aquí le pedimos que nos dé hasta 3 decimales precisos para las comisiones
             document.getElementById('total-comision').innerHTML = `
-               
-                <span class="text-[#0071e3] font-black text-sm">Bs. ${formatearMoneda(sumaComision)}</span>
+                <span class="text-[#0071e3] font-black text-sm">Bs. ${formatearMoneda(sumaComision, 3)}</span>
             `;
         }
 
