@@ -357,11 +357,11 @@ class Empleado(models.Model):
     fecha_ingreso = models.DateField(blank=True, null=True, verbose_name="Fecha de Ingreso")
     salario_base = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Haber Básico Acordado")
 
-    # --- ¡VUELVE A AÑADIR ESTOS 4 CAMPOS! ---
+    # --- NUEVOS CAMPOS DE HORARIO ---
     hora_ingreso = models.TimeField(default=time(8, 30), verbose_name="Hora de Ingreso")
     hora_salida = models.TimeField(default=time(18, 30), verbose_name="Hora de Salida")
     tolerancia_minutos = models.IntegerField(default=10, verbose_name="Tolerancia (minutos)")
-    dias_laborales = models.CharField(max_length=50, default="L,M,X,J,V", verbose_name="Días Laborales")
+    dias_laborales = models.CharField(max_length=50, default="L,M,X,J,V", help_text="Ej: L,M,X,J,V,S", verbose_name="Días Laborales")
 
     class Meta:
         verbose_name = "Empleado"

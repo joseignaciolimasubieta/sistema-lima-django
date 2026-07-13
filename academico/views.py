@@ -3440,12 +3440,12 @@ def registrar_asistencia_rfid(request):
             if ultimo_marcado and ultimo_marcado.tipo == 'INGRESO':
                 tipo_marcado = 'SALIDA'
                 
-            # 5. Lógica de Horarios PERSONALIZADA (Solo se calcula en el INGRESO)
-            estado_asistencia = 'PUNTUAL'
             minutos_retraso = 0
+            estado_asistencia = 'PUNTUAL'
             
+            # LÓGICA DE HORARIO PERSONALIZADO
             if tipo_marcado == 'INGRESO':
-                # Convertimos las horas de ingreso personal del empleado a un objeto completo de tiempo
+                # Convertimos las horas a objetos completos para poder restarlos
                 hora_limite = ahora.replace(
                     hour=empleado.hora_ingreso.hour, 
                     minute=empleado.hora_ingreso.minute, 
@@ -3455,16 +3455,16 @@ def registrar_asistencia_rfid(request):
                 # Le sumamos sus minutos de tolerancia personales
                 hora_limite_con_tolerancia = hora_limite + timedelta(minutos=empleado.tolerancia_minutos)
                 
-                # Si se pasó de su hora límite con tolerancia, marcamos retraso
                 if ahora > hora_limite_con_tolerancia:
                     estado_asistencia = 'RETRASO'
                     diferencia = ahora - hora_limite
                     minutos_retraso = int(diferencia.total_seconds() / 60)
-                
-            # 6. Guardamos el registro en la tabla de Asistencias (¡Sin tocar la tabla de planillas!)
-            AsistenciaEmpleado.objects.create(
+            
+            # Guardamos la asistencia con el estado correcto
+            asistencia = AsistenciaEmpleado.objects.create(
                 empleado=empleado,
                 fecha=ahora.date(),
+                hora=ahora.time(),
                 tipo=tipo_marcado,
                 estado=estado_asistencia,
                 minutos_retraso=minutos_retraso

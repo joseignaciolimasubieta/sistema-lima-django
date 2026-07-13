@@ -39,11 +39,12 @@ class EmpleadoAdmin(admin.ModelAdmin):
 
     # Organización de los campos al momento de crear/editar un empleado
     fieldsets = (
-        ('Datos Personales', {
-            'fields': ('nombre_completo', 'ci', 'codigo_rfid', 'fecha_nacimiento', 'sexo', 'celular')
-        }),
         ('Datos Laborales', {
             'fields': ('cargo', 'fecha_ingreso', 'salario_base')
+        }),
+        # --- AÑADE ESTE BLOQUE ---
+        ('Horario y Control de Asistencia', {
+            'fields': ('hora_ingreso', 'hora_salida', 'tolerancia_minutos', 'dias_laborales')
         }),
     )
 
