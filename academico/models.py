@@ -347,6 +347,7 @@ class Empleado(models.Model):
 
     nombre_completo = models.CharField(max_length=200, verbose_name="Apellidos y Nombres")
     ci = models.CharField(max_length=20, verbose_name="Documento de Identidad")
+    codigo_rfid = models.CharField(max_length=50, blank=True, null=True, verbose_name="Código Tarjeta RFID")
     celular = models.CharField(max_length=20, blank=True, null=True)
     
     # Nuevos campos obligatorios para la planilla

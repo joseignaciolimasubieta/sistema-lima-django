@@ -3403,18 +3403,19 @@ def registrar_asistencia_rfid(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            ci_empleado = data.get('ci')
+            # 1. Ahora atrapamos el 'rfid' que enviará el ESP32
+            rfid_recibido = data.get('rfid') 
             
-            if not ci_empleado:
-                return JsonResponse({'status': 'error', 'mensaje': 'No se recibió el CI del empleado'}, status=400)
+            if not rfid_recibido:
+                return JsonResponse({'status': 'error', 'mensaje': 'No se recibió el código RFID de la tarjeta'}, status=400)
                 
-            # 1. Buscamos al empleado por su CI
-            empleado = get_object_or_404(Empleado, ci=ci_empleado)
+            # 2. Buscamos al empleado usando exclusivamente la nueva columna codigo_rfid
+            empleado = get_object_or_404(Empleado, codigo_rfid=rfid_recibido)
             
-            # 2. Obtenemos la hora actual en Bolivia
+            # 3. Obtenemos la hora actual en Bolivia
             ahora = timezone.localtime(timezone.now())
             
-            # 3. Determinamos si es INGRESO o SALIDA
+            # 4. Determinamos si es INGRESO o SALIDA
             # Si el último marcado de hoy fue ingreso, este es salida. Si no hay marcados, es ingreso.
             ultimo_marcado = AsistenciaEmpleado.objects.filter(
                 empleado=empleado, 
@@ -3425,7 +3426,7 @@ def registrar_asistencia_rfid(request):
             if ultimo_marcado and ultimo_marcado.tipo == 'INGRESO':
                 tipo_marcado = 'SALIDA'
                 
-            # 4. Lógica de Retrasos y Multas (Solo se calcula en el INGRESO)
+            # 5. Lógica de Retrasos y Multas (Solo se calcula en el INGRESO)
             estado_asistencia = 'PUNTUAL'
             minutos_retraso = 0
             
@@ -3437,7 +3438,7 @@ def registrar_asistencia_rfid(request):
                 diferencia = ahora - hora_limite
                 minutos_retraso = int(diferencia.total_seconds() / 60)
                 
-            # 5. Guardamos el registro en la nueva tabla
+            # 6. Guardamos el registro en la nueva tabla
             nueva_asistencia = AsistenciaEmpleado.objects.create(
                 empleado=empleado,
                 fecha=ahora.date(),
@@ -3446,7 +3447,7 @@ def registrar_asistencia_rfid(request):
                 minutos_retraso=minutos_retraso
             )
             
-            # 6. Descuento Automático en Planilla (Si hay retraso)
+            # 7. Descuento Automático en Planilla (Si hay retraso)
             if minutos_retraso > 0:
                 # Ejemplo: Multa de 1 Bs. por cada minuto de retraso (Ajusta esto a tu regla real)
                 multa_bs = Decimal(minutos_retraso * 1.00) 

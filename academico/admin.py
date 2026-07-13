@@ -29,7 +29,7 @@ class DatosEmpresaAdmin(admin.ModelAdmin):
 @admin.register(Empleado)
 class EmpleadoAdmin(admin.ModelAdmin):
     # Columnas que se verán en la lista principal de empleados
-    list_display = ('nombre_completo', 'ci', 'cargo', 'fecha_ingreso', 'salario_base')
+    list_display = ('nombre_completo', 'ci', 'codigo_rfid', 'cargo', 'fecha_ingreso', 'salario_base')
     
     # Buscador para encontrar empleados rápido
     search_fields = ('nombre_completo', 'ci', 'cargo')
@@ -40,7 +40,7 @@ class EmpleadoAdmin(admin.ModelAdmin):
     # Organización de los campos al momento de crear/editar un empleado
     fieldsets = (
         ('Datos Personales', {
-            'fields': ('nombre_completo', 'ci', 'fecha_nacimiento', 'sexo', 'celular')
+            'fields': ('nombre_completo', 'ci', 'codigo_rfid', 'fecha_nacimiento', 'sexo', 'celular')
         }),
         ('Datos Laborales', {
             'fields': ('cargo', 'fecha_ingreso', 'salario_base')
