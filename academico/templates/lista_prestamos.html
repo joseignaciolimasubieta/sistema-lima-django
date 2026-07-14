@@ -143,9 +143,27 @@
                         
                         <td class="py-4 px-3 md:px-4 text-center font-bold text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">{{ p.fecha_prestamo|date:"d M, Y" }}</td>
                         
-                        <td class="py-4 px-3 md:px-4">
-                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight whitespace-nowrap">{{ p.empleado.nombre_completo }}</div>
-                            <div class="text-[10px] text-gray-400 group-hover:text-blue-100 transition-colors font-semibold mt-0.5 uppercase">C.I. {{ p.empleado.ci }}</div>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="font-bold text-[#0071e3] text-sm uppercase">
+                                        {{ p.nombre_deudor }}
+                                    </div>
+                                    
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
+                                        {% if p.empleado %}
+                                            EMPLEADO
+                                        {% else %}
+                                            PERSONA EXTERNA 
+                                            {% if p.celular_externo %}
+                                                <a href="https://wa.me/{{ p.celular_externo }}" target="_blank" class="text-emerald-600 hover:text-emerald-800 font-black ml-1">
+                                                    | 📞 {{ p.celular_externo }}
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                         
                         <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">
