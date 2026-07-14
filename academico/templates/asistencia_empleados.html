@@ -3,7 +3,7 @@
 
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
     
-    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+    <div class="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
         <div class="space-y-3 shrink-0">
             <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Control Asistencia.</h1>
             <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2">Monitoreo de Personal en Tiempo Real</p>
@@ -11,19 +11,66 @@
         
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
             <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
-                <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-emerald-500 transition-all">
+                
+                <!-- BOTÓN PARA EXPORTAR (Visual) -->
+                <button type="button" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Descargar Matriz
+                </button>
+
+                <!-- BUSCADOR PRINCIPAL -->
+                <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] transition-all">
                     <div class="relative w-full h-8 flex items-center">
-                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
                         <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR EMPLEADO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-black placeholder-gray-400">
                     </div>
-                    <button type="submit" class="h-8 px-5 bg-slate-900 hover:bg-black text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">Buscar</button>
+                    <button type="submit" class="h-8 px-5 bg-slate-900 hover:bg-[#0071e3] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">Buscar</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- 🚀 NUEVO: LEYENDA Y NOMENCLATURA (INSPIRADO EN EL EXCEL) -->
+    <!-- ============================================================== -->
+    <div class="grid grid-cols-4 md:grid-cols-8 gap-2 mb-8">
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-emerald-300">
+            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[11px] mb-1.5">A</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Asistencia</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-amber-300">
+            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[11px] mb-1.5">R</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Retraso</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-rose-300">
+            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[11px] mb-1.5">F</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Falta</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-blue-300">
+            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[11px] mb-1.5">P</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Permiso</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-gray-300">
+            <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[11px] mb-1.5">D</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Descanso</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-purple-300">
+            <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[11px] mb-1.5">C</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Comisión</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-teal-300">
+            <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[11px] mb-1.5">V</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Vacaciones</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center transition-all hover:border-orange-300">
+            <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[11px] mb-1.5">S</span>
+            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Cesantía</p>
+        </div>
+    </div>
+
+    <!-- TABLA PRINCIPAL DE MARCAJES -->
     <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm mb-10">
         <div class="overflow-x-auto max-h-[650px] scrollbar-delgada relative">
             <table class="w-full text-sm text-left border-collapse">
@@ -31,10 +78,10 @@
                     <tr>
                         <th class="py-5 px-6 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha y Hora</th>
                         <th class="py-5 px-6 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Empleado</th>
-                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Tipo</th>
-                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Estado</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Tipo de Marcaje</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Condición (Signo)</th>
                         <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Tolerancia</th>
-                        <th class="py-5 px-6 text-right text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Retraso</th>
+                        <th class="py-5 px-6 text-right text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Tiempo Retraso</th>
                     </tr>
                 </thead>
                 
@@ -48,29 +95,50 @@
                         </td>
                         
                         <td class="px-6 py-4">
-                            <div class="font-bold text-black text-xs uppercase">{{ a.empleado.nombre_completo }}</div>
+                            <div class="font-bold text-[#0071e3] text-xs uppercase">{{ a.empleado.nombre_completo }}</div>
                             <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</div>
                         </td>
                         
                         <td class="px-6 py-4 text-center whitespace-nowrap">
                             {% if a.tipo == 'INGRESO' %}
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 font-bold text-[9px] uppercase tracking-widest">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 font-black text-[9px] uppercase tracking-widest">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                                     Ingreso
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-100 text-orange-600 font-bold text-[9px] uppercase tracking-widest">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 text-orange-600 font-black text-[9px] uppercase tracking-widest">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                                     Salida
                                 </span>
                             {% endif %}
                         </td>
                         
                         <td class="px-6 py-4 text-center whitespace-nowrap">
+                            <!-- 🧠 CEREBRO DE ESTADOS TIPO EXCEL -->
                             {% if a.estado == 'PUNTUAL' %}
-                                <span class="inline-block px-3 py-1 rounded-md bg-gray-100 text-gray-500 font-black text-[9px] uppercase tracking-widest">Puntual</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center">A</span> Asistencia
+                                </span>
+                            {% elif a.estado == 'RETRASO' %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-100 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-amber-200 text-amber-800 flex items-center justify-center">R</span> Retraso
+                                </span>
+                            {% elif a.estado == 'FALTA' %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-100 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-rose-200 text-rose-800 flex items-center justify-center">F</span> Falta
+                                </span>
+                            {% elif a.estado == 'PERMISO' %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-blue-200 text-blue-800 flex items-center justify-center">P</span> Permiso
+                                </span>
+                            {% elif a.estado == 'VACACIONES' %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 text-teal-700 border border-teal-100 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-teal-200 text-teal-800 flex items-center justify-center">V</span> Vacaciones
+                                </span>
                             {% else %}
-                                <span class="inline-block px-3 py-1 rounded-md bg-rose-50 text-rose-600 font-black text-[9px] uppercase tracking-widest">Retraso</span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-gray-700 border border-gray-200 font-black text-[9px] uppercase tracking-widest">
+                                    <span class="w-4 h-4 rounded-full bg-gray-200 text-gray-800 flex items-center justify-center">O</span> {{ a.estado }}
+                                </span>
                             {% endif %}
                         </td>
 
@@ -80,18 +148,20 @@
             
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             {% if a.minutos_retraso > 0 %}
-                                <span class="font-black text-sm text-rose-500">{{ a.minutos_retraso }} min</span>
+                                <div class="inline-flex items-center justify-end gap-1 font-black text-sm text-amber-500">
+                                    {{ a.minutos_retraso }} min
+                                </div>
                             {% else %}
-                                <span class="font-bold text-sm text-gray-300">-</span>
+                                <span class="font-black text-sm text-gray-300">-</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan=\"6\" class=\"px-6 py-24 text-center\">
-                            <div class=\"flex flex-col items-center justify-center opacity-40\">
-                                <svg class=\"w-16 h-16 text-gray-400 mb-4\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\" d=\"M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg>
-                                <p class=\"text-sm font-bold text-gray-500 uppercase tracking-widest\">Aún no hay marcajes registrados</p>
+                        <td colspan="6" class="px-6 py-24 text-center">
+                            <div class="flex flex-col items-center justify-center opacity-40">
+                                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Aún no hay marcajes registrados</p>
                             </div>
                         </td>
                     </tr>
