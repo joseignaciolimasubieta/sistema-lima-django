@@ -185,7 +185,7 @@
                                     '{{ c.curso.docente.nombre|escapejs }}',
                                     {{ c.curso.subcursos.count|default:0 }}
                                 )" 
-                                data-subcursos="{% for sub in c.curso.subcursos.all %}  - {{ sub.nombre }}{% if not forloop.last %}&#10;{% endif %}{% endfor %}"
+                                data-subcursos="{% for sub in c.curso.subcursos.all %}🔹 {{ sub.nombre|upper }}{% if not forloop.last %}&#10;{% endif %}{% endfor %}"
                                 class="w-full h-8 px-4 rounded-full bg-blue-500 text-white group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] text-[10px] font-black tracking-widest uppercase transition-all shadow-md inline-flex items-center justify-center gap-1.5 active:scale-95 border border-transparent group-hover:border-white/30">
                                     
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -308,50 +308,53 @@
         
         let textoParaRedes = "";
 
-        // 🧠 LÓGICA INTELIGENTE: Si tiene subcursos o la palabra módulo, usamos el diseño de Módulo
+        // 🧠 LÓGICA INTELIGENTE: Diseño de Módulo con el MISMO formato visual que los cursos normales
         if (cantSubcursos > 0 || nombre.toUpperCase().includes('MÓDULO') || nombre.toUpperCase().includes('MODULO')) {
             const numCursos = cantSubcursos > 0 ? cantSubcursos : "Varios";
             const textoSubcursos = cantSubcursos > 0 ? `${numCursos} cursos en 1:\n${listaSubcursos}\n` : "";
 
             textoParaRedes = 
-`ESCUELA FINANCIERA LUCA PACIOLI 
+`ESCUELA FINANCIERA LUCA PACIOLI 👨‍💼
 Cursos de capacitación Modalidad ${modalidad.toUpperCase()}
 ${hashtag}
-${textoSubcursos}
-INICIO: ${fechaCapitalizada}
- DURACIÓN: ${duracion}.
- DÍAS: ${dias}.
- INVERSIÓN: Bs ${inversion} ( por los ${numCursos} cursos).
-     
- MODALIDAD DE PAGO:                                  
- Transferencia o depósito Bancario                              
-YAPE
-ALTOKE
-En nuestras oficinas  
-MAYORES INFORMES E INSCRIPCIONES
-Patricia         https://wa.link/1siesz
+${textoSubcursos}◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾ ◾
+🗓️INICIO: ${fechaCapitalizada}
+⏱️ DURACIÓN: ${duracion}.
+⏳ DÍAS: ${dias}.
+💵 INVERSIÓN: Bs ${promo} (por los ${numCursos} cursos).
+   ALUMNOS ANTIGUOS: Bs ${antiguos}
+
+▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️ ▫️
+➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖ ➖
+💰 MODALIDAD DE PAGO:                                   
+🔅Transferencia o depósito Bancario                              
+🔅ALTOKE
+🔅YAPE
+🔅En nuestras oficinas  
+📌MAYORES INFORMES E INSCRIPCIONES
 Xiomara.      https://wa.link/ip858v
 Ignacio         https://wa.link/8e5ikp
+Patricia         https://wa.link/1siesz
 Gabriel.        https://wa.me/59178784879
-𝗗𝗶𝗿𝗲𝗰𝗰𝗶ó𝗻:
-C/ Genaro Sanjines # 856, a unos pasos de la Av. Sucre, piso 2 (Edificio Sociedad Obreros de la Cruz).
+
+🏢Dirección:
+C/ Genaro Sanjines # 856, a unos pasos de la c/ Sucre, piso 2 (Edificio Sociedad Obreros de la Cruz).
 Teléfono: https://wa.me/59177737092
 Horario de atención:
 Lunes a jueves  -  10:00 a 16:00
-Google maps:
+➡️Google maps:
 https://maps.app.goo.gl/1UsCCMALS7DnGezM8
-SÍGUENOS EN NUESTRAS REDES:
- PÁGINA WEB - 
+🫂SÍGUENOS EN NUESTRAS REDES:
+🔷 PÁGINA WEB - 
 https://beacons.ai/escuelafinancieralucapacioli
- YOUTUBE - https://youtube.com/@aprendiendocontabilidadcon2093
-TIK TOK- https://www.tiktok.com/@contabilidad_bolivia...
-TELEGRAM - https://t.me/+KTOrGXX9qKtlN2Rh
- FACEBOOK- pag.1 https://www.facebook.com/Aprendiendo-Contabilidad-102080354921557/ 
-pag.2
-https://www.facebook.com/profile.php?id=100085411053148`;
+🔷 YOUTUBE - https://youtube.com/@aprendiendocontabilidadcon2093
+🔷 TIK TOK- https://www.tiktok.com/@contabilidad_bolivia...
+🔷 TELEGRAM - https://t.me/+KTOrGXX9qKtlN2Rh
+🔷 FACEBOOK- pag.1 https://www.facebook.com/Aprendiendo-Contabilidad-102080354921557/ 
+pag.2 https://www.facebook.com/profile.php?id=100085411053148`;
 
         } else {
-            // Diseño Clásico para los Cursos Normales
+            // Diseño Clásico para los Cursos Normales (Sin alteraciones)
             textoParaRedes = 
 `ESCUELA FINANCIERA LUCA PACIOLI 👨‍💼
 Cursos de capacitación Modalidad ${modalidad.toUpperCase()}
