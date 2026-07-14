@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Configuración.</h1>
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2">Horarios y Parámetros por Empleado</p>
+        </div>
+        
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+            <a href="{% url 'asistencia_empleados' %}" class="h-10 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Volver a Asistencia
+            </a>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm mb-10">
+        <div class="overflow-x-auto max-h-[650px] scrollbar-delgada relative">
+            <table class="w-full text-sm text-left border-collapse">
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="py-5 px-6 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Empleado</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Hora Ingreso</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Hora Salida</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Tolerancia</th>
+                        <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Días Laborales</th>
+                        <th class="py-5 px-6 text-right text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Acción</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for emp in empleados %}
+                    <tr class="hover:bg-slate-50 transition-colors duration-200 group relative">
+                        
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-[#0071e3] text-sm uppercase tracking-tight">{{ emp.nombre_completo }}</div>
+                            <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ emp.cargo }}</div>
+                        </td>
+                        
+                        <td class="px-4 py-4 text-center">
+                            <input type="time" id="ingreso-{{ emp.id }}" value="{{ emp.hora_ingreso|time:'H:i' }}" class="h-9 w-28 text-center bg-gray-50 border border-gray-200 rounded-lg text-xs font-black text-gray-700 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 transition-all">
+                        </td>
+                        
+                        <td class="px-4 py-4 text-center">
+                            <input type="time" id="salida-{{ emp.id }}" value="{{ emp.hora_salida|time:'H:i' }}" class="h-9 w-28 text-center bg-gray-50 border border-gray-200 rounded-lg text-xs font-black text-gray-700 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 transition-all">
+                        </td>
+                        
+                        <td class="px-4 py-4 text-center">
+                            <div class="relative inline-block w-24">
+                                <input type="number" id="tolerancia-{{ emp.id }}" value="{{ emp.tolerancia_minutos }}" min="0" class="h-9 w-full text-center bg-gray-50 border border-gray-200 rounded-lg text-xs font-black text-gray-700 pr-6 outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 transition-all">
+                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-gray-400">min</span>
+                            </div>
+                        </td>
+                        
+                        <td class="px-4 py-4 text-center">
+                            <input type="text" id="dias-{{ emp.id }}" value="{{ emp.dias_laborales }}" placeholder="L,M,X,J,V" class="h-9 w-32 text-center bg-gray-50 border border-gray-200 rounded-lg text-xs font-black text-gray-700 uppercase outline-none focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/20 transition-all">
+                        </td>
+            
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="guardarConfiguracion({{ emp.id }}, this)" class="h-9 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap active:scale-95 inline-flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                                Guardar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-24 text-center">
+                            <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">No hay empleados registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function obtenerCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function mostrarToastNotificacion(mensaje) {
+        const contenedor = document.getElementById('toast-container');
+        const toastHTML = `
+        <div class="toast-message bg-white/90 backdrop-blur-xl text-gray-800 px-5 py-4 rounded-2xl shadow-xl border border-emerald-100 flex items-center gap-3.5 transform transition-all duration-300 translate-y-10 opacity-0">
+            <div class="bg-emerald-500 p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <p class="text-sm font-bold tracking-tight">${mensaje}</p>
+        </div>`;
+        
+        contenedor.insertAdjacentHTML('beforeend', toastHTML);
+        const nuevoToast = contenedor.lastElementChild;
+        
+        setTimeout(() => {
+            nuevoToast.classList.remove('translate-y-10', 'opacity-0');
+            nuevoToast.classList.add('translate-y-0', 'opacity-100');
+        }, 10);
+        
+        setTimeout(() => {
+            nuevoToast.classList.remove('translate-y-0', 'opacity-100');
+            nuevoToast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => nuevoToast.remove(), 300);
+        }, 3000);
+    }
+
+    function guardarConfiguracion(emp_id, btn) {
+        // Obtenemos los valores de los inputs correspondientes a ese empleado
+        const ingreso = document.getElementById(`ingreso-${emp_id}`).value;
+        const salida = document.getElementById(`salida-${emp_id}`).value;
+        const tolerancia = document.getElementById(`tolerancia-${emp_id}`).value;
+        const dias = document.getElementById(`dias-${emp_id}`).value;
+
+        // Cambiamos el estado del botón visualmente
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = `<span class="animate-pulse">Guardando...</span>`;
+        btn.disabled = true;
+        btn.classList.add('opacity-70');
+
+        fetch("{% url 'configuracion_empleados' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': obtenerCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                empleado_id: emp_id,
+                hora_ingreso: ingreso,
+                hora_salida: salida,
+                tolerancia_minutos: tolerancia,
+                dias_laborales: dias
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                mostrarToastNotificacion(data.mensaje);
+            } else {
+                alert("Error al guardar: " + data.mensaje);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Ocurrió un error en la conexión.");
+        })
+        .finally(() => {
+            // Restauramos el botón
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+        });
+    }
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    
+    /* Pequeño hack para centrar el texto de los inputs tipo time y limpiar su apariencia */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.6;
+        transition: 0.2s;
+    }
+    input[type="time"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+    }
+</style>
+
+{% endblock %}

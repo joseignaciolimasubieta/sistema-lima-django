@@ -3494,3 +3494,37 @@ def asistencia_empleados(request):
     # Traemos todo el historial de marcados, ordenado por el más reciente primero
     asistencias = AsistenciaEmpleado.objects.all().order_by('-fecha', '-hora')
     return render(request, 'asistencia_empleados.html', {'asistencias': asistencias})
+
+@login_required
+@user_passes_test(es_administrador)
+def configuracion_empleados(request):
+    import json
+    from datetime import datetime
+
+    if request.method == 'POST':
+        try:
+            # Recibimos los datos en formato JSON
+            data = json.loads(request.body)
+            empleado_id = data.get('empleado_id')
+            
+            empleado = get_object_or_404(Empleado, id=empleado_id)
+            
+            # Convertimos los strings de hora (ej: "08:30") a objetos Time de Python
+            if data.get('hora_ingreso'):
+                empleado.hora_ingreso = datetime.strptime(data.get('hora_ingreso'), '%H:%M').time()
+            if data.get('hora_salida'):
+                empleado.hora_salida = datetime.strptime(data.get('hora_salida'), '%H:%M').time()
+                
+            empleado.tolerancia_minutos = int(data.get('tolerancia_minutos', 10))
+            empleado.dias_laborales = data.get('dias_laborales', 'L,M,X,J,V').upper()
+            
+            # Guardamos la configuración personalizada
+            empleado.save()
+            
+            return JsonResponse({'status': 'ok', 'mensaje': 'Configuración guardada correctamente'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=400)
+
+    # Si es GET, cargamos todos los empleados para mostrarlos en la tabla
+    empleados = Empleado.objects.all().order_by('nombre_completo')
+    return render(request, 'configuracion_empleados.html', {'empleados': empleados})

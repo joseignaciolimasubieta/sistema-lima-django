@@ -85,6 +85,7 @@ urlpatterns = [
     # --- MÓDULO DE CONTROL DE ASISTENCIA ---
     path('api/asistencia/rfid/', views.registrar_asistencia_rfid, name='registrar_asistencia_rfid'),
     path('empleados/asistencia/', views.asistencia_empleados, name='asistencia_empleados'),
+    path('empleados/configuracion/', views.configuracion_empleados, name='configuracion_empleados'),
     
     # --- MÓDULO DE PRÉSTAMOS Y FINANCIERA ---
     path('financiera/prestamos/', views.lista_prestamos, name='lista_prestamos'), 
