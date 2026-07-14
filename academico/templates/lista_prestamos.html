@@ -146,17 +146,18 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div>
-                                    <div class="font-bold text-[#0071e3] text-sm uppercase">
+                                    <div class="font-black text-black text-sm uppercase tracking-tight">
                                         {{ p.nombre_deudor }}
                                     </div>
                                     
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
+                                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">
                                         {% if p.empleado %}
-                                            EMPLEADO
+                                            CI: {{ p.empleado.ci }}
+                                            {% endif %}
                                         {% else %}
-                                            PERSONA EXTERNA 
+                                            CELULAR:
                                             {% if p.celular_externo %}
-                                                <a href="https://wa.me/{{ p.celular_externo }}" target="_blank" class="text-emerald-600 hover:text-emerald-800 font-black ml-1">
+                                                <a href="https://wa.me/{{ p.celular_externo }}" target="_blank" class="text-slate-700 font-black ml-1">
                                                     | 📞 {{ p.celular_externo }}
                                                 </a>
                                             {% endif %}
