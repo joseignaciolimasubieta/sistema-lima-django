@@ -801,38 +801,40 @@ def crear_servicio(request):
 @login_required
 @user_passes_test(es_administrador)
 def honorarios(request):
-    lista_honorarios = Honorario.objects.filter(curso__subcursos__isnull=True).select_related('curso__docente').order_by('-id') #QUITAMOS LOS SUBCURSOS PARA QUE NO SE REPITAN EN LA TABLA
     hoy = date.today()
     
-    # 1. CAPTURAMOS LOS DATOS DEL NUEVO FORMULARIO
+    # 1. Aplicamos la lógica de ordenamiento directamente en la base de datos
+    lista_honorarios = Honorario.objects.filter(curso__subcursos__isnull=True).select_related('curso__docente').annotate(
+        orden_estado=Case(
+            When(curso__fecha_inicio__gt=hoy, then=Value(1)), # No Inició
+            When(curso__fecha_inicio__lte=hoy, curso__fecha_finalizacion__gte=hoy, then=Value(2)), # En Curso
+            default=Value(3), # Finalizado
+            output_field=IntegerField(),
+        )
+    ).order_by('orden_estado', '-id') # Ordena por estado primero, luego por los más recientes
+    
+    # 2. CAPTURAMOS LOS DATOS DEL NUEVO FORMULARIO
     busqueda_docente = request.GET.get('docente', '')
     rango_fechas = request.GET.get('rango_fechas', '') # Recibimos el nuevo calendario
 
-    # 2. APLICAMOS LOS FILTROS
+    # 3. APLICAMOS LOS FILTROS
     if busqueda_docente:
         lista_honorarios = lista_honorarios.filter(curso__docente__nombre__icontains=busqueda_docente)
     
     # Lógica del Calendario Avanzado (Rango, Año, Mes o Día)
     if rango_fechas:
-        # 1. Si eligió un rango con el mouse (Ej: "2026-06-01 a 2026-06-30")
         if ' a ' in rango_fechas:
             fecha_inicio, fecha_fin = rango_fechas.split(' a ')
             lista_honorarios = lista_honorarios.filter(curso__fecha_inicio__range=[fecha_inicio, fecha_fin])
-            
-        # 2. Si escribió solo el Año con el teclado (Ej: "2026")
         elif len(rango_fechas) == 4 and rango_fechas.isdigit():
             lista_honorarios = lista_honorarios.filter(curso__fecha_inicio__year=rango_fechas)
-            
-        # 3. Si escribió el Año y el Mes con el teclado (Ej: "2026-06")
         elif len(rango_fechas) == 7 and '-' in rango_fechas:
             anio, mes = rango_fechas.split('-')
             lista_honorarios = lista_honorarios.filter(curso__fecha_inicio__year=anio, curso__fecha_inicio__month=mes)
-            
-        # 4. Si hizo clic en un solo día exacto
         else:
             lista_honorarios = lista_honorarios.filter(curso__fecha_inicio=rango_fechas)
 
-    # 3. Calculamos los estados dinámicos
+    # 4. Calculamos los estados dinámicos (Para la etiqueta visual en el HTML)
     for h in lista_honorarios:
         if h.curso and h.curso.fecha_inicio and h.curso.fecha_finalizacion:
             if hoy < h.curso.fecha_inicio:
@@ -844,14 +846,9 @@ def honorarios(request):
         else:
             h.estado_curso_calc = "Fechas pendientes"
             
-    # 4. Sumas financieras dinámicas y reales
-    # Suma de cursos 100% liquidados
+    # 5. Sumas financieras dinámicas y reales
     total_pagado = lista_honorarios.filter(estado='PAGADO').aggregate(Sum('monto_acordado'))['monto_acordado__sum'] or 0
-    
-    # Suma del dinero que ya salió como anticipo en cursos que aún no terminan
     total_anticipos = lista_honorarios.filter(estado='PENDIENTE').aggregate(Sum('anticipo'))['anticipo__sum'] or 0
-    
-    # DEUDA REAL: Calcula (Monto Acordado - Anticipo) solo de los pendientes
     total_pendiente = lista_honorarios.filter(estado='PENDIENTE').aggregate(
         deuda_real=Sum(F('monto_acordado') - F('anticipo'))
     )['deuda_real'] or 0
@@ -859,7 +856,7 @@ def honorarios(request):
     contexto = {
         'honorarios': lista_honorarios,
         'total_pendiente': total_pendiente,
-        'total_anticipos': total_anticipos, # ¡Pasamos la nueva variable al HTML!
+        'total_anticipos': total_anticipos,
         'total_pagado': total_pagado,
         'busqueda_docente': busqueda_docente,
         'rango_fechas': rango_fechas,
