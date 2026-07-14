@@ -147,14 +147,14 @@
                             <div class="flex items-center">
                                 <div>
                                     <div class="font-bold text-[#0071e3] text-sm uppercase">
-                                        {% if prestamo.empleado %}
-                                            {{ prestamo.empleado.nombre_completo }}
-                                        {% else %}
-                                            <span class="text-rose-600">{{ prestamo.nombre_externo }}</span>
-                                        {% endif %}
+                                        {{ prestamo.nombre_deudor }}
                                     </div>
                                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
-                                        {% if prestamo.empleado %} EMPLEADO {% else %} PERSONA EXTERNA {% endif %}
+                                        {% if prestamo.empleado %}
+                                            EMPLEADO
+                                        {% else %}
+                                            PERSONA EXTERNA
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
