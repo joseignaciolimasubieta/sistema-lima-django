@@ -140,7 +140,8 @@ def dashboard(request):
         })
 
     # 4. CÁLCULO OPTIMIZADO DE CUENTAS OPERATIVAS (Mapeado directo en RAM)
-    cuentas_operativas = CuentaCaja.objects.exclude(nombre__icontains='AHORRO').order_by('codigo')
+    # 🚀 Filtramos estrictamente las cuentas operativas del flujo de caja (001 a 004)
+    cuentas_operativas = CuentaCaja.objects.filter(codigo__in=['001', '002', '003', '004']).order_by('codigo')
     
     totales_bd = MovimientoCaja.objects.filter(
         cuenta__in=cuentas_operativas

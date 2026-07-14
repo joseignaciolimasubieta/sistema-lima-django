@@ -158,9 +158,11 @@
                                     
                                     <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">
                                         {% if p.empleado %}
-                                            EMPLEADO
+                                            C.I: 
+                                                <span class="text-slate-700 font-black ml-1">| {{ p.empleado.ci }}</span>
+                                            {% endif %}
                                         {% else %}
-                                            PERSONA EXTERNA 
+                                            CELULAR: 
                                             {% if p.celular_externo %}
                                                 <span class="text-slate-700 font-black ml-1">| 📞 {{ p.celular_externo }}</span>
                                             {% endif %}
