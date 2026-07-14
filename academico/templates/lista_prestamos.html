@@ -143,21 +143,9 @@
                         
                         <td class="py-4 px-3 md:px-4 text-center font-bold text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">{{ p.fecha_prestamo|date:"d M, Y" }}</td>
                         
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div>
-                                    <div class="font-bold text-[#0071e3] text-sm uppercase">
-                                        {{ prestamo.nombre_deudor }}
-                                    </div>
-                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
-                                        {% if prestamo.empleado %}
-                                            EMPLEADO
-                                        {% else %}
-                                            PERSONA EXTERNA
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
+                        <td class="py-4 px-3 md:px-4">
+                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight whitespace-nowrap">{{ p.empleado.nombre_completo }}</div>
+                            <div class="text-[10px] text-gray-400 group-hover:text-blue-100 transition-colors font-semibold mt-0.5 uppercase">C.I. {{ p.empleado.ci }}</div>
                         </td>
                         
                         <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">
