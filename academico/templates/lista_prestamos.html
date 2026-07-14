@@ -147,19 +147,22 @@
                             <div class="flex items-center">
                                 <div>
                                     <div class="font-black text-black text-sm uppercase tracking-tight">
-                                        {{ p.nombre_deudor }}
+                                        {% if p.empleado %}
+                                            {{ p.empleado.nombre_completo }}
+                                        {% elif p.nombre_externo %}
+                                            {{ p.nombre_externo }}
+                                        {% else %}
+                                            SIN NOMBRE
+                                        {% endif %}
                                     </div>
                                     
                                     <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">
                                         {% if p.empleado %}
-                                            CI: {{ p.empleado.ci }}
-                                            {% endif %}
+                                            EMPLEADO
                                         {% else %}
-                                            CELULAR:
+                                            PERSONA EXTERNA 
                                             {% if p.celular_externo %}
-                                                <a href="https://wa.me/{{ p.celular_externo }}" target="_blank" class="text-slate-700 font-black ml-1">
-                                                    | 📞 {{ p.celular_externo }}
-                                                </a>
+                                                <span class="text-slate-700 font-black ml-1">| 📞 {{ p.celular_externo }}</span>
                                             {% endif %}
                                         {% endif %}
                                     </div>
