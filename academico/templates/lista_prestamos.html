@@ -43,7 +43,7 @@
         
         <!-- IZQUIERDA: TÍTULO -->
         <div class="space-y-3 shrink-0">
-            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Control Prestamos.</h1>
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Control Préstamos.</h1>
         </div>
 
         <!-- DERECHA: CONTROLES AGRUPADOS -->
@@ -111,7 +111,7 @@
         <!-- Tarjeta: Saldo de Préstamos -->
         <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
             <div>
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Saldo de Prestamos</span>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Saldo de Préstamos</span>
                 <h3 class="text-2xl font-black text-[#0071e3] tracking-tight">Bs. {{ saldo_por_cobrar }}</h3>
             </div>
             <div class="bg-blue-50 border border-blue-100 p-3 rounded-2xl text-[#0071e3]">
@@ -143,9 +143,21 @@
                         
                         <td class="py-4 px-3 md:px-4 text-center font-bold text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">{{ p.fecha_prestamo|date:"d M, Y" }}</td>
                         
-                        <td class="py-4 px-3 md:px-4">
-                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight whitespace-nowrap">{{ p.empleado.nombre_completo }}</div>
-                            <div class="text-[10px] text-gray-400 group-hover:text-blue-100 transition-colors font-semibold mt-0.5 uppercase">C.I. {{ p.empleado.ci }}</div>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="font-bold text-[#0071e3] text-sm uppercase">
+                                        {% if prestamo.empleado %}
+                                            {{ prestamo.empleado.nombre_completo }}
+                                        {% else %}
+                                            <span class="text-rose-600">{{ prestamo.nombre_externo }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">
+                                        {% if prestamo.empleado %} EMPLEADO {% else %} PERSONA EXTERNA {% endif %}
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                         
                         <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">

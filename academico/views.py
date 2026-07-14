@@ -2338,9 +2338,11 @@ def lista_prestamos(request):
     
     # --- 1. MOTOR DE BÚSQUEDA POR TEXTO (Nombre o C.I.) ---
     if buscar:
+        # 🚀 Si buscas, también permite buscar por nombre_externo
         prestamos = prestamos.filter(
             Q(empleado__nombre_completo__icontains=buscar) |
-            Q(empleado__ci__icontains=buscar)
+            Q(empleado__ci__icontains=buscar) |
+            Q(nombre_externo__icontains=buscar) 
         )
         
     # --- 2. CÁLCULO DE TOTALES PARA LAS TARJETAS (KPIs) ---

@@ -247,6 +247,18 @@
                 resFecha.textContent = "-";
             }
         }
+        // BLOQUEO ANTI DOBLE-CLIC
+        const formPrincipal = document.getElementById('form-principal');
+        if (formPrincipal) {
+            formPrincipal.addEventListener('submit', function() {
+                const btn = document.getElementById('btn-guardar');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = 'GUARDANDO...'; 
+                    btn.classList.add('opacity-50', 'cursor-wait');
+                }
+            });
+        }
 
         // 4. ESCUCHAR CAMBIOS EN TIEMPO REAL
         [inputMonto, inputPorcentaje, inputCuotas, selectFrecuencia].forEach(el => {

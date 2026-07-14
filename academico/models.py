@@ -787,11 +787,14 @@ class Prestamo(models.Model):
             cuenta_origen, _ = CuentaCaja.objects.get_or_create(codigo='001', defaults={'nombre': 'ADMINISTRACIÓN'})
             MovimientoCaja.objects.create(
                 fecha=self.fecha_prestamo,
-                detalle=f"Desembolso Préstamo: {self.empleado.nombre_completo}",
+                detalle=f"Desembolso Préstamo: {self.nombre_deudor}", # 🚀 SOLUCIÓN: Ahora usa nombre_deudor
                 cuenta=cuenta_origen,
                 tipo='SALIDA',
                 monto=self.monto_prestado
             )
+
+    def __str__(self):
+        return f"Préstamo a {self.nombre_deudor} - {self.monto_prestado} Bs" # 🚀 SOLUCIÓN: Ahora usa nombre_deudor
 
     def __str__(self):
         return f"Préstamo a {self.empleado.nombre_completo} - {self.monto_prestado} Bs"
