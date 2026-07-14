@@ -3153,8 +3153,9 @@ def generar_certificado_individual(request, inscripcion_id):
 
 @login_required
 def lista_cursos_certificados(request):
-    # Traemos los cursos ocultando los Módulos Padres y ordenamos por Fecha de Finalización (los más recientes/próximos arriba)
-    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('-fecha_finalizacion') 
+    # Ordenamiento inteligente: primero los pendientes (False), al final los enviados (True),
+    # y dentro de cada grupo se mantiene el orden por fecha de finalización más reciente.
+    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('certificados_enviados', '-fecha_finalizacion') 
     
     buscar = request.GET.get('buscar', '')
     mes_busqueda = request.GET.get('mes', '') 
