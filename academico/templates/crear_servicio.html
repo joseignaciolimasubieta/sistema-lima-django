@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form method="POST" enctype="multipart/form-data" class="space-y-6" id="form-crear-servicio">
         {% csrf_token %}
         
         <div class="bg-white p-6 md:p-8 rounded-3xl border border-gray-200 shadow-sm space-y-6">
@@ -211,7 +211,7 @@
                 <a href="{% url 'consultora' %}" class="w-full md:w-auto text-center h-11 px-8 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 transition-colors shadow-sm flex items-center justify-center">
                     Cancelar Operación
                 </a>
-                <button type="submit" class="w-full md:w-auto h-11 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+                <button type="submit" id="btn-guardar" class="w-full md:w-auto h-12 px-10 rounded-full text-xs font-bold uppercase tracking-widest text-white bg-[#0071e3] hover:bg-[#0077ED] shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
                     <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                     Guardar Trámite
                 </button>
@@ -350,6 +350,19 @@
             });
         }
     });
+    // BLOQUEO ANTI DOBLE-CLIC
+        const formPrincipal = document.getElementById('form-crear-servicio');
+        if (formPrincipal) {
+            formPrincipal.addEventListener('submit', function() {
+                const btn = document.getElementById('btn-guardar');
+                if (btn) {
+                    btn.disabled = true;
+                    // Cambia el texto manteniendo el ícono de carga visual si lo deseas, o solo el texto:
+                    btn.innerHTML = 'GUARDANDO...'; 
+                    btn.classList.add('opacity-50', 'cursor-wait');
+                }
+            });
+        }
     // ----------------------------------------------------
     // FUNCIONES DEL MODAL (FUERA DEL DOMContentLoaded)
     // ----------------------------------------------------
