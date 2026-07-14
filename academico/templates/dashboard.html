@@ -162,7 +162,6 @@
                                         <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nombre del Curso</th>
                                         <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Participantes</th>
                                         <th class="py-3 px-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Recaudado</th>
-                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Alerta</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-sm">
@@ -179,11 +178,6 @@
                                             </td>
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
                                                 Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
-                                            </td>
-                                            <td class="py-3 px-4 text-center">
-                                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">
-                                                    {{ curso.tendencia_texto }}
-                                                </span>
                                             </td>
                                         </tr>
                                         {% endif %}
@@ -204,7 +198,6 @@
                                         <th class="py-3 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Nombre del Curso</th>
                                         <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Participantes</th>
                                         <th class="py-3 px-4 text-right text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Recaudado</th>
-                                        <th class="py-3 px-4 text-center text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Alerta</th>
                                     </tr>
                                 </thead>
                                 <tbody class="text-sm">
@@ -222,11 +215,7 @@
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
                                                 Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
                                             </td>
-                                            <td class="py-3 px-4 text-center">
-                                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-[9px] font-black tracking-widest {{ curso.tendencia_clase }}">
-                                                    {{ curso.tendencia_texto }}
-                                                </span>
-                                            </td>
+                                            
                                         </tr>
                                         {% endif %}
                                     {% endfor %}
