@@ -110,42 +110,34 @@ def dashboard(request):
     
     total_cursos_activos = Curso.objects.filter(fecha_finalizacion__gte=hoy).count()
 
-    # 3. REPORTE POR CURSO Y GRÁFICOS (Agrupación nativa en Supabase)
-    reporte_cursos_bd = inscripciones_query.values('curso__nombre', 'modalidad').annotate(
-        num_inscritos=Count('id'),
-        total_generado=Sum('importe')
+    # 3. NUEVO REPORTE DE DESEMPEÑO ACADÉMICO (Histórico Total)
+    # Filtramos los cursos principales (sin submódulos)
+    cursos_query = Curso.objects.filter(subcursos__isnull=True)
+    
+    # Filtramos para que solo salgan los cursos que INICIARON en el mes seleccionado
+    if rango_fechas and len(rango_fechas) == 7 and '-' in rango_fechas:
+        try:
+            anio, mes = map(int, rango_fechas.split('-'))
+            cursos_query = cursos_query.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+        except Exception:
+            pass
+
+    # Anotamos el total histórico, sumando TODAS sus inscripciones sin importar la fecha en que se pagaron
+    reporte_cursos_bd = cursos_query.annotate(
+        num_inscritos=Count('inscripcion'),
+        total_generado=Sum('inscripcion__importe')
     ).order_by('-total_generado')
 
-    prev_totales = {}
-    if tendencia_valida:
-        datos_prev = inscripciones_prev_query.values('curso__nombre', 'modalidad').annotate(
-            total=Sum('importe')
-        )
-        prev_totales = { f"{d['curso__nombre']}_{d['modalidad']}": (d['total'] or Decimal('0.00')) for d in datos_prev }
-
     reporte_cursos = []
-    for item in reporte_cursos_bd:
-        actual = item['total_generado'] or Decimal('0.00')
-        llave_busqueda = f"{item['curso__nombre']}_{item['modalidad']}"
-        anterior = prev_totales.get(llave_busqueda, Decimal('0.00'))
-        
-        variacion = 0
-        if anterior > 0:
-            variacion = ((actual - anterior) / anterior) * 100
-        elif actual > 0 and anterior == 0 and tendencia_valida:
-            variacion = 100
-            
-        if not tendencia_valida or variacion == 0:
-            item['tendencia_clase'] = 'bg-gray-50 text-gray-400'
-            item['tendencia_texto'] = '■ ESTABLE'
-        elif variacion > 0:
-            item['tendencia_clase'] = 'bg-emerald-50 text-emerald-500'
-            item['tendencia_texto'] = f'▲ {abs(variacion):.0f}%'
-        else:
-            item['tendencia_clase'] = 'bg-rose-50 text-rose-500'
-            item['tendencia_texto'] = f'▼ {abs(variacion):.0f}%'
-
-        reporte_cursos.append(item)
+    for c in reporte_cursos_bd:
+        reporte_cursos.append({
+            'curso__nombre': c.nombre,
+            'modalidad': c.modalidad or 'VIRTUAL',
+            'num_inscritos': c.num_inscritos,
+            'total_generado': c.total_generado or Decimal('0.00'),
+            'tendencia_clase': 'bg-slate-100 text-slate-500',
+            'tendencia_texto': 'TOTAL HISTÓRICO'
+        })
 
     # 4. CÁLCULO OPTIMIZADO DE CUENTAS OPERATIVAS (Mapeado directo en RAM)
     cuentas_operativas = CuentaCaja.objects.exclude(nombre__icontains='AHORRO').order_by('codigo')
