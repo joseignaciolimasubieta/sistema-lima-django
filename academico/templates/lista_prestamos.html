@@ -146,7 +146,7 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div>
-                                    <div class="font-black text-black text-sm uppercase tracking-tight">
+                                    <div class="font-black text-black group-hover:text-white transition-colors duration-200 text-sm uppercase tracking-tight">
                                         {% if p.empleado %}
                                             {{ p.empleado.nombre_completo }}
                                         {% elif p.nombre_externo %}
@@ -156,21 +156,16 @@
                                         {% endif %}
                                     </div>
                                     
-                                    <div class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mt-0.5">
+                                    <div class="text-[10px] font-bold text-gray-500 group-hover:text-blue-100 transition-colors duration-200 uppercase tracking-wider mt-0.5">
                                         {% if p.empleado %}
-                                            C.I.: <span class="text-slate-700 font-black ml-1">| {{ p.empleado.ci }}</span>
-                                            {% if p.empleado.celular %}
-                                                | 📞 {{ p.empleado.celular }}
-                                            {% endif %}
-                                        {% elif p.nombre_externo %}
-                                            C.I.: 
-                                            {% if p.ci_externo %}
-                                                <span class="text-slate-700 font-black ml-1">| {{ p.ci_externo }}</span>
+                                            C.I.:
+                                            {% if p.empleado.ci %}
+                                                <span class="text-slate-700 group-hover:text-white transition-colors duration-200 font-black ml-1">| C.I. {{ p.empleado.ci }}</span>
                                             {% endif %}
                                         {% else %}
-                                            CELULAR: 
+                                            CELULAR:
                                             {% if p.celular_externo %}
-                                                <span class="text-slate-700 font-black ml-1">| 📞 {{ p.celular_externo }}</span>
+                                                <span class="text-slate-700 group-hover:text-white transition-colors duration-200 font-black ml-1">| 📞 {{ p.celular_externo }}</span>
                                             {% endif %}
                                         {% endif %}
                                     </div>
