@@ -682,17 +682,22 @@ def flujo_caja(request):
 
     return render(request, 'flujo_caja.html', contexto)
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_administrador) # O los decoradores que ya tenías arriba de la función
 def crear_movimiento(request):
     if request.method == 'POST':
         form = MovimientoCajaForm(request.POST)
         if form.is_valid():
             form.save()
+            # 👇 ESTA ES LA LÍNEA MÁGICA QUE MANDA LA NOTIFICACIÓN AL HTML
+            messages.success(request, '¡Movimiento registrado correctamente!')
             return redirect('flujo_caja')
+        else:
+            # 👇 ESTA OTRA LÍNEA MANDA EL ERROR SI FALTAN DATOS
+            messages.error(request, 'Hubo un error. Revisa los datos ingresados.')
     else:
         form = MovimientoCajaForm()
+    
     return render(request, 'crear_movimiento.html', {'form': form})
-
 @login_required
 def consultora(request):
     # Traemos todos los servicios
