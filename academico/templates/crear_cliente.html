@@ -88,10 +88,18 @@
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Teléfono / Celular</label>
                     <input type="text" name="celular" placeholder="NÚMERO DE CONTACTO" class="custom-input">
                 </div>
+                
+                <!-- NUEVO CAMPO: Denominación -->
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Denominación</label>
+                    <input type="text" name="denominacion" placeholder="NOMBRE COMERCIAL" class="custom-input uppercase">
+                </div>
+
                 <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-50 border border-slate-100 rounded-2xl mt-2">
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-emerald-800 uppercase tracking-widest">Correo Electrónico (Usuario SIAT)</label>
-                        <input type="text" name="denominacion" placeholder="USUARIO DE OFICINA VIRTUAL" class="custom-input">
+                        <!-- CORREGIDO: name="correo" -->
+                        <input type="text" name="correo" placeholder="USUARIO DE OFICINA VIRTUAL" class="custom-input">
                     </div>
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-emerald-800 uppercase tracking-widest">Contraseña</label>
@@ -164,10 +172,18 @@
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Teléfono / Celular</label>
                     <input type="text" name="celular" id="edit_celular" class="custom-input focus:border-[#0071e3]">
                 </div>
+                
+                <!-- NUEVO CAMPO: Denominación -->
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Denominación</label>
+                    <input type="text" name="denominacion" id="edit_denominacion" class="custom-input uppercase focus:border-[#0071e3]">
+                </div>
+
                 <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-slate-50 border border-slate-100 rounded-2xl mt-2">
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest">Correo Electrónico (Usuario SIAT)</label>
-                        <input type="text" name="denominacion" id="edit_denominacion" class="custom-input focus:border-[#0071e3]">
+                        <!-- CORREGIDO: name="correo" e id="edit_correo" -->
+                        <input type="text" name="correo" id="edit_correo" class="custom-input focus:border-[#0071e3]">
                     </div>
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest">Contraseña</label>
@@ -251,6 +267,7 @@
                     document.getElementById('edit_domicilio').value = opcionSeleccionada.getAttribute('data-domicilio') || '';
                     document.getElementById('edit_celular').value = opcionSeleccionada.getAttribute('data-celular') || '';
                     document.getElementById('edit_denominacion').value = opcionSeleccionada.getAttribute('data-denominacion') || '';
+                    document.getElementById('edit_correo').value = opcionSeleccionada.getAttribute('data-correo') || '';
                     document.getElementById('edit_contrasena').value = opcionSeleccionada.getAttribute('data-contrasena') || '';
 
                     // Mostrar formulario de edición
