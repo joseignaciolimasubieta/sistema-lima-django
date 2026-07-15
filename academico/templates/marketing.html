@@ -1,5 +1,44 @@
 {% extends 'base.html' %}
 {% block content %}
+<!-- CONTENEDOR DE NOTIFICACIONES -->
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% if messages %}
+        {% for message in messages %}
+        <div class="toast-message bg-white/90 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+            <div class="{% if message.tags == 'error' %}bg-rose-500{% else %}bg-[#0071e3]{% endif %} p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+                {% if message.tags == 'error' %}
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                {% else %}
+                <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+                {% endif %}
+            </div>
+            <p class="text-sm font-bold tracking-tight">{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            // Animación de entrada
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 10);
+            
+            // Animación de salida después de 3.5 segundos
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        });
+    });
+</script>
+{% endif %}
 
 <div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
 
