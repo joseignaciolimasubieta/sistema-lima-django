@@ -3044,22 +3044,51 @@ def marketing(request):
 
 @login_required
 def arqueo_caja(request):
-    # Aquí consultarías los saldos reales de tu modelo de Flujo de Caja
-    saldo_admin = 1500.50 
-    saldo_banco = 12500.00
-    saldo_caja_chica = 500.00
-    saldo_gerencia = 4200.00
-    saldo_ahorro = 8500.00
+    # 1. Calculamos los saldos REALES agrupados directamente desde la base de datos
+    totales_bd = MovimientoCaja.objects.values('cuenta__codigo', 'cuenta__nombre').annotate(
+        t_entradas=Sum('monto', filter=Q(tipo='ENTRADA')),
+        t_salidas=Sum('monto', filter=Q(tipo='SALIDA'))
+    )
+
+    # 2. Inicializamos todas nuestras "bolsas" en cero
+    saldo_admin = Decimal('0.00')
+    saldo_banco = Decimal('0.00')
+    saldo_caja_chica = Decimal('0.00')
+    saldo_gerencia = Decimal('0.00')
+    saldo_ahorro = Decimal('0.00')
+    saldo_salud = Decimal('0.00')
+
+    # 3. Clasificamos el dinero vivo según su código o nombre
+    for t in totales_bd:
+        entradas = t['t_entradas'] or Decimal('0.00')
+        salidas = t['t_salidas'] or Decimal('0.00')
+        saldo_neto = entradas - salidas
+        
+        codigo = t['cuenta__codigo']
+        nombre = t['cuenta__nombre'].upper()
+        
+        if codigo == '001' or 'ADMINISTRACIÓN' in nombre or 'ADMINISTRACION' in nombre:
+            saldo_admin += saldo_neto
+        elif codigo == '002' or 'BANCO' in nombre:
+            saldo_banco += saldo_neto
+        elif codigo == '003' or 'CHICA' in nombre:
+            saldo_caja_chica += saldo_neto
+        elif codigo == '004' or 'GERENCIA' in nombre:
+            saldo_gerencia += saldo_neto
+        elif codigo in ['005', '006', '007'] or 'AHORRO' in nombre:
+            saldo_ahorro += saldo_neto
+        elif codigo == '008' or 'SALUD' in nombre:
+            saldo_salud += saldo_neto
 
     if request.method == 'POST':
-        # 1. Capturamos lo que el usuario envió en el formulario
+        # 1. Capturamos lo que el usuario envió en el formulario HTML
         cuenta_seleccionada = request.POST.get('cuenta_arqueo')
         saldo_en_sistema = request.POST.get('saldo_sistema')
         total_contado = request.POST.get('total_fisico_oculto')
         diferencia_final = request.POST.get('diferencia_oculta')
         obs = request.POST.get('observaciones')
 
-        # 2. Lo guardamos en la base de datos
+        # 2. Lo guardamos en el historial oficial de arqueos
         ArqueoCaja.objects.create(
             usuario=request.user,
             cuenta=cuenta_seleccionada,
@@ -3079,8 +3108,8 @@ def arqueo_caja(request):
         'saldo_caja_chica': saldo_caja_chica,
         'saldo_gerencia': saldo_gerencia,
         'saldo_ahorro': saldo_ahorro,
+        'saldo_salud': saldo_salud,
     })
-
 @login_required
 @user_passes_test(es_administrador)
 def historial_arqueos(request):
