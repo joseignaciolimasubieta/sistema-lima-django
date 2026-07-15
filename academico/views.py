@@ -3047,20 +3047,20 @@ def arqueo_caja(request):
     from decimal import Decimal
     from django.db.models import Sum, Q
 
-    # 1. Extraemos los saldos con la misma lógica EXACTA que usa el Flujo de Caja
+    # 1. Extraemos los saldos exactos directamente de la base de datos
     totales_bd = MovimientoCaja.objects.values('cuenta_id').annotate(
         t_entradas=Sum('monto', filter=Q(tipo='ENTRADA')),
         t_salidas=Sum('monto', filter=Q(tipo='SALIDA'))
     )
 
-    # 2. Guardamos en un diccionario en memoria (RAM) para sincronización inmediata
+    # 2. Guardamos en la memoria RAM para sincronización inmediata
     mapa_saldos = {}
     for t in totales_bd:
         entradas = t['t_entradas'] or Decimal('0.00')
         salidas = t['t_salidas'] or Decimal('0.00')
         mapa_saldos[t['cuenta_id']] = entradas - salidas
 
-    # 3. Inicializamos nuestras bolsas de dinero
+    # 3. Inicializamos las cuentas en cero
     saldo_admin = Decimal('0.00')
     saldo_banco = Decimal('0.00')
     saldo_caja_chica = Decimal('0.00')
@@ -3070,16 +3070,26 @@ def arqueo_caja(request):
     saldo_reserva = Decimal('0.00')
     saldo_dolares = Decimal('0.00')
 
-    # 4. Escaneamos TODAS las cuentas registradas vinculándolas directamente a los totales
+    # 4. Clasificamos el dinero buscando el nombre específico de la cuenta
     cuentas_caja = CuentaCaja.objects.all()
     for cuenta in cuentas_caja:
-        # Buscamos el saldo de esta cuenta en específico, si no tiene movimientos, es 0
         saldo_neto = mapa_saldos.get(cuenta.id, Decimal('0.00'))
         
         codigo = str(cuenta.codigo).strip()
         nombre = str(cuenta.nombre).strip().upper()
         
-        if codigo == '001' or 'ADMINISTRACIÓN' in nombre or 'ADMINISTRACION' in nombre:
+        # Filtros precisos para separar las cuentas del fondo de ahorros
+        if 'RESERVA' in nombre:
+            saldo_reserva += saldo_neto
+        elif 'DOLAR' in nombre or 'DÓLAR' in nombre:
+            saldo_dolares += saldo_neto
+        elif 'SALUD' in nombre or codigo == '008':
+            saldo_salud += saldo_neto
+        elif 'AHORRO' in nombre or codigo == '005':
+            saldo_ahorro += saldo_neto
+            
+        # Filtros precisos para las cuentas operativas
+        elif codigo == '001' or 'ADMINISTRACIÓN' in nombre or 'ADMINISTRACION' in nombre:
             saldo_admin += saldo_neto
         elif codigo == '002' or 'BANCO' in nombre:
             saldo_banco += saldo_neto
@@ -3087,14 +3097,6 @@ def arqueo_caja(request):
             saldo_caja_chica += saldo_neto
         elif codigo == '004' or 'GERENCIA' in nombre:
             saldo_gerencia += saldo_neto
-        elif codigo in ['005', '006', '007'] or 'AHORRO' in nombre:
-            saldo_ahorro += saldo_neto
-        elif codigo == '008' or 'SALUD' in nombre:
-            saldo_salud += saldo_neto
-        elif codigo == '009' or 'RESERVA' in nombre:
-            saldo_reserva += saldo_neto
-        elif codigo == '010' or 'DOLAR' in nombre or 'DÓLAR' in nombre:
-            saldo_dolares += saldo_neto
 
     if request.method == 'POST':
         cuenta_seleccionada = request.POST.get('cuenta_arqueo')
@@ -3114,7 +3116,7 @@ def arqueo_caja(request):
         messages.success(request, f'¡Arqueo de {cuenta_seleccionada} guardado correctamente!')
         return redirect('arqueo_caja')
 
-    # 5. Enviamos todo sincronizado al HTML
+    # 5. Enviamos todo sincronizado y separado al HTML
     return render(request, 'arqueo.html', {
         'saldo_admin': saldo_admin,
         'saldo_banco': saldo_banco,
