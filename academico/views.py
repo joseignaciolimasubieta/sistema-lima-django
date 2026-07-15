@@ -5,8 +5,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-#from xhtml2pdf import pisa
-#from weasyprint import HTML
+from xhtml2pdf import pisa
+from weasyprint import HTML
 from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
@@ -1556,32 +1556,60 @@ def editar_servicio(request, servicio_id):
         # --- CASO A: EL USUARIO PRESIONÓ "ELIMINAR REGISTRO" ---
         if 'eliminar' in request.POST:
             servicio.delete()
-            # ¡NUEVO! Dispara la ventanita roja
             messages.success(request, 'El registro fue eliminado y el dinero retornó al flujo de caja correctamente.')
             return redirect('consultora')
 
         # --- CASO B: EL USUARIO PRESIONÓ "HECHO" (GUARDAR CAMBIOS) ---
-        form = ServicioConsultoraForm(request.POST, request.FILES, instance=servicio)
+        post_data = request.POST.copy()
+        es_expreso = post_data.get('es_expreso') == 'on'
+
+        # Si marcamos como expreso, limpiamos el cliente para que el formulario no exija uno de la BD
+        if es_expreso:
+            post_data['cliente'] = ''
+            
+        form = ServicioConsultoraForm(post_data, request.FILES, instance=servicio)
+        
         if form.is_valid():
             servicio_guardado = form.save(commit=False)
             
+            # --- LÓGICA INTELIGENTE DE CLIENTE ---
+            if es_expreso:
+                servicio_guardado.cliente = None
+                servicio_guardado.es_cliente_expreso = True
+                servicio_guardado.cliente_expreso_nombre = post_data.get('nombre_expreso', '').strip().upper()
+                servicio_guardado.cliente_expreso_nit = post_data.get('nit_expreso', '').strip()
+            else:
+                cliente_id = post_data.get('cliente')
+                if cliente_id:
+                    servicio_guardado.cliente = Cliente.objects.get(id=cliente_id)
+                servicio_guardado.es_cliente_expreso = False
+                servicio_guardado.cliente_expreso_nombre = ''
+                servicio_guardado.cliente_expreso_nit = ''
+            
             # Recalculamos el 20% por si el usuario modificó el importe
             if servicio_guardado.importe:
+                from decimal import Decimal
                 servicio_guardado.comision = servicio_guardado.importe * Decimal('0.20')
             else:
+                from decimal import Decimal
                 servicio_guardado.comision = Decimal('0.00')
                 
             servicio_guardado.save()
-            # ¡NUEVO! Dispara la ventanita azul
             messages.success(request, 'El trámite contable fue actualizado con éxito.')
             return redirect('consultora')
+        else:
+            messages.error(request, 'Ocurrió un error al guardar. Verifica los datos ingresados.')
     else:
         # Cargamos el formulario con los datos actuales del servicio
         form = ServicioConsultoraForm(instance=servicio)
 
+    # Enviamos TODOS los clientes a la vista para poder mostrarlos en el buscador manual
+    clientes_bd = Cliente.objects.all().order_by('nombre_contribuyente')
+
     return render(request, 'editar_servicio.html', {
         'form': form,
-        'servicio': servicio
+        'servicio': servicio,
+        'clientes': clientes_bd
     })
 
 @login_required

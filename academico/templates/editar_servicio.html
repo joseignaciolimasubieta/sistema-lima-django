@@ -30,14 +30,34 @@
                 1. Contribuyente / Cliente Asignado
             </h3>
 
-            <div class="space-y-2">
-                <select name="cliente" id="id_cliente" required class="w-full">
-                    {% for option in form.cliente.field.queryset %}
-                        <option value="{{ option.id }}" {% if form.cliente.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
-                            {{ option.nombre_contribuyente }} {% if option.nit %}(NIT: {{ option.nit }}){% endif %}
-                        </option>
+            <div class="col-span-1 md:col-span-2 mb-2 flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                <input type="checkbox" id="check_expreso" name="es_expreso" {% if servicio.es_cliente_expreso %}checked{% endif %} class="w-4 h-4 text-[#0071e3] border-gray-300 rounded focus:ring-[#0071e3] cursor-pointer">
+                <label for="check_expreso" class="text-[10px] font-black text-gray-700 uppercase tracking-widest cursor-pointer">
+                    ¿Es un Cliente Expreso?
+                </label>
+            </div>
+
+            <div id="contenedor_cliente_regular" class="space-y-2 col-span-1 md:col-span-2 {% if servicio.es_cliente_expreso %}hidden{% endif %}">
+                <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest">Cliente de la Base de Datos</label>
+                <select name="cliente" id="cliente_id" class="custom-input">
+                    <option value="" disabled>SELECCIONA UN CLIENTE...</option>
+                    {% for c in clientes %}
+                    <option value="{{ c.id }}" {% if servicio.cliente and servicio.cliente.id == c.id %}selected{% endif %}>
+                        {{ c.nombre_contribuyente }}
+                    </option>
                     {% endfor %}
                 </select>
+            </div>
+
+            <div id="contenedor_cliente_expreso" class="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-amber-50 border border-amber-100 rounded-2xl {% if not servicio.es_cliente_expreso %}hidden{% endif %}">
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-amber-700 uppercase tracking-widest">Nombre (Expreso)</label>
+                    <input type="text" name="nombre_express" value="{{ servicio.cliente_expreso_nombre|default:'' }}" class="custom-input uppercase">
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-[10px] font-black text-amber-700 uppercase tracking-widest">NIT (Expreso)</label>
+                    <input type="text" name="nit_express" value="{{ servicio.cliente_expreso_nit|default:'' }}" class="custom-input">
+                </div>
             </div>
         </div>
 
@@ -205,6 +225,19 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const checkExpreso = document.getElementById('check_expreso');
+        const contRegular = document.getElementById('contenedor_cliente_regular');
+        const contExpreso = document.getElementById('contenedor_cliente_expreso');
+
+        checkExpreso.addEventListener('change', function() {
+            if (this.checked) {
+                contRegular.classList.add('hidden');
+                contExpreso.classList.remove('hidden');
+            } else {
+                contRegular.classList.remove('hidden');
+                contExpreso.classList.add('hidden');
+            }
+        });
         
         // 1. Calendarios
         flatpickr("#id_fecha", {
