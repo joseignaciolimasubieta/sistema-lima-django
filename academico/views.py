@@ -3462,13 +3462,16 @@ def eliminar_anticipo(request, anticipo_id):
 @login_required
 @user_passes_test(es_administrador)
 def eliminar_afiche_marketing(request, curso_id):
-    import os
     curso = get_object_or_404(Curso, id=curso_id)
     
     if curso.imagen_publicidad:
-        # 1. Borramos el archivo físico de la carpeta del servidor
-        if os.path.isfile(curso.imagen_publicidad.path):
-            os.remove(curso.imagen_publicidad.path)
+        try:
+            # 1. Eliminamos el archivo usando el método nativo en la nube de Django
+            # (Reemplazamos import os y os.path que causaban el Error 500 en Render)
+            curso.imagen_publicidad.delete(save=False)
+        except Exception as e:
+            # Si ocurre algún fallo o la imagen ya no existe físicamente, lo ignoramos amablemente
+            pass
             
         # 2. Vaciamos el campo en la base de datos
         curso.imagen_publicidad = None
