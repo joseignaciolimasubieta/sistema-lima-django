@@ -158,13 +158,41 @@
                         Conteo de Billetes USD
                     </h3>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {% for corte in "100,50,20,10,5,2,1"|split:"," %}
                         <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
-                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete ${{ corte }}</label>
-                            <input type="number" min="0" name="u{{ corte }}" id="u{{ corte }}" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
-                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u{{ corte }}">$us. 0.00</div>
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $100</label>
+                            <input type="number" min="0" name="u100" id="u100" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u100">$us. 0.00</div>
                         </div>
-                        {% endfor %}
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $50</label>
+                            <input type="number" min="0" name="u50" id="u50" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u50">$us. 0.00</div>
+                        </div>
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $20</label>
+                            <input type="number" min="0" name="u20" id="u20" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u20">$us. 0.00</div>
+                        </div>
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $10</label>
+                            <input type="number" min="0" name="u10" id="u10" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u10">$us. 0.00</div>
+                        </div>
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $5</label>
+                            <input type="number" min="0" name="u5" id="u5" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u5">$us. 0.00</div>
+                        </div>
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $2</label>
+                            <input type="number" min="0" name="u2" id="u2" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u2">$us. 0.00</div>
+                        </div>
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete $1</label>
+                            <input type="number" min="0" name="u1" id="u1" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u1">$us. 0.00</div>
+                        </div>
                     </div>
                 </div>
 
