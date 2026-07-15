@@ -164,6 +164,11 @@ AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
 # Evita que un archivo nuevo sobreescriba uno viejo si tienen el mismo nombre
 AWS_S3_FILE_OVERWRITE = False
 
+# --- NUEVAS LÍNEAS PARA ARREGLAR LA DESCARGA PÚBLICA ---
+AWS_QUERYSTRING_AUTH = False
+AWS_S3_CUSTOM_DOMAIN = 'dnvbtrxvzkksiyyzxmae.supabase.co/storage/v1/object/public/lima-media'
+# -------------------------------------------------------
+
 # Si estás usando Django 4.2 o superior, esta es la forma moderna de declararlo:
 if AWS_ACCESS_KEY_ID: # Solo usa la nube si las llaves existen
     STORAGES = {
