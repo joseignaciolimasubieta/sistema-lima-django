@@ -220,7 +220,10 @@ class Cliente(models.Model):
 
 class ServicioConsultora(models.Model):
     fecha = models.DateField()
-    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, verbose_name="Cliente")
+    cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, verbose_name="Cliente", null=True, blank=True)
+    es_cliente_expreso = models.BooleanField(default=False)
+    cliente_expreso_nombre = models.CharField(max_length=255, null=True, blank=True)
+    cliente_expreso_nit = models.CharField(max_length=50, null=True, blank=True)
     servicio = models.CharField(max_length=100)
     periodo = models.CharField(max_length=100, blank=True, null=True)
     factura = models.CharField(max_length=100, blank=True, null=True)
@@ -231,6 +234,11 @@ class ServicioConsultora(models.Model):
     contador = models.ForeignKey('Contador', on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Contador Asignado")
     comision = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     observaciones = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        if self.es_cliente_expreso:
+            return f"Servicio Expreso - {self.cliente_expreso_nombre}"
+        return f"Servicio - {self.cliente.nombre if self.cliente else 'Sin Cliente'}"
 
     # ==============================================================
     # --- CEREBRO AUTOCURABLE PARA EL FLUJO DE CAJA (NUEVO) ---
@@ -338,6 +346,7 @@ class Honorario(models.Model):
 
     def __str__(self):
         return f"Honorario: {self.curso.nombre} - {self.monto_acordado} Bs."
+    
 
 class Empleado(models.Model):
     SEXO_CHOICES = [

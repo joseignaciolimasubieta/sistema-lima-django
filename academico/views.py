@@ -5,8 +5,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-from xhtml2pdf import pisa
-from weasyprint import HTML
+#from xhtml2pdf import pisa
+#from weasyprint import HTML
 from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
@@ -743,51 +743,40 @@ def crear_servicio(request):
         nombre_express = post_data.get('nombre_express')
         cliente_id = post_data.get('cliente')
         
-        # 1. LÓGICA EXPRESS DE CLIENTES
+        es_expreso = False
+        nit_express = ''
+        
+        # 1. LÓGICA EXPRESS REESCRITA (NO CREA CLIENTE EN BD)
         if nombre_express and nombre_express.strip() != '':
+            es_expreso = True
             nit_express = post_data.get('nit_express', '').strip()
-            celular_express = post_data.get('celular_express', '').strip()
-            
-            try:
-                nuevo_cliente = Cliente.objects.create(
-                    nombre=nombre_express.strip().upper(),
-                    nit=nit_express if nit_express else None,
-                    celular=celular_express if celular_express else None
-                )
-            except TypeError:
-                try:
-                    nuevo_cliente = Cliente.objects.create(
-                        razon_social=nombre_express.strip().upper(),
-                        nit=nit_express if nit_express else None,
-                        celular=celular_express if celular_express else None
-                    )
-                except TypeError:
-                    nuevo_cliente = Cliente.objects.create(
-                        nombre_contribuyente=nombre_express.strip().upper(),
-                        nit=nit_express if nit_express else None,
-                        celular=celular_express if celular_express else None
-                    )
-            
-            cliente_id = nuevo_cliente.id
-            post_data['cliente'] = str(cliente_id)
+            # Limpiamos el cliente_id para que el formulario no exija uno de la BD
+            post_data['cliente'] = '' 
+        else:
+            if not cliente_id or str(cliente_id).strip() == '':
+                messages.error(request, 'Debe seleccionar un cliente de la lista o escribir los datos de uno nuevo.')
+                return redirect('crear_servicio')
 
-        if not cliente_id or str(cliente_id).strip() == '':
-            messages.error(request, 'Debe seleccionar un cliente de la lista o escribir los datos de uno nuevo.')
-            return redirect('crear_servicio')
-
-        # --- NUEVO: INYECCIÓN DE COMISIÓN PARA PASAR LA VALIDACIÓN ---
-        # Engañamos a Django poniendo un 0. El 20% real se calculará en models.py
+        # Engañamos a la validación de comisión inicial
         if 'comision' not in post_data or not post_data['comision']:
             post_data['comision'] = '0'
 
-        # 3. BLINDAJE DE GUARDADO
+        # 2. BLINDAJE DE GUARDADO
         form = ServicioConsultoraForm(post_data, request.FILES)
         if form.is_valid():
             servicio = form.save(commit=False)
-            servicio.cliente = Cliente.objects.get(id=int(cliente_id))
-            servicio.save() # Aquí ocurre la magia del 20% de models.py
             
-            messages.success(request, 'Servicio/Consulta registrado exitosamente.')
+            if es_expreso:
+                servicio.cliente = None  # No lo vinculamos a la BD de clientes
+                servicio.es_cliente_expreso = True
+                servicio.cliente_expreso_nombre = nombre_express.strip().upper()
+                servicio.cliente_expreso_nit = nit_express
+            else:
+                servicio.cliente = Cliente.objects.get(id=int(cliente_id))
+                servicio.es_cliente_expreso = False
+                
+            servicio.save() 
+            messages.success(request, 'Servicio/Consulta registrado exitosamente como cliente expreso.')
             return redirect('consultora')
         else:
             messages.error(request, 'Ocurrió un error al guardar. Verifique los datos ingresados.')

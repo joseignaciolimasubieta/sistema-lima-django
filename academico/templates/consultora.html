@@ -131,10 +131,20 @@
                         </td>
                         
                         <td class="py-4 px-4 text-left">
-                            <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight leading-tight uppercase">{{ s.cliente }}</div>
-                            <div class="text-[10px] text-gray-500 group-hover:text-blue-100 transition-colors font-medium mt-1 tracking-wider uppercase">
-                                NIT: {{ s.cliente.nit|default:"-" }} | CEL: {{ s.cliente.celular|default:"-" }}
-                            </div>
+                            {% if s.es_cliente_expreso %}
+                                <div class="font-black text-amber-600 group-hover:text-amber-300 transition-colors text-sm uppercase mb-1 flex items-center gap-2">
+                                    {{ s.cliente_expreso_nombre }}
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 text-[8px] tracking-widest border border-amber-200">EXPRESO</span>
+                                </div>
+                                <div class="text-[9px] font-black text-gray-400 group-hover:text-blue-100 transition-colors uppercase tracking-widest">
+                                    NIT: {{ s.cliente_expreso_nit|default:"S/N" }}
+                                </div>
+                            {% else %}
+                                <div class="font-bold text-black group-hover:text-white transition-colors text-sm tracking-tight leading-tight uppercase">{{ s.cliente.nombre_contribuyente }}</div>
+                                <div class="text-[10px] text-gray-500 group-hover:text-blue-100 transition-colors font-medium mt-1 tracking-wider uppercase">
+                                    NIT: {{ s.cliente.nit|default:"-" }} | CEL: {{ s.cliente.celular|default:"-" }}
+                                </div>
+                            {% endif %}
                         </td>
                         
                         <td class="py-4 px-4 text-left whitespace-nowrap">
