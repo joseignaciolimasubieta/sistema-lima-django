@@ -5,8 +5,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from django.template.loader import get_template
-from xhtml2pdf import pisa
-from weasyprint import HTML
+#from xhtml2pdf import pisa
+#from weasyprint import HTML
 from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
