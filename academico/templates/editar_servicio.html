@@ -171,11 +171,14 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Contador(a) Asignado <span class="text-rose-500"></span></label>
-                        <select name="contador" id="id_contador" required class="w-full">
-                            {% for option in form.contador.field.queryset %}
-                                <option value="{{ option.id }}" {% if form.contador.value|stringformat:"s" == option.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ option.nombre_completo }}
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            Contador Asignado
+                        </label>
+                        <select name="contador" id="id_contador" class="custom-input">
+                            <option value="" {% if not servicio.contador %}selected{% endif %}>SIN ASIGNAR</option>
+                            {% for contador in form.fields.contador.queryset %}
+                                <option value="{{ contador.id }}" {% if servicio.contador.id == contador.id %}selected{% endif %}>
+                                    {{ contador.nombre_completo }}
                                 </option>
                             {% endfor %}
                         </select>
