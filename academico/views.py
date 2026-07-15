@@ -2447,7 +2447,19 @@ def editar_prestamo(request, prestamo_id):
         aumento_interes = Decimal(request.POST.get('aumento_interes', '0').strip() or '0')
         nueva_fecha = request.POST.get('fecha_prestamo')
         cuenta_id = request.POST.get('cuenta_origen_id')
-        fecha_ampliacion = request.POST.get('fecha_ampliacion') # <-- NUEVO: Atrapamos la fecha de la ampliación
+        fecha_ampliacion = request.POST.get('fecha_ampliacion') 
+
+        # --- NUEVO: DEFINIR QUIÉN ES EL DEUDOR (EMPLEADO O EXTERNO) ---
+        if prestamo.empleado:
+            nombre_deudor = prestamo.empleado.nombre_completo
+        else:
+            nombre_ext = request.POST.get('nombre_externo', '')
+            nombre_deudor = nombre_ext.upper() if nombre_ext else prestamo.nombre_externo
+            
+            # Guardamos los datos actualizados del externo
+            prestamo.nombre_externo = nombre_deudor
+            prestamo.celular_externo = request.POST.get('celular_externo', prestamo.celular_externo)
+        # -------------------------------------------------------------
 
         # El préstamo principal se queda con la fecha de reajuste general
         prestamo.fecha_prestamo = nueva_fecha
@@ -2472,15 +2484,15 @@ def editar_prestamo(request, prestamo_id):
                 fecha_asiento = fecha_ampliacion if fecha_ampliacion else nueva_fecha
                 
                 MovimientoCaja.objects.create(
-                    fecha=fecha_asiento, # <-- Aplica la fecha del nuevo desembolso al flujo de caja
-                    detalle=f"Ampliación Préstamo: {prestamo.empleado.nombre_completo}",
+                    fecha=fecha_asiento, 
+                    detalle=f"Ampliación Préstamo: {nombre_deudor}", # <--- AHORA USA LA VARIABLE INTELIGENTE
                     cuenta=cuenta_origen,
                     tipo='SALIDA',
                     monto=aumento_capital
                 )
             messages.success(request, f'Ampliación registrada con éxito. Se asentó la salida de Bs. {aumento_capital} en el flujo con fecha {fecha_asiento}.')
         else:
-            messages.success(request, f'Condiciones del préstamo de {prestamo.empleado.nombre_completo} actualizadas con éxito.')
+            messages.success(request, f'Condiciones del préstamo de {nombre_deudor} actualizadas con éxito.') # <--- AHORA USA LA VARIABLE INTELIGENTE
         
         if prestamo.saldo_restante <= 0:
             prestamo.estado = 'PAGADO'
