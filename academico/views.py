@@ -3057,6 +3057,8 @@ def arqueo_caja(request):
     saldo_gerencia = Decimal('0.00')
     saldo_ahorro = Decimal('0.00')
     saldo_salud = Decimal('0.00')
+    saldo_reserva = Decimal('0.00') # <--- NUEVO
+    saldo_dolares = Decimal('0.00') # <--- NUEVO
 
     # 3. Clasificamos el dinero vivo según su código o nombre
     for t in totales_bd:
@@ -3079,16 +3081,19 @@ def arqueo_caja(request):
             saldo_ahorro += saldo_neto
         elif codigo == '008' or 'SALUD' in nombre:
             saldo_salud += saldo_neto
+        elif codigo == '009' or 'RESERVA' in nombre: # <--- NUEVO
+            saldo_reserva += saldo_neto
+        elif codigo == '010' or 'DOLAR' in nombre or 'DÓLAR' in nombre: # <--- NUEVO
+            saldo_dolares += saldo_neto
 
     if request.method == 'POST':
-        # 1. Capturamos lo que el usuario envió en el formulario HTML
+        # (El bloque de guardado POST se mantiene exactamente igual que antes)
         cuenta_seleccionada = request.POST.get('cuenta_arqueo')
         saldo_en_sistema = request.POST.get('saldo_sistema')
         total_contado = request.POST.get('total_fisico_oculto')
         diferencia_final = request.POST.get('diferencia_oculta')
         obs = request.POST.get('observaciones')
 
-        # 2. Lo guardamos en el historial oficial de arqueos
         ArqueoCaja.objects.create(
             usuario=request.user,
             cuenta=cuenta_seleccionada,
@@ -3097,8 +3102,6 @@ def arqueo_caja(request):
             diferencia=diferencia_final,
             observaciones=obs
         )
-
-        # 3. Mostramos el mensaje y recargamos
         messages.success(request, f'¡Arqueo de {cuenta_seleccionada} guardado correctamente!')
         return redirect('arqueo_caja')
 
@@ -3109,6 +3112,8 @@ def arqueo_caja(request):
         'saldo_gerencia': saldo_gerencia,
         'saldo_ahorro': saldo_ahorro,
         'saldo_salud': saldo_salud,
+        'saldo_reserva': saldo_reserva, # <--- ENVIAMOS AL HTML
+        'saldo_dolares': saldo_dolares, # <--- ENVIAMOS AL HTML
     })
 @login_required
 @user_passes_test(es_administrador)

@@ -872,7 +872,11 @@ class ArqueoCaja(models.Model):
         ('GERENCIA', 'Gerencia (Efectivo)'),
         ('AHORRO', 'Ahorro (Efectivo)'),
         ('BANCO', 'Banco (Extracto)'),
+        ('SALUD', 'Salud (Extracto)'),
+        ('RESERVA', 'Reserva (Extracto)'),        # <--- NUEVO
+        ('DOLARES', 'Dólares (Efectivo USD)'),    # <--- NUEVO
     ]
+    # ... el resto de la clase queda igual ...
 
     fecha_registro = models.DateTimeField(auto_now_add=True) # Guarda la fecha y hora exacta
     usuario = models.ForeignKey(User, on_delete=models.PROTECT) # Quién hizo el arqueo

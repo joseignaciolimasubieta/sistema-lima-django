@@ -145,10 +145,66 @@
                 <div class="bg-blue-50/50 p-8 rounded-3xl border border-blue-100 text-center">
                     <label class="block text-xs font-bold text-[#0071e3] uppercase tracking-widest mb-4">Total según Extracto Bancario</label>
                     <div class="relative max-w-sm mx-auto flex items-center">
-                        <span class="absolute left-6 text-gray-500 font-black text-2xl">Bs.</span>
+                        <span class="absolute left-6 text-gray-500 font-black text-2xl" id="simbolo_banco">Bs.</span>
                         <input type="number" step="0.01" min="0" name="total_banco_input" id="total_banco_input" class="w-full bg-white border border-[#0071e3]/30 rounded-2xl py-6 pr-6 pl-16 text-3xl md:text-4xl font-black text-right text-black outline-none focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/20 transition-all shadow-sm" placeholder="0.00">
                     </div>
                     <p class="text-[10px] font-semibold text-gray-400 mt-4 uppercase tracking-widest">Ingrese el saldo final que indica la entidad financiera.</p>
+                </div>
+            </div>
+            <div id="panel_dolares" class="hidden space-y-8 transition-all duration-300">
+                <div class="bg-white rounded-[2rem] p-8 border border-gray-200 shadow-sm">
+                    <h3 class="text-sm font-black text-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                        Conteo de Billetes USD
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {% for corte in "100,50,20,10,5,2,1"|split:"," %}
+                        <div class="bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100 hover:border-emerald-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Billete ${{ corte }}</label>
+                            <input type="number" min="0" name="u{{ corte }}" id="u{{ corte }}" class="input-dolares w-full bg-white border border-emerald-200 rounded-xl px-3 py-2 text-xl font-black text-right text-emerald-700 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-emerald-600" id="sub_u{{ corte }}">$us. 0.00</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] p-8 border border-gray-200 shadow-sm">
+                    <h3 class="text-sm font-black text-black uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                        Conteo de Monedas (Cents)
+                    </h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Moneda $1.00</label>
+                            <input type="number" min="0" name="c100" id="c100" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c100">$us. 0.00</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Half Dollar 50¢</label>
+                            <input type="number" min="0" name="c50" id="c50" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c50">$us. 0.00</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Quarter 25¢</label>
+                            <input type="number" min="0" name="c25" id="c25" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c25">$us. 0.00</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Dime 10¢</label>
+                            <input type="number" min="0" name="c10" id="c10" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c10">$us. 0.00</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Nickel 5¢</label>
+                            <input type="number" min="0" name="c05" id="c05" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c05">$us. 0.00</div>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100 hover:border-amber-500/30 transition-colors">
+                            <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Penny 1¢</label>
+                            <input type="number" min="0" name="c01" id="c01" class="input-dolares w-full bg-white border border-gray-200 rounded-xl px-3 py-2 text-xl font-black text-right outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all" value="0">
+                            <div class="text-right mt-1.5 text-[10px] font-bold text-amber-600" id="sub_c01">$us. 0.00</div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -174,13 +230,15 @@
                             <label class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest block mb-2">Cuenta a Revisar</label>
                             <div class="relative">
                                 <select name="cuenta_arqueo" id="cuenta_arqueo" required class="w-full bg-[#1c1c1e] text-white border border-gray-700 rounded-xl pl-4 pr-10 py-3 text-sm font-bold outline-none focus:border-[#0071e3] transition-all appearance-none cursor-pointer">
-                                    <option value="" data-saldo="0.00" disabled selected>SELECCIONA LA CUENTA...</option>
-                                    <option value="ADMINISTRACION" data-saldo="{{ saldo_admin|default:'0.00' }}">ADMINISTRACION (EFECTIVO)</option>
-                                    <option value="CAJA_CHICA" data-saldo="{{ saldo_caja_chica|default:'0.00' }}">CAJA CHICA (EFECTIVO)</option>
-                                    <option value="GERENCIA" data-saldo="{{ saldo_gerencia|default:'0.00' }}">GERENCIA (EFECTIVO)</option>
-                                    <option value="AHORRO" data-saldo="{{ saldo_ahorro|default:'0.00' }}">AHORRO (EFECTIVO)</option>
-                                    <option value="BANCO" data-saldo="{{ saldo_banco|default:'0.00' }}">BANCO (EXTRACTO)</option>
-                                    <option value="SALUD" data-saldo="{{ saldo_salud|default:'0.00' }}">SALUD (EXTRACTO)</option>
+                                    <option value="" data-saldo="0.00" data-tipo="ninguno" data-moneda="Bs." disabled selected>SELECCIONA LA CUENTA...</option>
+                                    <option value="ADMINISTRACION" data-saldo="{{ saldo_admin|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">ADMINISTRACION (EFECTIVO)</option>
+                                    <option value="CAJA_CHICA" data-saldo="{{ saldo_caja_chica|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">CAJA CHICA (EFECTIVO)</option>
+                                    <option value="GERENCIA" data-saldo="{{ saldo_gerencia|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">GERENCIA (EFECTIVO)</option>
+                                    <option value="AHORRO" data-saldo="{{ saldo_ahorro|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">AHORRO (EFECTIVO)</option>
+                                    <option value="BANCO" data-saldo="{{ saldo_banco|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">BANCO (EXTRACTO)</option>
+                                    <option value="SALUD" data-saldo="{{ saldo_salud|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">SALUD (EXTRACTO)</option>
+                                    <option value="RESERVA" data-saldo="{{ saldo_reserva|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">RESERVA (EXTRACTO)</option>
+                                    <option value="DOLARES" data-saldo="{{ saldo_dolares|default:'0.00' }}" data-tipo="dolares" data-moneda="$us.">CUENTA DÓLARES (EFECTIVO USD)</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -194,7 +252,7 @@
                                 <svg class="w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                             </label>
                             <div class="relative flex items-center">
-                                <span class="absolute left-0 text-gray-300 font-black text-2xl">Bs.</span>
+                                <span class="absolute left-0 text-gray-300 font-black text-2xl" id="simbolo_sistema">Bs.</span>
                                 <input type="number" step="0.01" id="saldo_sistema" name="saldo_sistema" value="0.00" readonly class="w-full bg-transparent border-none text-white text-2xl md:text-3xl font-black text-right outline-none pl-10 cursor-not-allowed opacity-90">
                             </div>
                         </div>
@@ -230,18 +288,25 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const valoresMoneda = {
+        const valoresEfectivo = {
             'b200': 200, 'b100': 100, 'b50': 50, 'b20': 20, 'b10': 10,
             'm5': 5, 'm2': 2, 'm1': 1, 'm050': 0.50, 'm020': 0.20, 'm010': 0.10
         };
 
+        const valoresDolares = {
+            'u100': 100, 'u50': 50, 'u20': 20, 'u10': 10, 'u5': 5, 'u2': 2, 'u1': 1,
+            'c100': 1, 'c50': 0.50, 'c25': 0.25, 'c10': 0.10, 'c05': 0.05, 'c01': 0.01
+        };
+
         const inputsEfectivo = document.querySelectorAll('.input-arqueo');
+        const inputsDolares = document.querySelectorAll('.input-dolares');
         const inputSistema = document.getElementById('saldo_sistema');
         const inputBanco = document.getElementById('total_banco_input');
         const selectCuenta = document.getElementById('cuenta_arqueo');
         
         const panelEfectivo = document.getElementById('panel_efectivo');
         const panelBanco = document.getElementById('panel_banco');
+        const panelDolares = document.getElementById('panel_dolares');
         
         const uiTotalFisico = document.getElementById('total_fisico');
         const uiTxtTotalFisico = document.getElementById('txt_total_fisico');
@@ -251,39 +316,55 @@
         const uiValDiferencia = document.getElementById('val_diferencia');
         const uiTxtLabelDif = document.getElementById('txt_diferencia_label');
 
+        const simSistema = document.getElementById('simbolo_sistema');
+        const simBanco = document.getElementById('simbolo_banco');
+
         function calcularArqueo() {
             let granTotal = 0;
-            const esBanco = selectCuenta.value === 'BANCO';
+            const option = selectCuenta.options[selectCuenta.selectedIndex];
+            const tipo = option ? option.getAttribute('data-tipo') : 'ninguno';
+            const moneda = option ? (option.getAttribute('data-moneda') || 'Bs.') : 'Bs.';
 
-            if (esBanco) {
+            // Actualiza Símbolos Visuales en la Interfaz a $us o Bs.
+            if(simSistema) simSistema.textContent = moneda;
+            if(simBanco) simBanco.textContent = moneda;
+
+            if (tipo === 'banco') {
                 granTotal = parseFloat(inputBanco.value) || 0;
-            } else {
+            } else if (tipo === 'dolares') {
+                inputsDolares.forEach(input => {
+                    const id = input.id;
+                    const cantidad = parseInt(input.value) || 0;
+                    const subtotal = cantidad * (valoresDolares[id] || 0);
+                    granTotal += subtotal;
+                    const elSub = document.getElementById(`sub_${id}`);
+                    if(elSub) elSub.textContent = `${moneda} ${subtotal.toFixed(2)}`;
+                });
+            } else { 
                 inputsEfectivo.forEach(input => {
                     const id = input.id;
                     const cantidad = parseInt(input.value) || 0;
-                    const multiplicador = valoresMoneda[id];
-                    const subtotal = cantidad * multiplicador;
-                    
+                    const subtotal = cantidad * (valoresEfectivo[id] || 0);
                     granTotal += subtotal;
-                    document.getElementById(`sub_${id}`).textContent = `Bs. ${subtotal.toFixed(2)}`;
+                    const elSub = document.getElementById(`sub_${id}`);
+                    if(elSub) elSub.textContent = `${moneda} ${subtotal.toFixed(2)}`;
                 });
             }
 
-            uiTotalFisico.textContent = `Bs. ${granTotal.toFixed(2)}`;
+            uiTotalFisico.textContent = `${moneda} ${granTotal.toFixed(2)}`;
 
             const saldoSistema = parseFloat(inputSistema.value) || 0;
             const diferencia = granTotal - saldoSistema;
 
-            uiValDiferencia.textContent = `Bs. ${Math.abs(diferencia).toFixed(2)}`;
-
+            uiValDiferencia.textContent = `${moneda} ${Math.abs(diferencia).toFixed(2)}`;
             document.getElementById('total_fisico_oculto').value = granTotal.toFixed(2);
             document.getElementById('diferencia_oculta').value = diferencia.toFixed(2);
 
             uiCajaDiferencia.classList.remove('bg-[#1c1c1e]', 'bg-rose-500/20', 'bg-emerald-500/20', 'border-gray-800', 'border-rose-500/50', 'border-emerald-500/50');
             uiValDiferencia.classList.remove('text-white', 'text-rose-400', 'text-emerald-400');
             
-            const palabraFalta = esBanco ? 'FALTANTE EN BANCO' : 'FALTANTE EN CAJA';
-            const palabraSobra = esBanco ? 'SOBRANTE EN BANCO' : 'SOBRANTE EN CAJA';
+            const palabraFalta = (tipo === 'banco') ? 'FALTANTE EN BANCO' : 'FALTANTE EN CAJA';
+            const palabraSobra = (tipo === 'banco') ? 'SOBRANTE EN BANCO' : 'SOBRANTE EN CAJA';
 
             if (selectCuenta.value === "") {
                 uiCajaDiferencia.classList.add('bg-[#1c1c1e]', 'border-gray-800');
@@ -307,19 +388,27 @@
         selectCuenta.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const saldoBackend = parseFloat(selectedOption.getAttribute('data-saldo')) || 0;
+            const tipo = selectedOption.getAttribute('data-tipo');
             
             inputSistema.value = saldoBackend.toFixed(2);
 
-            if (this.value === 'BANCO') {
-                panelEfectivo.classList.add('hidden');
+            // Ocultar todos los paneles
+            panelEfectivo.classList.add('hidden');
+            panelBanco.classList.add('hidden');
+            if(panelDolares) panelDolares.classList.add('hidden');
+
+            if (tipo === 'banco') {
                 panelBanco.classList.remove('hidden');
-                uiTxtTotalFisico.textContent = 'Saldo en Extracto Bancario';
+                uiTxtTotalFisico.textContent = 'Saldo en Extracto';
                 uiLabelObservaciones.textContent = 'Observaciones de Conciliación (Opcional)';
+            } else if (tipo === 'dolares') {
+                if(panelDolares) panelDolares.classList.remove('hidden');
+                uiTxtTotalFisico.textContent = 'Total Físico Dólares';
+                uiLabelObservaciones.textContent = 'Observaciones de Caja USD (Opcional)';
             } else {
                 panelEfectivo.classList.remove('hidden');
-                panelBanco.classList.add('hidden');
                 uiTxtTotalFisico.textContent = 'Total Físico Contado';
-                uiLabelObservaciones.textContent = 'Observaciones de Caja (Opcional)';
+                uiLabelObservaciones.textContent = 'Observaciones de Caja Bolivianos (Opcional)';
             }
             
             calcularArqueo();
@@ -330,8 +419,17 @@
             input.addEventListener('focus', function() { this.select(); });
         });
 
-        inputBanco.addEventListener('input', calcularArqueo);
-        inputBanco.addEventListener('focus', function() { this.select(); });
+        if(inputsDolares) {
+            inputsDolares.forEach(input => {
+                input.addEventListener('input', calcularArqueo);
+                input.addEventListener('focus', function() { this.select(); });
+            });
+        }
+
+        if(inputBanco) {
+            inputBanco.addEventListener('input', calcularArqueo);
+            inputBanco.addEventListener('focus', function() { this.select(); });
+        }
 
         calcularArqueo();
     });
