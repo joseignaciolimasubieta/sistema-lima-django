@@ -170,11 +170,11 @@
         <table class="info-table">
             <tr>
                 <td class="label">Recibido de:</td>
-                <td class="value">{{ empleado.nombre_completo|upper }}</td>
+                <td class="value">{{ nombre_deudor|upper }}</td>
             </tr>
             <tr>
-                <td class="label">Documento de Identidad:</td>
-                <td class="value">{{ empleado.ci }}</td>
+                <td class="label">Documento/Contacto:</td>
+                <td class="value">{{ documento_deudor }}</td>
             </tr>
             <tr>
                 <td class="label">Referencia del Crédito:</td>
@@ -213,8 +213,8 @@
                 <td width="50%">
                     <div class="sig-line">
                         <strong>Firma Conforme</strong><br>
-                        {{ empleado.nombre_completo|upper }}<br>
-                        C.I. {{ empleado.ci }}
+                        {{ nombre_deudor|upper }}<br>
+                        {{ documento_deudor }}
                     </div>
                 </td>
                 <td width="50%">

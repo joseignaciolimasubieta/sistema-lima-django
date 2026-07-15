@@ -2648,10 +2648,20 @@ def imprimir_recibo_pago(request, pago_id):
     prestamo = pago.prestamo
     saldo_anterior = prestamo.saldo_restante + pago.monto
     
+    # --- NUEVO: DEFINIR SI ES EMPLEADO O EXTERNO ---
+    if prestamo.empleado:
+        nombre_deudor = prestamo.empleado.nombre_completo
+        documento_deudor = f"C.I. {prestamo.empleado.ci}"
+    else:
+        nombre_deudor = prestamo.nombre_externo
+        documento_deudor = f"Celular: {prestamo.celular_externo}" if prestamo.celular_externo else "EXTERNO"
+    # ------------------------------------------------
+
     contexto = {
         'pago': pago,
         'prestamo': prestamo,
-        'empleado': prestamo.empleado,
+        'nombre_deudor': nombre_deudor,       # <--- Pasamos el nombre inteligente
+        'documento_deudor': documento_deudor, # <--- Pasamos el CI o Celular
         'empresa': empresa,
         'saldo_anterior': saldo_anterior,
         'nuevo_saldo': prestamo.saldo_restante,
