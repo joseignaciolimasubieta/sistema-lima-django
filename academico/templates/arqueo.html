@@ -259,14 +259,14 @@
                             <div class="relative">
                                 <select name="cuenta_arqueo" id="cuenta_arqueo" required class="w-full bg-[#1c1c1e] text-white border border-gray-700 rounded-xl pl-4 pr-10 py-3 text-sm font-bold outline-none focus:border-[#0071e3] transition-all appearance-none cursor-pointer">
                                     <option value="" data-saldo="0.00" data-tipo="ninguno" data-moneda="Bs." disabled selected>SELECCIONA LA CUENTA...</option>
-                                    <option value="ADMINISTRACION" data-saldo="{{ saldo_admin|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">ADMINISTRACION (EFECTIVO)</option>
-                                    <option value="CAJA_CHICA" data-saldo="{{ saldo_caja_chica|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">CAJA CHICA (EFECTIVO)</option>
-                                    <option value="GERENCIA" data-saldo="{{ saldo_gerencia|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">GERENCIA (EFECTIVO)</option>
-                                    <option value="AHORRO" data-saldo="{{ saldo_ahorro|default:'0.00' }}" data-tipo="efectivo" data-moneda="Bs.">AHORRO (EFECTIVO)</option>
-                                    <option value="BANCO" data-saldo="{{ saldo_banco|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">BANCO (EXTRACTO)</option>
-                                    <option value="SALUD" data-saldo="{{ saldo_salud|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">SALUD (EXTRACTO)</option>
-                                    <option value="RESERVA" data-saldo="{{ saldo_reserva|default:'0.00' }}" data-tipo="banco" data-moneda="Bs.">RESERVA (EXTRACTO)</option>
-                                    <option value="DOLARES" data-saldo="{{ saldo_dolares|default:'0.00' }}" data-tipo="dolares" data-moneda="$us.">CUENTA DÓLARES (EFECTIVO USD)</option>
+                                    <option value="ADMINISTRACION" data-saldo="{{ saldo_admin|stringformat:'.2f' }}" data-tipo="efectivo" data-moneda="Bs.">ADMINISTRACION (EFECTIVO)</option>
+                                    <option value="CAJA_CHICA" data-saldo="{{ saldo_caja_chica|stringformat:'.2f' }}" data-tipo="efectivo" data-moneda="Bs.">CAJA CHICA (EFECTIVO)</option>
+                                    <option value="GERENCIA" data-saldo="{{ saldo_gerencia|stringformat:'.2f' }}" data-tipo="efectivo" data-moneda="Bs.">GERENCIA (EFECTIVO)</option>
+                                    <option value="AHORRO" data-saldo="{{ saldo_ahorro|stringformat:'.2f' }}" data-tipo="efectivo" data-moneda="Bs.">AHORRO (EFECTIVO)</option>
+                                    <option value="BANCO" data-saldo="{{ saldo_banco|stringformat:'.2f' }}" data-tipo="banco" data-moneda="Bs.">BANCO (EXTRACTO)</option>
+                                    <option value="SALUD" data-saldo="{{ saldo_salud|stringformat:'.2f' }}" data-tipo="banco" data-moneda="Bs.">SALUD (EXTRACTO)</option>
+                                    <option value="RESERVA" data-saldo="{{ saldo_reserva|stringformat:'.2f' }}" data-tipo="banco" data-moneda="Bs.">RESERVA (EXTRACTO)</option>
+                                    <option value="DOLARES" data-saldo="{{ saldo_dolares|stringformat:'.2f' }}" data-tipo="dolares" data-moneda="$us.">CUENTA DÓLARES (EFECTIVO USD)</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
