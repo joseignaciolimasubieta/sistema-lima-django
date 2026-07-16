@@ -91,27 +91,27 @@
                             <!-- Menú fijo e infalible para los Empleados -->
                             {% for grupo in request.user.groups.all %}
                                 {% if grupo.name == 'Contabilidad' %}
-                                    <a href="{% url 'consultora' %}" class="apple-nav-link">Consultora Lima</a>
-                                    <a href="{% url 'citas_consultora' %}" class="apple-nav-link">Agenda de Citas</a>
-                                    <a href="{% url 'archivo_digital' %}" class="apple-nav-link">Archivo Digital</a>
+                                    <a href="{% url 'consultora' %}" class="apple-nav-link {% if 'consultora' in url_name or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
+                                    <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
+                                    <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
                                 {% endif %}
                                 
                                 {% if grupo.name == 'Caja' %}
-                                    <a href="{% url 'flujo_caja' %}" class="apple-nav-link">Flujo de Caja</a>
-                                    <a href="{% url 'arqueo_caja' %}" class="apple-nav-link">Arqueo de Caja</a>
+                                    <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
+                                    <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
                                 {% endif %}
 
                                 {% if grupo.name == 'Ventas' %}
-                                    <a href="{% url 'informacion_cursos' %}" class="apple-nav-link">Información de Cursos</a>
-                                    <a href="{% url 'inscripciones' %}" class="apple-nav-link">Inscripciones</a>
+                                    <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
+                                    <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name or 'cuentas_por_cobrar' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
                                 {% endif %}
 
                                 {% if grupo.name == 'Marketing' %}
-                                    <a href="{% url 'marketing' %}" class="apple-nav-link">Marketing</a>
+                                    <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
                                 {% endif %}
 
                                 {% if grupo.name == 'Certificados' %}
-                                    <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link">Certificados</a>
+                                    <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
                                 {% endif %}
                             {% endfor %}
                         {% endif %}
