@@ -391,10 +391,17 @@ def eliminar_curso(request, id):
     return redirect('cursos')
 @login_required
 def inscripciones(request):
+    hoy = date.today()
     buscar = request.GET.get('buscar', '')
     rango_fechas = request.GET.get('rango_fechas', '')
 
-    # 1. Inicializamos Queries (Sin descargar nada aún)
+    # 🚀 OPTIMIZACIÓN 1: El Escudo de Memoria
+    # Si entras a la página sin buscar nada, forzamos a cargar SOLO el mes actual.
+    # Esto reduce 400+ registros a unos pocos, cargando la página al instante.
+    if not buscar and not rango_fechas:
+        rango_fechas = hoy.strftime('%Y-%m')
+
+    # 1. Inicializamos Queries (Sin descargar nada de Supabase aún)
     lista = Inscripcion.objects.select_related('participante', 'curso').filter(saldo_pendiente=0)
     ventas_extra = VentaServicio.objects.select_related('participante').all()
 
@@ -411,7 +418,10 @@ def inscripciones(request):
             Q(tipo_servicio__icontains=buscar) |
             Q(detalle__icontains=buscar)
         )
-    # 3. Filtro de Fechas
+        # Limpiamos el rango para buscar en toda la historia sin conflicto
+        rango_fechas = ''
+        
+    # 3. Filtro de Fechas (Aplica el elegido por el usuario o el Mes Actual)
     elif rango_fechas:
         if ' a ' in rango_fechas:
             fecha_inicio, fecha_fin = rango_fechas.split(' a ')
@@ -427,32 +437,22 @@ def inscripciones(request):
         else:
             lista = lista.filter(fecha_inscripcion=rango_fechas)
             ventas_extra = ventas_extra.filter(fecha_venta=rango_fechas)
-    # OPTIMIZACIÓN CLAVE: Si no hay filtro, solo mostramos el MES ACTUAL para no colapsar la memoria
-    #else:
-        #hoy = datetime.date.today()
-        #lista = lista.filter(fecha_inscripcion__year=hoy.year, fecha_inscripcion__month=hoy.month)
-        #ventas_extra = ventas_extra.filter(fecha_venta__year=hoy.year, fecha_venta__month=hoy.month)
 
-    # Ordenamiento en RAM, pero ahora solo de unos pocos registros (Ultra Rápido)
-    def normalizar_fecha(obj):
-        fecha = obj.fecha_inscripcion if hasattr(obj, 'fecha_inscripcion') else obj.fecha_venta
-        return fecha.date() if isinstance(fecha, datetime.datetime) else (fecha or datetime.date.min)
+    # 🚀 OPTIMIZACIÓN 2: Límite de Resultados de Búsqueda
+    # Incluso si buscan algo muy genérico como "A", solo traemos las 100 coincidencias más recientes
+    if buscar:
+        lista = lista.order_by('-fecha_inscripcion', '-id')[:100]
+        ventas_extra = ventas_extra.order_by('-fecha_venta', '-id')[:100]
 
-    lista_combinada = sorted(chain(lista, ventas_extra), key=normalizar_fecha, reverse=False)
-
-    # 1. Ajusta la función normalizar_fecha para que incluya el ID como segundo criterio
+    # 4. Ordenamiento combinado en RAM ultrarrápido
     def criterio_ordenamiento(obj):
-        # Primero usamos la fecha
         fecha = obj.fecha_inscripcion if hasattr(obj, 'fecha_inscripcion') else obj.fecha_venta
         fecha_val = fecha.date() if isinstance(fecha, datetime.datetime) else (fecha or datetime.date.min)
-        
-        # Segundo usamos el ID (esto mantiene los registros de un mismo lote juntos)
         id_val = obj.id 
-        
         return (fecha_val, id_val)
 
-    # 2. Ordenamos usando este criterio combinado (reverse=True para ver lo más nuevo primero)
-    lista_combinada = sorted(chain(lista, ventas_extra), key=criterio_ordenamiento, reverse=False)
+    # 🚀 OPTIMIZACIÓN 3: Reverse=True para asegurar que las nuevas aparezcan arriba
+    lista_combinada = sorted(chain(lista, ventas_extra), key=criterio_ordenamiento, reverse=True)
 
     return render(request, 'inscripciones.html', {
         'lista_combinada': lista_combinada, 
