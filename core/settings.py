@@ -168,7 +168,10 @@ if AWS_ACCESS_KEY_ID: # Solo usa la nube si las llaves existen
     }
 
 # --- SEGURIDAD CSRF PARA RENDER / NUBE ---
-# Reemplaza la URL si tienes un dominio personalizado (ej: 'https://midominio.com')
+
 CSRF_TRUSTED_ORIGINS = [
     'https://grupo-empresarial-lima-django.onrender.com',
 ]
+
+# Ayuda a Django a entender que está detrás de un proxy seguro (HTTPS) en Render
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
