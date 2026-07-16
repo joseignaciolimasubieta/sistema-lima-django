@@ -922,15 +922,14 @@ class CitaConsultora(models.Model):
         return f"{self.nombre_cliente} - {self.fecha} {self.hora}"
     
 class ArchivoDigital(models.Model):
-    CATEGORIAS = [
-        ('FACTURAS', 'Facturas Emitidas'),
-        ('FORMULARIOS', 'Formularios y Declaraciones'),
-        ('PLANILLAS', 'Planillas Impositivas'),
-        ('OTROS', 'Otros Documentos'),
-    ]
-    periodo = models.CharField(max_length=20) # Guardará el formato '2026-06'
-    categoria = models.CharField(max_length=50, choices=CATEGORIAS)
-    enlace_drive = models.URLField(max_length=800) # Enlace directo a la carpeta
+    
+    # Nota: Le agregué null=True, blank=True a periodo porque vi que tu HTML no lo está enviando
+    periodo = models.CharField(max_length=20, null=True, blank=True) 
+    
+    # Quitamos choices=CATEGORIAS y aumentamos el tamaño para que entre cualquier texto
+    categoria = models.CharField(max_length=150) 
+    
+    enlace_drive = models.URLField(max_length=800)
     descripcion = models.CharField(max_length=200, blank=True, null=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
 
