@@ -3428,7 +3428,14 @@ def archivo_digital(request):
 @login_required
 def guardar_archivo(request):
     if request.method == 'POST':
+        # --- AQUÍ ESTÁ EL CAMBIO ---
+        # Usamos .strip().upper() para que siempre se guarde limpio y en mayúsculas
+        nombre_personalizado = request.POST.get('nombre_archivo', '').strip().upper()
+        
         ArchivoDigital.objects.create(
+            # Asegúrate de que el campo en tu modelo se llame 'nombre' 
+            # (o como lo tengas definido en models.py)
+            nombre=nombre_personalizado, 
             periodo=request.POST.get('periodo'),
             categoria=request.POST.get('categoria'),
             enlace_drive=request.POST.get('enlace_drive'),
