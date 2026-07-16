@@ -199,12 +199,14 @@ def dashboard(request):
     return render(request, 'dashboard.html', contexto)
 
 @login_required
+@user_passes_test(es_ventas)
 def participantes(request):
     # En lugar de traer todos, traemos los últimos 150 para que cargue al instante
     lista_participantes = Participante.objects.all().order_by('-id')[:150]
     return render(request, 'participantes.html', {'participantes': lista_participantes})
 
 @login_required
+@user_passes_test(es_ventas)
 def crear_participante(request):
     if request.method == 'POST':
         # Si el usuario envió datos, los validamos y guardamos
@@ -479,6 +481,7 @@ def inscripciones(request):
 
 
 @login_required
+@user_passes_test(es_ventas)
 def crear_inscripcion(request):
     if request.method == 'POST':
         # 1. Extraemos los datos del formulario HTML
@@ -692,7 +695,7 @@ def flujo_caja(request):
 
     return render(request, 'flujo_caja.html', contexto)
 @login_required
-@user_passes_test(es_administrador) # O los decoradores que ya tenías arriba de la función
+@user_passes_test(es_caja)
 def crear_movimiento(request):
     if request.method == 'POST':
         form = MovimientoCajaForm(request.POST)
@@ -1532,7 +1535,7 @@ def pagar_honorario(request, honorario_id):
     return response
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_caja)
 def editar_movimiento(request, movimiento_id):
     movimiento = get_object_or_404(MovimientoCaja, id=movimiento_id)
     cuentas = CuentaCaja.objects.all().order_by('codigo')
@@ -1657,6 +1660,8 @@ def portal_inicio(request):
     logout(request)
     return redirect('login')
 
+@login_required
+@user_passes_test(es_ventas)
 def editar_inscripcion(request, id):
     # 1. Buscamos el registro exacto en la base de datos
     inscripcion = get_object_or_404(Inscripcion, id=id)
@@ -1733,6 +1738,7 @@ def editar_inscripcion(request, id):
     return render(request, 'editar_inscripcion.html', context)
 
 @login_required
+@user_passes_test(es_ventas)
 def editar_inscripcion_cc(request, id):
     from decimal import Decimal
     from django.db.models import Case, When, Value, IntegerField
@@ -1797,6 +1803,8 @@ def editar_inscripcion_cc(request, id):
         'cursos': cursos
     })
 
+@login_required
+@user_passes_test(es_ventas)
 def eliminar_inscripcion(request, id):
     # 1. Buscamos el registro exacto
     inscripcion = get_object_or_404(Inscripcion, id=id)
@@ -1811,6 +1819,7 @@ def eliminar_inscripcion(request, id):
     return redirect('inscripciones')
 
 @login_required
+@user_passes_test(es_ventas)
 def crear_venta_servicio(request):
     if request.method == 'POST':
         # 1. Atrapamos los datos del cliente
@@ -1863,6 +1872,7 @@ def crear_venta_servicio(request):
     return render(request, 'crear_venta_servicio.html')
 
 @login_required
+@user_passes_test(es_ventas)
 def editar_venta_servicio(request, id):
     venta = get_object_or_404(VentaServicio, id=id)
     
@@ -1903,6 +1913,7 @@ def eliminar_venta_servicio(request, id):
 from django.shortcuts import get_object_or_404, redirect
 
 @login_required
+@user_passes_test(es_certificados)
 def generar_certificados_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
     
@@ -2747,6 +2758,7 @@ def eliminar_cliente(request, cliente_id):
         
     return redirect('crear_cliente')
 @login_required
+@user_passes_test(es_ventas)
 def cuentas_por_cobrar(request):
     # 1. Atrapamos los parámetros que envía el buscador del HTML
     buscar = request.GET.get('buscar', '').strip()
@@ -2781,7 +2793,7 @@ def cuentas_por_cobrar(request):
     })
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_ventas)
 def liquidar_saldo_inscripcion(request, id):
     # Importaciones explícitas dentro del entorno de la función para evitar NameErrors
     from datetime import date
@@ -2884,6 +2896,7 @@ def liquidar_saldo_inscripcion(request, id):
                 
     return redirect('inscripciones')
 @login_required
+@user_passes_test(es_ventas)
 def crear_inscripcion_cc(request):
     if request.method == 'POST':
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
@@ -3095,6 +3108,7 @@ def marketing(request):
     })
 
 @login_required
+@user_passes_test(es_caja)
 def arqueo_caja(request):
     from decimal import Decimal
     from django.db.models import Sum, Q
@@ -3219,6 +3233,7 @@ def eliminar_arqueo(request, arqueo_id):
     return redirect('historial_arqueos')
 
 @login_required
+@user_passes_test(es_certificados)
 def generar_certificado_individual(request, inscripcion_id):
     # Traemos solo a este alumno en específico
     inscrito = get_object_or_404(Inscripcion, id=inscripcion_id)
@@ -3294,6 +3309,7 @@ def lista_cursos_certificados(request):
     })
 
 @login_required
+@user_passes_test(es_certificados)
 def detalle_curso_certificados(request, curso_id):
     # ==============================================================
     # --- EDICIÓN RÁPIDA DE NOMBRES PARA CERTIFICADOS ---
@@ -3334,6 +3350,7 @@ def detalle_curso_certificados(request, curso_id):
     })
 
 @login_required
+@user_passes_test(es_ventas)
 def informacion_cursos(request):
     # 1. Traemos la fecha de hoy para calcular el mes y año actuales
     hoy = date.today()
@@ -3456,6 +3473,7 @@ def eliminar_archivo(request, archivo_id):
     return redirect('archivo_digital')
 
 @login_required
+@user_passes_test(es_certificados)
 def confirmar_envio_certificados(request, curso_id):
     if request.method == 'POST':
         curso = get_object_or_404(Curso, id=curso_id)
@@ -3520,7 +3538,7 @@ def eliminar_anticipo(request, anticipo_id):
         messages.success(request, 'Registro eliminado y el dinero retornó al Flujo de Caja.')
     return redirect('lista_anticipos')
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_marketing)
 def eliminar_afiche_marketing(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)
     
