@@ -35,6 +35,22 @@ from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, Mo
 def es_administrador(user):
        return user.is_superuser
 
+# --- NUEVOS GUARDIAS POR DEPARTAMENTO ---
+def es_ventas(user):
+    return user.is_superuser or user.groups.filter(name='Ventas').exists()
+
+def es_marketing(user):
+    return user.is_superuser or user.groups.filter(name='Marketing').exists()
+
+def es_caja(user):
+    return user.is_superuser or user.groups.filter(name='Caja').exists()
+
+def es_certificados(user):
+    return user.is_superuser or user.groups.filter(name='Certificados').exists()
+
+def es_contabilidad(user):
+    return user.is_superuser or user.groups.filter(name='Contabilidad').exists()
+
 @login_required
 def dashboard(request):
     hoy = date.today()
@@ -390,6 +406,7 @@ def eliminar_curso(request, id):
         
     return redirect('cursos')
 @login_required
+@user_passes_test(es_ventas)
 def inscripciones(request):
     hoy = date.today()
     buscar = request.GET.get('buscar', '')
@@ -579,7 +596,7 @@ def crear_inscripcion(request):
         return render(request, 'crear_inscripcion.html', {'cursos': cursos, 'hoy': hoy})
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_caja)
 def flujo_caja(request):
     rango_fechas = request.GET.get('rango_fechas', '')
     
@@ -692,6 +709,7 @@ def crear_movimiento(request):
     
     return render(request, 'crear_movimiento.html', {'form': form})
 @login_required
+@user_passes_test(es_contabilidad)
 def consultora(request):
     # Traemos todos los servicios
     servicios = ServicioConsultora.objects.select_related('cliente').all().order_by('-fecha')
@@ -2950,6 +2968,7 @@ def crear_inscripcion_cc(request):
     })
 
 @login_required
+@user_passes_test(es_marketing)
 def marketing(request):
     from datetime import date, timedelta
     
