@@ -1632,7 +1632,26 @@ def editar_servicio(request, servicio_id):
 
 @login_required
 def portal_inicio(request):
-    return render(request, 'portal.html')
+    user = request.user
+    
+    # 1. Si eres tú (el dueño), te manda directo al panel principal
+    if user.is_superuser:
+        return redirect('dashboard')
+        
+    # 2. Distribución inteligente para empleados
+    if user.groups.filter(name='Ventas').exists():
+        return redirect('inscripciones')
+    elif user.groups.filter(name='Marketing').exists():
+        return redirect('marketing')
+    elif user.groups.filter(name='Caja').exists():
+        return redirect('flujo_caja')
+    elif user.groups.filter(name='Certificados').exists():
+        return redirect('lista_cursos_certificados')
+        
+    # 3. Si un empleado no tiene grupos asignados aún, lo sacamos por seguridad
+    from django.contrib.auth import logout
+    logout(request)
+    return redirect('login')
 
 def editar_inscripcion(request, id):
     # 1. Buscamos el registro exacto en la base de datos
