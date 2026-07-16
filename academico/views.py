@@ -744,6 +744,7 @@ def consultora(request):
     return render(request, 'consultora.html', contexto)
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def eliminar_servicio(request, servicio_id):
     servicio = get_object_or_404(ServicioConsultora, id=servicio_id)
     try:
@@ -754,7 +755,7 @@ def eliminar_servicio(request, servicio_id):
     return redirect('consultora')
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_contabilidad) # <-- Cambiar a es_contabilidad
 def crear_servicio(request):
     if request.method == 'POST':
         post_data = request.POST.copy()
@@ -1565,7 +1566,7 @@ def editar_movimiento(request, movimiento_id):
     })
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_contabilidad) # <-- Cambiar a es_contabilidad
 def editar_servicio(request, servicio_id):
     # 1. Buscamos el servicio exacto
     servicio = get_object_or_404(ServicioConsultora, id=servicio_id)
@@ -1647,6 +1648,9 @@ def portal_inicio(request):
         return redirect('flujo_caja')
     elif user.groups.filter(name='Certificados').exists():
         return redirect('lista_cursos_certificados')
+    # 👇 ¡AQUÍ AGREGAMOS LA NUEVA REGLA PARA CONTABILIDAD!
+    elif user.groups.filter(name='Contabilidad').exists():
+        return redirect('consultora')
         
     # 3. Si un empleado no tiene grupos asignados aún, lo sacamos por seguridad
     from django.contrib.auth import logout
@@ -2300,7 +2304,7 @@ def editar_pago(request, pago_id):
         'editando': True
     })
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_contabilidad) # <-- Cambiar a es_contabilidad
 def crear_cliente(request):
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -2731,7 +2735,7 @@ def imprimir_recibo_pago(request, pago_id):
     return response
 
 @login_required
-@user_passes_test(es_administrador)
+@user_passes_test(es_contabilidad) # <-- Cambiar a es_contabilidad
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     try:
@@ -3374,6 +3378,7 @@ def informacion_cursos(request):
     })
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def citas_consultora(request):
     hoy = date.today()
     
@@ -3390,6 +3395,7 @@ def citas_consultora(request):
     })
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def guardar_cita(request):
     if request.method == 'POST':
         CitaConsultora.objects.create(
@@ -3405,6 +3411,7 @@ def guardar_cita(request):
     return redirect('citas_consultora')
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def cambiar_estado_cita(request, cita_id, nuevo_estado):
     cita = get_object_or_404(CitaConsultora, id=cita_id)
     if nuevo_estado in ['PENDIENTE', 'REALIZADA', 'CANCELADA']:
@@ -3414,6 +3421,7 @@ def cambiar_estado_cita(request, cita_id, nuevo_estado):
     return redirect('citas_consultora')
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def eliminar_cita(request, cita_id):
     cita = get_object_or_404(CitaConsultora, id=cita_id)
     cita.delete()
@@ -3421,11 +3429,13 @@ def eliminar_cita(request, cita_id):
     return redirect('citas_consultora')
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def archivo_digital(request):
     archivos = ArchivoDigital.objects.all().order_by('-periodo', 'categoria')
     return render(request, 'archivo_digital.html', {'archivos': archivos})
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def guardar_archivo(request):
     if request.method == 'POST':
         ArchivoDigital.objects.create(
@@ -3438,6 +3448,7 @@ def guardar_archivo(request):
     return redirect('archivo_digital')
 
 @login_required
+@user_passes_test(es_contabilidad) # <-- Agregar este escudo
 def eliminar_archivo(request, archivo_id):
     archivo = get_object_or_404(ArchivoDigital, id=archivo_id)
     archivo.delete()

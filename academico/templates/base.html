@@ -71,14 +71,6 @@
                                 <a href="{% url 'consultora' %}" class="apple-nav-link {% if 'consultora' in url_name or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
                                 <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                                 <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
-                            {% else %}
-                                {% for grupo in request.user.groups.all %}
-                                    {% if grupo.name == 'Contabilidad' %}
-                                        <a href="{% url 'consultora' %}" class="apple-nav-link {% if 'consultora' in url_name or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
-                                        <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
-                                        <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
-                                    {% endif %}
-                                {% endfor %}
                             {% endif %}
 
 
@@ -123,6 +115,12 @@
                                     
                                     {% if grupo.name == 'Certificados' %}
                                         <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                                    {% endif %}
+
+                                    {% if grupo.name == 'Contabilidad' %}
+                                        <a href="{% url 'consultora' %}" class="apple-nav-link">Consultora Lima</a>
+                                        <a href="{% url 'citas_consultora' %}" class="apple-nav-link">Agenda de Citas</a>
+                                        <a href="{% url 'archivo_digital' %}" class="apple-nav-link">Archivo Digital</a>
                                     {% endif %}
                                     
                                     
