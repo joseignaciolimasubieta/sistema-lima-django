@@ -158,11 +158,11 @@
                         </td>
                         
                         <td class="py-4 px-4 text-right font-bold text-slate-600 whitespace-nowrap val-pagado group-hover:text-white">
-                            Bs. {{ c.importe }}
+                            Bs {{ c.importe }}
                         </td>
                         
                         <td class="py-4 px-4 text-right font-black text-amber-600 text-sm whitespace-nowrap val-saldo group-hover:!text-white">
-                            Bs. {{ c.saldo_pendiente }}
+                            Bs {{ c.saldo_pendiente }}
                         </td>
                         
                         <td class="py-4 px-6 text-center whitespace-nowrap">
@@ -215,12 +215,12 @@
         <form method="POST" id="form-cobro-monto" class="space-y-4">
             {% csrf_token %}
             <div class="space-y-2">
-                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto del Abono (Bs.)</label>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto del Abono (Bs)</label>
                 <div class="relative">
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-lg text-emerald-600">Bs.</span>
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-lg text-emerald-600">Bs</span>
                     <input type="number" step="0.01" min="0.01" name="monto_pago" id="modal-input-monto" required class="w-full h-12 bg-slate-50 border-2 border-slate-200 rounded-xl pl-12 pr-4 text-base font-black text-black outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all">
                 </div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wide mt-1" id="modal-maximo-texto">Deuda Máxima: Bs. 0.00</p>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wide mt-1" id="modal-maximo-texto">Deuda Máxima: Bs 0.00</p>
             </div>
 
             <div class="flex items-center gap-3 pt-2">
@@ -236,7 +236,7 @@
 <script>
     function abrirModalCobro(id, nombre, saldo) {
         document.getElementById('modal-alumno-nombre').textContent = nombre.toUpperCase();
-        document.getElementById('modal-maximo-texto').textContent = "DEUDA MÁXIMA PERMITIDA: BS. " + saldo;
+        document.getElementById('modal-maximo-texto').textContent = "DEUDA MÁXIMA PERMITIDA: Bs " + saldo;
         
         const inputMonto = document.getElementById('modal-input-monto');
         inputMonto.max = parseFloat(saldo);
@@ -277,8 +277,8 @@
             return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        document.getElementById('total-pagado-col').innerHTML = `<span class="text-slate-700 font-bold text-[13px]">Bs. ${formatearMoneda(totalPagado)}</span>`;
-        document.getElementById('total-saldo-col').innerHTML = `<span class="text-amber-600 font-black text-[13px]">Bs. ${formatearMoneda(totalSaldo)}</span>`;
+        document.getElementById('total-pagado-col').innerHTML = `<span class="text-slate-700 font-bold text-[13px]">Bs ${formatearMoneda(totalPagado)}</span>`;
+        document.getElementById('total-saldo-col').innerHTML = `<span class="text-amber-600 font-black text-[13px]">Bs ${formatearMoneda(totalSaldo)}</span>`;
     });
     // Iniciar el calendario de búsqueda
         flatpickr("#calendario_cc", {

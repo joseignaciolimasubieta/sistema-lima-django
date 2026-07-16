@@ -159,7 +159,7 @@
                         </td>
 
                         <td class="py-3 px-3.5 text-center font-black text-black group-hover:text-white transition-colors text-[13px] whitespace-nowrap val-honorario">
-                            Bs. {{ h.honorario_total|default:"0,00" }}
+                            Bs {{ h.honorario_total|default:"0,00" }}
                             <div class="py-3 px-3.5 text-center whitespace-nowrap">
                                 {% if h.estado == 'PAGADO' %}
                                     <span class="px-2.5 py-1 inline-flex text-[9px] font-black rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-colors uppercase tracking-widest">
@@ -174,14 +174,14 @@
                         </td>
 
                         <td class="py-3 px-3.5 text-right whitespace-nowrap">
-                            <div class="font-black text-black group-hover:text-white transition-colors text-[13px] val-anticipo">Bs. {{ h.anticipo|default:"0,00" }}</div>
+                            <div class="font-black text-black group-hover:text-white transition-colors text-[13px] val-anticipo">Bs {{ h.anticipo|default:"0,00" }}</div>
                             {% if h.fecha_anticipo %}
                                 <div class="text-[9px] text-gray-400 group-hover:text-blue-100 transition-colors font-bold uppercase tracking-widest mt-1">El: {{ h.fecha_anticipo|date:"d/m/Y" }}</div>
                             {% endif %}
                         </td>
 
                         <td class="py-3 px-3.5 text-right font-black text-black group-hover:text-white transition-colors text-[13px] whitespace-nowrap val-saldo">
-                            Bs. {{ h.saldo|default:"0,00" }}
+                            Bs {{ h.saldo|default:"0,00" }}
                         </td>
 
                         
@@ -303,13 +303,13 @@
             }
 
             document.getElementById('total-honorario').innerHTML = `
-                <span class="text-black font-black text-[13px]">Bs. ${formatearMoneda(sumaHonorario)}</span>
+                <span class="text-black font-black text-[13px]">Bs ${formatearMoneda(sumaHonorario)}</span>
             `;
             document.getElementById('total-anticipo').innerHTML = `
-                <span class="text-black font-black text-[13px]">Bs. ${formatearMoneda(sumaAnticipo)}</span>
+                <span class="text-black font-black text-[13px]">Bs ${formatearMoneda(sumaAnticipo)}</span>
             `;
             document.getElementById('total-saldo').innerHTML = `
-                <span class="text-black font-black text-[14px]">Bs. ${formatearMoneda(sumaSaldo)}</span>
+                <span class="text-black font-black text-[14px]">Bs ${formatearMoneda(sumaSaldo)}</span>
             `;
         }
 

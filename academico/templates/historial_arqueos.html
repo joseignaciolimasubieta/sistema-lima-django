@@ -141,13 +141,13 @@
                         
                         <td class="px-5 py-4 text-right whitespace-nowrap">
                             <span class="font-bold text-gray-500 group-hover:text-blue-100 transition-colors text-xs">
-                                Bs. {{ arq.saldo_sistema }}
+                                Bs {{ arq.saldo_sistema }}
                             </span>
                         </td>
             
                         <td class="px-5 py-4 text-right whitespace-nowrap">
                             <span class="font-black text-black group-hover:text-white transition-colors text-xs">
-                                Bs. {{ arq.total_fisico }}
+                                Bs {{ arq.total_fisico }}
                             </span>
                         </td>
 
@@ -156,12 +156,12 @@
                             {% if arq.diferencia < 0 %}
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 border border-rose-200 group-hover:bg-white/10 group-hover:border-transparent transition-all">
                                     <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                    Bs. {{ arq.diferencia }}
+                                    Bs {{ arq.diferencia }}
                                 </span>
                             {% elif arq.diferencia > 0 %}
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:bg-white/10 group-hover:border-transparent transition-all">
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                    Bs. +{{ arq.diferencia }}
+                                    Bs +{{ arq.diferencia }}
                                 </span>
                             {% else %}
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-500 border border-gray-200 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white transition-all">

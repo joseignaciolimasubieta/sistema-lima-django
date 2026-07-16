@@ -172,15 +172,15 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-2 text-center divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
                     <div class="space-y-1 pt-2 sm:pt-0">
                         <span class="text-[9px] font-black text-gray-500 uppercase tracking-wider block">Inversión</span>
-                        <div class="text-xl md:text-2xl font-black text-gray-900 tracking-tight" id="afiche-precio-base">Bs. 0.00</div>
+                        <div class="text-xl md:text-2xl font-black text-gray-900 tracking-tight" id="afiche-precio-base">Bs 0.00</div>
                     </div>
                     <div class="space-y-1 pt-3 sm:pt-0 sm:pl-2">
                         <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Promoción Amistad</span>
-                        <div class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight" id="afiche-precio-promo">Bs. 0.00</div>
+                        <div class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight" id="afiche-precio-promo">Bs 0.00</div>
                     </div>
                     <div class="space-y-1 pt-3 sm:pt-0 sm:pl-2">
                         <span class="text-[9px] font-black text-[#0071e3] bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Alumnos Antiguos</span>
-                        <div class="text-xl md:text-2xl font-black text-[#0071e3] tracking-tight" id="afiche-precio-antiguo">Bs. 0.00</div>
+                        <div class="text-xl md:text-2xl font-black text-[#0071e3] tracking-tight" id="afiche-precio-antiguo">Bs 0.00</div>
                     </div>
                 </div>
             </div>
@@ -243,9 +243,9 @@
             document.getElementById('afiche-avatar-docente').textContent = docenteStr.trim().substring(0, 1).toUpperCase();
         }
         
-        document.getElementById('afiche-precio-base').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-inversion')).toFixed(2);
-        document.getElementById('afiche-precio-promo').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-promo')).toFixed(2);
-        document.getElementById('afiche-precio-antiguo').textContent = "Bs. " + parseFloat(elemento.getAttribute('data-antiguos')).toFixed(2);
+        document.getElementById('afiche-precio-base').textContent = "Bs " + parseFloat(elemento.getAttribute('data-inversion')).toFixed(2);
+        document.getElementById('afiche-precio-promo').textContent = "Bs " + parseFloat(elemento.getAttribute('data-promo')).toFixed(2);
+        document.getElementById('afiche-precio-antiguo').textContent = "Bs " + parseFloat(elemento.getAttribute('data-antiguos')).toFixed(2);
 
         const modal = document.getElementById('modal-afiche-curso');
         const card = modal.querySelector('div');

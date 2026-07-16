@@ -345,7 +345,7 @@ class Honorario(models.Model):
         return self.monto_acordado - self.anticipo
 
     def __str__(self):
-        return f"Honorario: {self.curso.nombre} - {self.monto_acordado} Bs."
+        return f"Honorario: {self.curso.nombre} - {self.monto_acordado} Bs"
     
 
 class Empleado(models.Model):

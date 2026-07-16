@@ -90,7 +90,7 @@
                     <td class="py-4 px-6 font-semibold text-black tracking-tight">{{ pago.empleado.nombre_completo }}</td>
                     <td class="py-4 px-6 text-center font-medium text-gray-600">{{ pago.empleado.ci }}</td>
                     <td class="py-4 px-6 text-right font-bold text-black text-sm">
-                        Bs. {{ pago.liquido_pagable }}
+                        Bs {{ pago.liquido_pagable }}
                     </td>
                     <td class="py-4 px-6 text-center">
                         <a href="{% url 'imprimir_boleta' pago.id %}" target="_blank" class="inline-flex items-center justify-center gap-2 bg-[#0071e3]/10 hover:bg-[#0071e3]/20 text-[#0071e3] text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 rounded-full transition-all w-full">

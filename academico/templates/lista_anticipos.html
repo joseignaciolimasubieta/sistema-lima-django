@@ -97,7 +97,7 @@
                         </td>
                         
                         <td class="py-4 px-6 font-bold text-gray-500 group-hover:text-blue-100">{{ ant.cuenta_origen.nombre }}</td>
-                        <td class="py-4 px-6 text-right font-black text-rose-500 group-hover:text-white text-sm">Bs. {{ ant.monto }}</td>
+                        <td class="py-4 px-6 text-right font-black text-rose-500 group-hover:text-white text-sm">Bs {{ ant.monto }}</td>
                         
                         <td class="py-4 px-6 text-center">
                             <a href="{% url 'eliminar_anticipo' ant.id %}" onclick="return confirm('¿Seguro que deseas eliminar este anticipo?');" 

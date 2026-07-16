@@ -64,7 +64,7 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
                         <h3 class="text-[11px] font-bold text-blue-200 uppercase tracking-widest mb-2">Total Cuentas Operativas</h3>
-                        <p class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none">Bs. {{ total_operativo|default:"0.00"|floatformat:2 }}</p>
+                        <p class="text-4xl md:text-5xl font-black text-white tracking-tight leading-none">Bs {{ total_operativo|default:"0.00"|floatformat:2 }}</p>
                     </div>
                 </div>
 
@@ -123,7 +123,7 @@
                         </div>
                         <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ticket Promedio</h3>
                         <div class="flex items-baseline gap-1">
-                            <span class="text-sm font-bold text-slate-400">Bs.</span>
+                            <span class="text-sm font-bold text-slate-400">Bs</span>
                             <p class="text-3xl font-black text-slate-900">{{ ticket_promedio|default:"0.00"|floatformat:2 }}</p>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
                                             </td>
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
-                                                Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
+                                                Bs {{ curso.total_generado|default:"0.00"|floatformat:2 }}
                                             </td>
                                         </tr>
                                         {% endif %}
@@ -213,7 +213,7 @@
                                                 <span class="inline-flex items-center justify-center w-7 h-7 bg-slate-100 text-slate-700 rounded-full text-xs font-black">{{ curso.num_inscritos }}</span>
                                             </td>
                                             <td class="py-3 px-4 text-right font-black text-slate-900 tracking-tight">
-                                                Bs. {{ curso.total_generado|default:"0.00"|floatformat:2 }}
+                                                Bs {{ curso.total_generado|default:"0.00"|floatformat:2 }}
                                             </td>
                                             
                                         </tr>

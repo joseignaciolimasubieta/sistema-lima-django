@@ -1357,7 +1357,7 @@ def registrar_anticipo(request, honorario_id):
             
             # Validación de seguridad contable (Límite de monto)
             if monto_float > honorario.monto_acordado:
-                messages.error(request, f'No se pudo realizar la acción. El anticipo de Bs. {monto_float} supera el límite del honorario total (Bs. {honorario.monto_acordado}).')
+                messages.error(request, f'No se pudo realizar la acción. El anticipo de Bs {monto_float} supera el límite del honorario total (Bs {honorario.monto_acordado}).')
                 return redirect('registrar_anticipo', honorario_id=honorario.id)
             
             # Guardamos el anticipo en el Honorario
@@ -1395,7 +1395,7 @@ def registrar_anticipo(request, honorario_id):
                 except Exception as e:
                     print(f"Error al registrar anticipo en caja: {e}")
             
-            messages.success(request, f'Anticipo de Bs. {monto_float} registrado y debitado de la cuenta exitosamente.')
+            messages.success(request, f'Anticipo de Bs {monto_float} registrado y debitado de la cuenta exitosamente.')
             return redirect('honorarios') 
             
     # GET: Enviamos el catálogo de cuentas ordenado (001, 002...)
@@ -1495,11 +1495,11 @@ def pagar_honorario(request, honorario_id):
     p.setFillColor(colors.HexColor("#374151"))
     p.setFont("Helvetica", 11)
     p.drawString(60, height - 280, "Honorario Base Acordado:")
-    p.drawRightString(width - 60, height - 280, f"Bs. {honorario.honorario_total:.2f}")
+    p.drawRightString(width - 60, height - 280, f"Bs {honorario.honorario_total:.2f}")
     
     p.drawString(60, height - 305, "Anticipos Registrados:")
     p.setFillColor(colors.HexColor("#b91c1c"))
-    p.drawRightString(width - 60, height - 305, f"- Bs. {honorario.anticipo:.2f}")
+    p.drawRightString(width - 60, height - 305, f"- Bs {honorario.anticipo:.2f}")
     
     p.setStrokeColor(colors.HexColor("#e5e7eb"))
     p.line(60, height - 315, width - 60, height - 315)
@@ -1508,7 +1508,7 @@ def pagar_honorario(request, honorario_id):
     p.setFont("Helvetica-Bold", 12)
     p.drawString(60, height - 335, "LIQUIDACIÓN NETO RECIBIDO:")
     p.setFillColor(colors.HexColor("#16a34a"))
-    p.drawRightString(width - 60, height - 335, f"Bs. {honorario.saldo:.2f}")
+    p.drawRightString(width - 60, height - 335, f"Bs {honorario.saldo:.2f}")
     
     p.setFillColor(colors.HexColor("#4b5563"))
     p.setFont("Helvetica-Bold", 10)
@@ -2475,7 +2475,7 @@ def crear_prestamo(request):
             except Exception as e:
                 print(f"Error al redireccionar cuenta de préstamo: {e}")
 
-        messages.success(request, f'Préstamo otorgado con éxito. Se registró la salida de Bs. {monto}.')
+        messages.success(request, f'Préstamo otorgado con éxito. Se registró la salida de Bs {monto}.')
         return redirect('lista_prestamos')
         
     # GET: Enviamos empleados y cuentas ordenadas por código
@@ -2544,7 +2544,7 @@ def editar_prestamo(request, prestamo_id):
                     tipo='SALIDA',
                     monto=aumento_capital
                 )
-            messages.success(request, f'Ampliación registrada con éxito. Se asentó la salida de Bs. {aumento_capital} en el flujo con fecha {fecha_asiento}.')
+            messages.success(request, f'Ampliación registrada con éxito. Se asentó la salida de Bs {aumento_capital} en el flujo con fecha {fecha_asiento}.')
         else:
             messages.success(request, f'Condiciones del préstamo de {nombre_deudor} actualizadas con éxito.') # <--- AHORA USA LA VARIABLE INTELIGENTE
         
@@ -2575,7 +2575,7 @@ def registrar_pago_prestamo(request, prestamo_id):
         
         # Validación de seguridad para evitar sobrepagos
         if monto_abono > prestamo.saldo_restante:
-            messages.error(request, f'Error: El monto ingresado (Bs. {monto_abono}) supera al saldo restante de la deuda.')
+            messages.error(request, f'Error: El monto ingresado (Bs {monto_abono}) supera al saldo restante de la deuda.')
             return redirect('lista_prestamos')
             
         pago = PagoPrestamo(
@@ -2603,7 +2603,7 @@ def registrar_pago_prestamo(request, prestamo_id):
             except Exception as e:
                 print(f"Error al redireccionar cuenta de abono: {e}")
 
-        messages.success(request, f'Abono de Bs. {monto_abono} asentado correctamente en la cuenta seleccionada.')
+        messages.success(request, f'Abono de Bs {monto_abono} asentado correctamente en la cuenta seleccionada.')
         return redirect('lista_prestamos')
         
     # GET: Enviamos el préstamo y el catálogo de cuentas completo ordenado por código
@@ -2851,7 +2851,7 @@ def liquidar_saldo_inscripcion(request, id):
                         monto=inscripcion.importe
                     )
                 
-                messages.success(request, f'¡Cobro finalizado con éxito! Se revirtieron Bs. {anticipo_previo} de Anticipos a Egresos y se asentó el ingreso total de Bs. {inscripcion.importe} como {detalle_normal}.')
+                messages.success(request, f'¡Cobro finalizado con éxito! Se revirtieron Bs {anticipo_previo} de Anticipos a Egresos y se asentó el ingreso total de Bs {inscripcion.importe} como {detalle_normal}.')
                 return redirect('inscripciones')
                 
             # --- CASO B: EL ALUMNO REALIZÓ UN ABONO PARCIAL (TODAVÍA DEBE) ---
@@ -2875,7 +2875,7 @@ def liquidar_saldo_inscripcion(request, id):
                         monto=monto_pago
                     )
                 
-                messages.success(request, f'Se registró un abono parcial de Bs. {monto_pago}. El alumno aún mantiene un saldo de Bs. {nuevo_saldo}.')
+                messages.success(request, f'Se registró un abono parcial de Bs {monto_pago}. El alumno aún mantiene un saldo de Bs {nuevo_saldo}.')
                 return redirect('cuentas_por_cobrar')
                 
     return redirect('inscripciones')

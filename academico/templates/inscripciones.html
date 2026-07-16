@@ -278,12 +278,12 @@
                         <td class="px-2.5 py-4"></td>
                         <td class="px-2.5 py-4 text-right text-sm font-black text-black whitespace-nowrap" id="total-importe">
                             
-                            Bs. 0,00
+                            Bs 0,00
                         </td>
                         <td class="px-2.5 py-4"></td>
                         <td class="px-2.5 py-4 text-right text-sm font-black text-[#0071e3] whitespace-nowrap" id="total-comision">
                            
-                            Bs. 0,00
+                            Bs 0,00
                         </td>
                         <td class="px-2.5 py-4"></td>
                         <td class="col-edicion hidden px-2.5 py-4 bg-slate-100 border-l border-slate-200"></td>
@@ -400,12 +400,12 @@
             `;
             
             document.getElementById('total-importe').innerHTML = `
-                <span class="text-black font-black text-sm">Bs. ${formatearMoneda(sumaImporte, 2)}</span>
+                <span class="text-black font-black text-sm">Bs ${formatearMoneda(sumaImporte, 2)}</span>
             `;
             
             // Aquí le pedimos que nos dé hasta 3 decimales precisos para las comisiones
             document.getElementById('total-comision').innerHTML = `
-                <span class="text-[#0071e3] font-black text-sm">Bs. ${formatearMoneda(sumaComision, 3)}</span>
+                <span class="text-[#0071e3] font-black text-sm">Bs ${formatearMoneda(sumaComision, 3)}</span>
             `;
         }
 

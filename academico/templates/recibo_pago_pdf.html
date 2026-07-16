@@ -191,18 +191,18 @@
             <table class="fin-table">
                 <tr>
                     <td>Saldo Anterior de la Deuda:</td>
-                    <td class="amount">Bs. {{ saldo_anterior|floatformat:2 }}</td>
+                    <td class="amount">Bs {{ saldo_anterior|floatformat:2 }}</td>
                 </tr>
                 <tr>
                     <td>Menos Monto Amortizado (Abono):</td>
-                    <td class="amount amount-red">- Bs. {{ pago.monto|floatformat:2 }}</td>
+                    <td class="amount amount-red">- Bs {{ pago.monto|floatformat:2 }}</td>
                 </tr>
                 <tr>
                     <td colspan="2"><div class="fin-line"></div></td>
                 </tr>
                 <tr>
                     <td class="fin-total">NUEVO SALDO DEUDOR PENDIENTE:</td>
-                    <td class="fin-total-amount">Bs. {{ nuevo_saldo|floatformat:2 }}</td>
+                    <td class="fin-total-amount">Bs {{ nuevo_saldo|floatformat:2 }}</td>
                 </tr>
             </table>
         </div>

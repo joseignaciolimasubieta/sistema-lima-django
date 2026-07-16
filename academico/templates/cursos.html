@@ -172,9 +172,9 @@
                         
                         <td class="py-4 px-4 text-left whitespace-nowrap">
                             <div class="flex flex-col gap-1 items-left">
-                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">INVERSIÓN: Bs. {{ c.inversion }}</div>
-                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">PROMOCIÓN: Bs. {{ c.promo }}</div>
-                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">ANTIGUOS: Bs. {{ c.antiguos|default:"0" }}</div>
+                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">INVERSIÓN: Bs {{ c.inversion }}</div>
+                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">PROMOCIÓN: Bs {{ c.promo }}</div>
+                                <div class="text-[10px] font-bold text-black-500 group-hover:text-white transition-colors">ANTIGUOS: Bs {{ c.antiguos|default:"0" }}</div>
                             </div>
                         </td>
                         
