@@ -42,9 +42,6 @@ def es_ventas(user):
 def es_marketing(user):
     return user.is_superuser or user.groups.filter(name='Marketing').exists()
 
-def es_infocursos(user):
-    return user.is_superuser or user.groups.filter(name='InfoCursos').exists()
-
 def es_caja(user):
     return user.is_superuser or user.groups.filter(name='Caja').exists()
 
@@ -3333,7 +3330,6 @@ def detalle_curso_certificados(request, curso_id):
     })
 
 @login_required
-@user_passes_test(es_infocursos)
 def informacion_cursos(request):
     # 1. Traemos la fecha de hoy para calcular el mes y año actuales
     hoy = date.today()

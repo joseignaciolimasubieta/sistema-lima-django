@@ -113,11 +113,8 @@
                                 {% for grupo in request.user.groups.all %}
                                     
                                     {% if grupo.name == 'Ventas' %}
-                                        <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
-                                    {% endif %}
-
-                                    {% if grupo.name == 'InfoCursos' %}
                                         <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información <br class="hidden md:block"> de Cursos</a>
+                                        <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
                                     {% endif %}
                                     
                                     {% if grupo.name == 'Marketing' %}
