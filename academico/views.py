@@ -3003,10 +3003,12 @@ def marketing(request):
         return redirect('marketing')
 
     hoy = date.today()
-    # Atrapamos la fecha del nuevo filtro por meses
     mes_buscar = request.GET.get('mes', '') 
     
-    cursos_bd = Curso.objects.exclude(fecha_inicio__isnull=True).order_by('-fecha_inicio')
+    # 🚀 OPTIMIZACIÓN 1: select_related('docente')
+    # Soluciona el problema N+1. Trae todos los cursos y el nombre de sus docentes
+    # en 1 solo viaje a la base de datos en lugar de hacer cientos de consultas.
+    cursos_bd = Curso.objects.select_related('docente').exclude(fecha_inicio__isnull=True)
     
     # 1. Aplicamos el Filtro de Meses si el usuario buscó algo
     if mes_buscar:
@@ -3015,33 +3017,24 @@ def marketing(request):
             cursos_bd = cursos_bd.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
         except ValueError:
             pass
+    else:
+        # 🚀 OPTIMIZACIÓN 2: El Escudo de Tiempo
+        # Si no buscó un mes específico, NO cargamos el historial muerto de años anteriores.
+        # Solo traemos los cursos de hace 45 días y TODOS los que vienen en el futuro.
+        limite_pasado = hoy - timedelta(days=45)
+        cursos_bd = cursos_bd.filter(fecha_inicio__gte=limite_pasado)
+
+    # Ordenamos directamente en el motor de base de datos
+    cursos_bd = cursos_bd.order_by('-fecha_inicio')
     
     campanas = []
-    notificaciones_hoy = [] # Lista mágica para atrapar los que se publican HOY
+    notificaciones_hoy = [] 
     
     for c in cursos_bd:
         fecha_pub = c.fecha_inicio - timedelta(days=14)
         dias_para_pub = (fecha_pub - hoy).days
         dias_para_inicio = (c.fecha_inicio - hoy).days
         
-        # Asignación de Estados
-        if dias_para_inicio < 0:
-            estado = 'CERRADA'
-            color = 'gray'
-        elif dias_para_pub <= 0 and dias_para_inicio >= 0:
-            estado = 'EN REDES'
-            color = 'emerald'
-        elif 0 < dias_para_pub <= 7:
-            estado = 'PREPARACIÓN'
-            color = 'amber'
-        else:
-            estado = 'PROGRAMADA'
-            color = 'blue'
-            
-        # 2. SISTEMA DE ALERTAS: Si los días para publicar son exactamente CERO (Hoy)
-        if dias_para_pub == 0:
-            notificaciones_hoy.append(c)
-            
         # Asignación de Estados
         if dias_para_inicio < 0:
             estado = 'CERRADA'
@@ -3072,21 +3065,21 @@ def marketing(request):
         })
         
     # ========================================================
-    # --- NUEVO: ALGORITMO DE ORDENAMIENTO INTELIGENTE ---
+    # --- ALGORITMO DE ORDENAMIENTO INTELIGENTE ---
     # ========================================================
     def prioridad_marketing(item):
         dias = item['dias_para_pub']
         if dias == 0:
             return (0, 0) # 1º: ¡PUBLICAR HOY! (Máxima prioridad)
         elif dias > 0:
-            return (1, dias) # 2º: Próximos a publicar (El que le faltan menos días va más arriba)
+            return (1, dias) # 2º: Próximos a publicar
         else:
             if item['estado'] != 'CERRADA':
-                return (2, abs(dias)) # 3º: Ya publicados/En redes (Los más recientes arriba)
+                return (2, abs(dias)) # 3º: Ya publicados/En redes
             else:
                 return (3, abs(dias)) # 4º: Cerrados (Al fondo de la tabla)
 
-    # Ordenamos aplicando nuestra regla de prioridad
+    # Ordenamos aplicando nuestra regla de prioridad en la memoria RAM
     campanas = sorted(campanas, key=prioridad_marketing)
     # ========================================================
     
