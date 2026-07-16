@@ -3272,6 +3272,7 @@ def generar_certificado_individual(request, inscripcion_id):
     return response
 
 @login_required
+@user_passes_test(es_certificados)
 def lista_cursos_certificados(request):
     # Ordenamiento inteligente: primero los pendientes (False), al final los enviados (True),
     # y dentro de cada grupo se mantiene el orden por fecha de finalización más reciente.

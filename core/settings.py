@@ -166,3 +166,9 @@ if AWS_ACCESS_KEY_ID: # Solo usa la nube si las llaves existen
             "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
         },
     }
+
+# --- SEGURIDAD CSRF PARA RENDER / NUBE ---
+# Reemplaza la URL si tienes un dominio personalizado (ej: 'https://midominio.com')
+CSRF_TRUSTED_ORIGINS = [
+    'https://grupo-empresarial-lima-django.onrender.com',
+]
