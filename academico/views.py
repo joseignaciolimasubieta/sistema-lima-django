@@ -1634,11 +1634,11 @@ def editar_servicio(request, servicio_id):
 def portal_inicio(request):
     user = request.user
     
-    # 1. Si eres tú (el dueño), te manda directo al panel principal
+    # 1. Si eres tú (el dueño), te mostramos tu pantalla de Portal
     if user.is_superuser:
-        return redirect('dashboard')
+        return render(request, 'portal.html')
         
-    # 2. Distribución inteligente para empleados
+    # 2. Distribución inteligente para empleados (Ellos sí son redirigidos a su área)
     if user.groups.filter(name='Ventas').exists():
         return redirect('inscripciones')
     elif user.groups.filter(name='Marketing').exists():
