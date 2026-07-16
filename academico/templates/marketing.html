@@ -240,11 +240,11 @@
                                     <input type="hidden" name="curso_id" value="{{ c.curso.id }}">
                                     <input type="file" name="imagen_publicidad" id="img-{{ c.curso.id }}" class="hidden" accept="image/*" onchange="document.getElementById('form-img-{{ c.curso.id }}').submit();">
                                     
-                                    {% if c.curso.imagen_publicidad %}
+                                    {% if c.curso.imagen_publicidad.name %}
                                         <div class="flex items-center justify-center gap-2 mt-2 w-full">
                                             
                                             <!-- Botón Descargar -->
-                                            <a href="{{ c.curso.imagen_publicidad.url }}?download=" target="_blank" class="flex-1 h-8 rounded-full bg-blue-50 text-[#0071e3] group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] text-[9px] font-black tracking-widest uppercase transition-all shadow-sm inline-flex items-center justify-center gap-1 cursor-pointer border border-transparent group-hover:border-white/30" title="Descargar Arte">
+                                            <a href="{{ c.curso.imagen_publicidad.url }}?download=" loading="lazy" target="_blank" class="flex-1 h-8 rounded-full bg-blue-50 text-[#0071e3] group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] text-[9px] font-black tracking-widest uppercase transition-all shadow-sm inline-flex items-center justify-center gap-1 cursor-pointer border border-transparent group-hover:border-white/30" title="Descargar Arte">
                                                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                                 Descargar
                                             </a>
