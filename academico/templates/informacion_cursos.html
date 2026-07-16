@@ -1,5 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white border border-gray-200 text-gray-900 px-5 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-fade-in">
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-bold">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <!-- LIBRERÍAS CSS DEL CALENDARIO FLATPICKR -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -66,6 +78,8 @@
         {% for c in cursos %}
         <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#0071e3] transition-all cursor-pointer group flex flex-col justify-between h-full"
              onclick="cargarYMostrarAfiche(this)"
+             data-id="{{ c.id }}"
+             data-contenido-url="{% if c.imagen_contenido %}{{ c.imagen_contenido.url }}{% endif %}"
              data-nombre="{{ c.nombre }}"
              data-mes="{{ c.mes_curso }}"
              data-turno="{{ c.turno }}"
@@ -184,7 +198,29 @@
                     </div>
                 </div>
             </div>
-            
+            <div class="bg-white p-4 rounded-3xl border border-gray-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                
+                <div id="grupo-botones-contenido" class="hidden w-full sm:w-auto flex-1 items-center gap-2">
+                    <a id="btn-ver-contenido" href="#" target="_blank" class="flex-1 h-10 rounded-xl bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        VER CONTENIDO
+                    </a>
+                    <a id="btn-descargar-contenido" href="#" target="_blank" download class="h-10 px-4 rounded-xl bg-blue-50 text-[#0071e3] hover:bg-blue-100 font-black transition-all flex items-center justify-center" title="Descargar">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    </a>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" id="form-subir-contenido" class="w-full sm:w-auto">
+                    {% csrf_token %}
+                    <input type="hidden" name="curso_id" id="modal-curso-id-input" value="">
+                    <input type="file" name="imagen_contenido" id="input-imagen-contenido" class="hidden" accept="image/*" onchange="document.getElementById('form-subir-contenido').submit();">
+                    
+                    <label for="input-imagen-contenido" id="lbl-subir-contenido" class="w-full sm:w-auto h-10 px-6 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                        <span id="texto-lbl-subir">SUBIR TEMARIO</span>
+                    </label>
+                </form>
+            </div>
             <div class="text-center pt-2">
                 <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
                     ESCUELA FINANCIERA LUCA PACIOLI
@@ -227,6 +263,30 @@
     });
 
     function cargarYMostrarAfiche(elemento) {
+        // --- NUEVA LÓGICA DEL TEMARIO ---
+        const cursoId = elemento.getAttribute('data-id');
+        const contenidoUrl = elemento.getAttribute('data-contenido-url');
+        
+        document.getElementById('modal-curso-id-input').value = cursoId;
+        
+        const grupoBotones = document.getElementById('grupo-botones-contenido');
+        const btnVer = document.getElementById('btn-ver-contenido');
+        const btnDescargar = document.getElementById('btn-descargar-contenido');
+        const textoSubir = document.getElementById('texto-lbl-subir');
+        
+        if (contenidoUrl && contenidoUrl.trim() !== '') {
+            btnVer.href = contenidoUrl;
+            btnDescargar.href = contenidoUrl + "?download="; // Fuerza la descarga de supabase
+            grupoBotones.classList.remove('hidden');
+            grupoBotones.classList.add('flex');
+            textoSubir.textContent = 'CAMBIAR TEMARIO';
+        } else {
+            btnVer.href = '#';
+            btnDescargar.href = '#';
+            grupoBotones.classList.add('hidden');
+            grupoBotones.classList.remove('flex');
+            textoSubir.textContent = 'SUBIR TEMARIO';
+        }
         document.getElementById('afiche-nombre').textContent = elemento.getAttribute('data-nombre').toUpperCase();
         document.getElementById('afiche-inicio-sub').textContent = "INICIO: " + elemento.getAttribute('data-inicio-largo').toUpperCase();
         document.getElementById('afiche-docente').textContent = elemento.getAttribute('data-docente').toUpperCase();

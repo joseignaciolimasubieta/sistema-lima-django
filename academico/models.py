@@ -33,6 +33,9 @@ class Curso(models.Model):
     antiguos = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     # --- NUEVO CAMPO PARA MARKETING ---
     imagen_publicidad = models.ImageField(upload_to='marketing/', null=True, blank=True)
+    
+    # --- NUEVO CAMPO PARA EL TEMARIO / CONTENIDO ---
+    imagen_contenido = models.ImageField(upload_to='contenidos/', null=True, blank=True)
     # ==============================================================
     # --- NUEVO: CONTROL DE ENVÍO DE CERTIFICADOS ---
     # ==============================================================

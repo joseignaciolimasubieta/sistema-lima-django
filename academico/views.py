@@ -3352,6 +3352,16 @@ def detalle_curso_certificados(request, curso_id):
 @login_required
 @user_passes_test(es_ventas)
 def informacion_cursos(request):
+    # --- NUEVO: LÓGICA PARA SUBIR EL TEMARIO ---
+    if request.method == 'POST':
+        curso_id = request.POST.get('curso_id')
+        imagen = request.FILES.get('imagen_contenido')
+        if curso_id and imagen:
+            curso_obj = get_object_or_404(Curso, id=curso_id)
+            curso_obj.imagen_contenido = imagen
+            curso_obj.save()
+            messages.success(request, f'¡Temario del curso "{curso_obj.nombre}" subido exitosamente!')
+        return redirect('informacion_cursos')
     # 1. Traemos la fecha de hoy para calcular el mes y año actuales
     hoy = date.today()
     mes_actual_str = hoy.strftime('%Y-%m') # Genera "2026-07"
