@@ -3243,57 +3243,6 @@ def eliminar_arqueo(request, arqueo_id):
 @login_required
 @user_passes_test(es_certificados)
 def generar_certificado_individual(request, inscripcion_id):
-    # Traemos solo a este alumno en específico
-    inscrito = get_object_or_404(Inscripcion, id=inscripcion_id)
-    curso = inscrito.curso
-    
-    # =========================================================
-    # 🧠 NUEVO: SELECTOR INTELIGENTE DE DISEÑO POR DOCENTE
-    # =========================================================
-    nombre_docente = curso.docente.nombre.lower()
-    
-    if 'juan' in nombre_docente or 'juanjo' in nombre_docente:
-        archivo_fondo = 'certificado_juanjo.jpg'
-    elif 'mariana' in nombre_docente:
-        archivo_fondo = 'certificado_mariana.jpg'
-    elif 'rodrigo' in nombre_docente:
-        archivo_fondo = 'certificado_rodrigo.jpg'
-    else:
-        # Respaldo de seguridad por si en el futuro agregas un docente sin diseño aún
-        archivo_fondo = 'certificado.jpg' 
-    # =========================================================
-
-    # 1. Rutas de la imagen (usando el archivo seleccionado)
-    # ... (código de selección de imagen que ya tienes) ...
-
-    ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    
-    # NUEVO: Aplicamos la misma solución aquí
-    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
-    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
-    
-    template = get_template('pdf_certificados.html')
-    contexto = {
-        'curso': curso,
-        'inscrito': inscrito, # (OJO: en la otra función esto dice 'inscritos')
-        'ruta_imagen': ruta_imagen,
-        'ruta_fuente': ruta_fuente, # <--- NUEVO: Enviamos la fuente
-    }
-    
-    # Renderizamos y pasamos a WeasyPrint
-    html_string = render_to_string('pdf_certificados.html', contexto)
-    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-    
-    # Devolvemos el PDF
-    nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
-    response = HttpResponse(pdf_file, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="Certificado_{nombre_limpio}.pdf"'
-    
-    return response
-
-@login_required
-@user_passes_test(es_certificados)
-def generar_certificado_individual(request, inscripcion_id):
     inscrito = get_object_or_404(Inscripcion, id=inscripcion_id)
     curso = inscrito.curso
     
