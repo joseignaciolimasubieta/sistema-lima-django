@@ -3030,10 +3030,10 @@ def marketing(request):
     hoy = date.today()
     mes_buscar = request.GET.get('mes', '') 
     
-    # 🚀 OPTIMIZACIÓN 1: select_related('docente')
-    # Soluciona el problema N+1. Trae todos los cursos y el nombre de sus docentes
+    # 🚀 OPTIMIZACIÓN 1: select_related y prefetch_related
+    # Soluciona el problema N+1. Trae todos los cursos, docentes y sus subcursos 
     # en 1 solo viaje a la base de datos en lugar de hacer cientos de consultas.
-    cursos_bd = Curso.objects.select_related('docente').exclude(fecha_inicio__isnull=True)
+    cursos_bd = Curso.objects.select_related('docente').prefetch_related('subcursos').exclude(fecha_inicio__isnull=True)
     
     # 1. Aplicamos el Filtro de Meses si el usuario buscó algo
     if mes_buscar:
