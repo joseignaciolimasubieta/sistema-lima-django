@@ -15,6 +15,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from .models import Honorario
 import re
 import os
+import tempfile
+import gc
 import zipfile
 from io import BytesIO
 from django.http import JsonResponse, HttpResponse
@@ -1933,41 +1935,40 @@ def generar_certificados_curso(request, curso_id):
         archivo_fondo = 'certificado.jpg'
 
     ruta_actual = os.path.dirname(os.path.abspath(__file__))
-    
-    # NUEVO: .as_uri() genera el formato file:/// perfecto para WeasyPrint
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    template = get_template('pdf_certificados.html')
-    
-    # 2. Creamos la carpeta ZIP virtual en la memoria
-    buffer_zip = BytesIO()
-    
-    with zipfile.ZipFile(buffer_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
-        for inscrito in inscritos:
-            # Preparamos los datos del alumno actual
-            contexto = {
-                'curso': curso,
-                'inscrito': inscrito,
-                'ruta_imagen': ruta_imagen,
-                'ruta_fuente': ruta_fuente,
-            }
-            html = template.render(contexto)
-            
-            # Generamos el HTML y PDF para el alumno
-            html_string = render_to_string('pdf_certificados.html', contexto)
-            pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-            
-            # Nombre del archivo
-            nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
-            nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
-            
-            # Guardamos los bytes directamente en el ZIP
-            archivo_zip.writestr(nombre_archivo, pdf_bytes)
+    # 2. Usamos un archivo temporal en el DISCO DURO (No en Memoria RAM)
+    with tempfile.NamedTemporaryFile(delete=True, suffix='.zip') as temp_zip:
+        with zipfile.ZipFile(temp_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
+            for inscrito in inscritos:
+                contexto = {
+                    'curso': curso,
+                    'inscrito': inscrito, # Renderiza de a un alumno a la vez
+                    'ruta_imagen': ruta_imagen,
+                    'ruta_fuente': ruta_fuente,
+                }
+                
+                html_string = render_to_string('pdf_certificados.html', contexto)
+                pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+                
+                nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+                nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
+                
+                # Escribimos el certificado en el ZIP
+                archivo_zip.writestr(nombre_archivo, pdf_bytes)
+                
+                # 3. TRUCO DE OPTIMIZACIÓN: Vaciamos la memoria RAM manualmente
+                del html_string
+                del pdf_bytes
+                gc.collect()
 
-    # 3. Preparamos la descarga
-    buffer_zip.seek(0)
-    response = HttpResponse(buffer_zip, content_type='application/zip')
+        # 4. Preparamos la lectura final del ZIP empaquetado
+        temp_zip.seek(0)
+        archivo_data = temp_zip.read()
+
+    # 5. Enviamos el ZIP al navegador
+    response = HttpResponse(archivo_data, content_type='application/zip')
     response['Content-Disposition'] = f'attachment; filename="Certificados_{curso.nombre}_{modalidad_actual}.zip"'
     
     return response
