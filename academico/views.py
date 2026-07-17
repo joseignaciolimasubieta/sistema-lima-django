@@ -7,6 +7,8 @@ from reportlab.lib import colors
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 from weasyprint import HTML
+from pypdf import PdfReader, PdfWriter
+import tempfile
 from django.utils import timezone
 from pathlib import Path
 from django.template.loader import render_to_string
@@ -1922,9 +1924,7 @@ def generar_certificados_curso(request, curso_id):
     modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
     inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
     
-    # 1. Selector Inteligente por Docente
     nombre_docente = curso.docente.nombre.lower()
-    
     if 'juan' in nombre_docente or 'juanjo' in nombre_docente:
         archivo_fondo = 'certificado_juanjo.jpg'
     elif 'mariana' in nombre_docente:
@@ -1938,36 +1938,43 @@ def generar_certificados_curso(request, curso_id):
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    # 2. Usamos un archivo temporal en el DISCO DURO (No en Memoria RAM)
+    # 1. Generamos UN SOLO PDF GIGANTE en la RAM (¡Súper eficiente!)
+    contexto = {
+        'curso': curso,
+        'lista_inscritos': inscritos, # Pasamos a todos los alumnos juntos
+        'ruta_imagen': ruta_imagen,
+        'ruta_fuente': ruta_fuente,
+    }
+    
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_masivo_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 2. Leemos ese PDF para cortarlo página por página
+    lector_pdf = PdfReader(BytesIO(pdf_masivo_bytes))
+    
+    # 3. Creamos el ZIP y metemos los archivos cortados
     with tempfile.NamedTemporaryFile(delete=True, suffix='.zip') as temp_zip:
         with zipfile.ZipFile(temp_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
-            for inscrito in inscritos:
-                contexto = {
-                    'curso': curso,
-                    'inscrito': inscrito, # Renderiza de a un alumno a la vez
-                    'ruta_imagen': ruta_imagen,
-                    'ruta_fuente': ruta_fuente,
-                }
+            
+            for index, inscrito in enumerate(inscritos):
+                # Extraemos la página exacta de este alumno
+                escritor_pdf = PdfWriter()
+                escritor_pdf.add_page(lector_pdf.pages[index])
                 
-                html_string = render_to_string('pdf_certificados.html', contexto)
-                pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+                # Lo convertimos a datos
+                pdf_individual_buffer = BytesIO()
+                escritor_pdf.write(pdf_individual_buffer)
                 
                 nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
                 nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
                 
-                # Escribimos el certificado en el ZIP
-                archivo_zip.writestr(nombre_archivo, pdf_bytes)
-                
-                # 3. TRUCO DE OPTIMIZACIÓN: Vaciamos la memoria RAM manualmente
-                del html_string
-                del pdf_bytes
-                gc.collect()
+                # Lo guardamos en el ZIP como un archivo individual
+                archivo_zip.writestr(nombre_archivo, pdf_individual_buffer.getvalue())
 
-        # 4. Preparamos la lectura final del ZIP empaquetado
+        # Preparamos el ZIP final para enviarlo
         temp_zip.seek(0)
         archivo_data = temp_zip.read()
 
-    # 5. Enviamos el ZIP al navegador
     response = HttpResponse(archivo_data, content_type='application/zip')
     response['Content-Disposition'] = f'attachment; filename="Certificados_{curso.nombre}_{modalidad_actual}.zip"'
     
@@ -3286,29 +3293,40 @@ def generar_certificado_individual(request, inscripcion_id):
 
 @login_required
 @user_passes_test(es_certificados)
-def lista_cursos_certificados(request):
-    # Ordenamiento inteligente: primero los pendientes (False), al final los enviados (True),
-    # y dentro de cada grupo se mantiene el orden por fecha de finalización más reciente.
-    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('certificados_enviados', '-fecha_finalizacion') 
+def generar_certificado_individual(request, inscripcion_id):
+    inscrito = get_object_or_404(Inscripcion, id=inscripcion_id)
+    curso = inscrito.curso
     
-    buscar = request.GET.get('buscar', '')
-    mes_busqueda = request.GET.get('mes', '') 
+    nombre_docente = curso.docente.nombre.lower()
+    if 'juan' in nombre_docente or 'juanjo' in nombre_docente:
+        archivo_fondo = 'certificado_juanjo.jpg'
+    elif 'mariana' in nombre_docente:
+        archivo_fondo = 'certificado_mariana.jpg'
+    elif 'rodrigo' in nombre_docente:
+        archivo_fondo = 'certificado_rodrigo.jpg'
+    else:
+        archivo_fondo = 'certificado.jpg' 
+
+    ruta_actual = os.path.dirname(os.path.abspath(__file__))
+    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
+    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    if buscar:
-        cursos = cursos.filter(Q(nombre__icontains=buscar) | Q(docente__nombre__icontains=buscar))
-    if mes_busqueda:
-        try:
-            anio, mes = mes_busqueda.split('-')
-            cursos = cursos.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
-        except ValueError:
-            pass
-
-    return render(request, 'certificados_cursos.html', {
-        'cursos': cursos,
-        'buscar': buscar,
-        'mes_buscar': mes_busqueda
-    })
-
+    # Como el HTML ahora espera una lista, metemos a nuestro único alumno dentro de unos corchetes []
+    contexto = {
+        'curso': curso,
+        'lista_inscritos': [inscrito], # <--- Ojo al cambio aquí
+        'ruta_imagen': ruta_imagen,
+        'ruta_fuente': ruta_fuente,
+    }
+    
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="Certificado_{nombre_limpio}.pdf"'
+    
+    return response
 @login_required
 @user_passes_test(es_certificados)
 def detalle_curso_certificados(request, curso_id):
