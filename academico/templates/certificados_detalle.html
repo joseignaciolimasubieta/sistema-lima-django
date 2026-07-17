@@ -101,7 +101,8 @@
     </div>
 
     <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
-        <table class="w-full text-left border-collapse">
+        <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[500px]">
             <thead class="bg-slate-50 border-b-2 border-slate-200">
                 <tr>
                     <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest w-16">N°</th>
@@ -136,6 +137,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 
