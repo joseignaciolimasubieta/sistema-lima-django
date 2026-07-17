@@ -1938,40 +1938,36 @@ def generar_certificados_curso(request, curso_id):
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    # 1. Generamos UN SOLO PDF GIGANTE en la RAM (¡Súper eficiente!)
-    contexto = {
-        'curso': curso,
-        'lista_inscritos': inscritos, # Pasamos a todos los alumnos juntos
-        'ruta_imagen': ruta_imagen,
-        'ruta_fuente': ruta_fuente,
-    }
-    
-    html_string = render_to_string('pdf_certificados.html', contexto)
-    pdf_masivo_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
-    
-    # 2. Leemos ese PDF para cortarlo página por página
-    lector_pdf = PdfReader(BytesIO(pdf_masivo_bytes))
-    
-    # 3. Creamos el ZIP y metemos los archivos cortados
+    # 1. Usamos tempfile para escribir directo al disco y no saturar RAM
     with tempfile.NamedTemporaryFile(delete=True, suffix='.zip') as temp_zip:
         with zipfile.ZipFile(temp_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
             
-            for index, inscrito in enumerate(inscritos):
-                # Extraemos la página exacta de este alumno
-                escritor_pdf = PdfWriter()
-                escritor_pdf.add_page(lector_pdf.pages[index])
+            # 2. BUCLE UNO POR UNO
+            for inscrito in inscritos:
+                contexto = {
+                    'curso': curso,
+                    'inscrito': inscrito, # Pasamos solo un alumno
+                    'ruta_imagen': ruta_imagen,
+                    'ruta_fuente': ruta_fuente,
+                }
                 
-                # Lo convertimos a datos
-                pdf_individual_buffer = BytesIO()
-                escritor_pdf.write(pdf_individual_buffer)
+                html_string = render_to_string('pdf_certificados.html', contexto)
+                
+                # Renderiza el PDF (Consume un poco de RAM temporalmente)
+                pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
                 
                 nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
                 nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
                 
-                # Lo guardamos en el ZIP como un archivo individual
-                archivo_zip.writestr(nombre_archivo, pdf_individual_buffer.getvalue())
+                # Lo guardamos en el ZIP
+                archivo_zip.writestr(nombre_archivo, pdf_bytes)
+                
+                # 3. LIMPIEZA EXTREMA: Forzamos a Python a liberar la RAM inmediatamente
+                del html_string
+                del pdf_bytes
+                gc.collect()
 
-        # Preparamos el ZIP final para enviarlo
+        # 4. Preparamos el ZIP final para enviarlo
         temp_zip.seek(0)
         archivo_data = temp_zip.read()
 
@@ -3260,10 +3256,9 @@ def generar_certificado_individual(request, inscripcion_id):
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    # Como el HTML ahora espera una lista, metemos a nuestro único alumno dentro de unos corchetes []
     contexto = {
         'curso': curso,
-        'lista_inscritos': [inscrito], # <--- Ojo al cambio aquí
+        'inscrito': inscrito, # Volvemos al formato individual
         'ruta_imagen': ruta_imagen,
         'ruta_fuente': ruta_fuente,
     }
