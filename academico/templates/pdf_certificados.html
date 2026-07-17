@@ -87,9 +87,11 @@
 </head>
 <body>
     
-    <div class="certificado-pagina">
+    {% for inc in lista_inscritos %}
+    <!-- La instrucción 'page-break-after' crea un salto de página automático por cada alumno -->
+    <div class="certificado-pagina" style="{% if not forloop.last %}page-break-after: always;{% endif %}">
         
-        <p class="nombre-alumno">{{ inscrito.participante.nombre_completo|upper }}</p>
+        <p class="nombre-alumno">{{ inc.participante.nombre_completo|upper }}</p>
         
         <p class="nombre-curso">{{ curso.nombre|upper }}</p>
         
@@ -109,6 +111,7 @@
         </p>
 
     </div>
+    {% endfor %}
 
 </body>
 </html>

@@ -1938,36 +1938,40 @@ def generar_certificados_curso(request, curso_id):
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
-    # 1. Usamos tempfile para escribir directo al disco y no saturar RAM
+    # 1. Generamos UN SOLO PDF GIGANTE en la RAM (¡Súper eficiente!)
+    contexto = {
+        'curso': curso,
+        'lista_inscritos': inscritos, # Pasamos a todos los alumnos juntos
+        'ruta_imagen': ruta_imagen,
+        'ruta_fuente': ruta_fuente,
+    }
+    
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_masivo_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # 2. Leemos ese PDF para cortarlo página por página
+    lector_pdf = PdfReader(BytesIO(pdf_masivo_bytes))
+    
+    # 3. Creamos el ZIP y metemos los archivos cortados
     with tempfile.NamedTemporaryFile(delete=True, suffix='.zip') as temp_zip:
         with zipfile.ZipFile(temp_zip, 'w', zipfile.ZIP_DEFLATED) as archivo_zip:
             
-            # 2. BUCLE UNO POR UNO
-            for inscrito in inscritos:
-                contexto = {
-                    'curso': curso,
-                    'inscrito': inscrito, # Pasamos solo un alumno
-                    'ruta_imagen': ruta_imagen,
-                    'ruta_fuente': ruta_fuente,
-                }
+            for index, inscrito in enumerate(inscritos):
+                # Extraemos la página exacta de este alumno
+                escritor_pdf = PdfWriter()
+                escritor_pdf.add_page(lector_pdf.pages[index])
                 
-                html_string = render_to_string('pdf_certificados.html', contexto)
-                
-                # Renderiza el PDF (Consume un poco de RAM temporalmente)
-                pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+                # Lo convertimos a datos
+                pdf_individual_buffer = BytesIO()
+                escritor_pdf.write(pdf_individual_buffer)
                 
                 nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
                 nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
                 
-                # Lo guardamos en el ZIP
-                archivo_zip.writestr(nombre_archivo, pdf_bytes)
-                
-                # 3. LIMPIEZA EXTREMA: Forzamos a Python a liberar la RAM inmediatamente
-                del html_string
-                del pdf_bytes
-                gc.collect()
+                # Lo guardamos en el ZIP como un archivo individual
+                archivo_zip.writestr(nombre_archivo, pdf_individual_buffer.getvalue())
 
-        # 4. Preparamos el ZIP final para enviarlo
+        # Preparamos el ZIP final para enviarlo
         temp_zip.seek(0)
         archivo_data = temp_zip.read()
 
@@ -3256,9 +3260,10 @@ def generar_certificado_individual(request, inscripcion_id):
     ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
     ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
     
+    # Como el HTML ahora espera una lista, metemos a nuestro único alumno dentro de unos corchetes []
     contexto = {
         'curso': curso,
-        'inscrito': inscrito, # Volvemos al formato individual
+        'lista_inscritos': [inscrito], # <--- Ojo al cambio aquí
         'ruta_imagen': ruta_imagen,
         'ruta_fuente': ruta_fuente,
     }
@@ -3271,6 +3276,32 @@ def generar_certificado_individual(request, inscripcion_id):
     response['Content-Disposition'] = f'inline; filename="Certificado_{nombre_limpio}.pdf"'
     
     return response
+
+@login_required
+@user_passes_test(es_certificados)
+def lista_cursos_certificados(request):
+    # Ordenamiento inteligente: primero los pendientes (False), al final los enviados (True),
+    # y dentro de cada grupo se mantiene el orden por fecha de finalización más reciente.
+    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('certificados_enviados', '-fecha_finalizacion') 
+    
+    buscar = request.GET.get('buscar', '')
+    mes_busqueda = request.GET.get('mes', '') 
+    
+    if buscar:
+        cursos = cursos.filter(Q(nombre__icontains=buscar) | Q(docente__nombre__icontains=buscar))
+    if mes_busqueda:
+        try:
+            anio, mes = mes_busqueda.split('-')
+            cursos = cursos.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+        except ValueError:
+            pass
+
+    return render(request, 'certificados_cursos.html', {
+        'cursos': cursos,
+        'buscar': buscar,
+        'mes_buscar': mes_busqueda
+    })
+
 @login_required
 @user_passes_test(es_certificados)
 def detalle_curso_certificados(request, curso_id):
