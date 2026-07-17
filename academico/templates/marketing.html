@@ -195,16 +195,22 @@
                         </td>
                         
                         <td class="py-5 px-4 text-center whitespace-nowrap">
-                            {% if c.dias_para_pub > 0 %}
-                                <div class="text-xs font-black text-gray-600 group-hover:text-white transition-colors">Faltan {{ c.dias_para_pub }} días</div>
-                                <div class="text-[9px] font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">Para publicar</div>
-                            {% elif c.dias_para_pub == 0 %}
-                                <div class="text-xs font-black text-rose-600 group-hover:text-white animacion-parpadeo transition-colors">¡PUBLICAR HOY!</div>
+                            {% if c.estado == 'PENDIENTE' %}
+                                <div class="text-xs font-black text-rose-600 group-hover:text-white animacion-parpadeo transition-colors mb-1.5">¡FALTA PUBLICAR!</div>
+                                <form method="POST" action="{% url 'confirmar_publicacion' c.curso.id %}" class="m-0 p-0">
+                                    {% csrf_token %}
+                                    <button type="submit" onclick="return confirm('¿Confirmas que ya publicaste este curso oficialmente en las redes?');" class="inline-flex h-7 px-4 justify-center items-center rounded-full bg-rose-500 hover:bg-rose-600 text-white text-[9px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 group-hover:border-white/30 border border-transparent">
+                                        Confirmar
+                                    </button>
+                                </form>
+                            {% elif c.estado == 'EN REDES' %}
+                                <div class="text-xs font-black text-emerald-600 group-hover:text-white transition-colors">Publicado</div>
+                                <div class="text-[9px] font-bold text-emerald-400 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">¡Confirmado!</div>
                             {% elif c.estado == 'CERRADA' %}
                                 <div class="text-xs font-black text-gray-300 group-hover:text-blue-200 transition-colors">-</div>
                             {% else %}
-                                <div class="text-xs font-black text-emerald-600 group-hover:text-white transition-colors">Publicado</div>
-                                <div class="text-[9px] font-bold text-emerald-400 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">Hace {{ c.dias_para_pub|stringformat:"s"|slice:"1:" }} días</div>
+                                <div class="text-xs font-black text-gray-600 group-hover:text-white transition-colors">Faltan {{ c.dias_para_pub }} días</div>
+                                <div class="text-[9px] font-bold text-gray-400 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">Para publicar</div>
                             {% endif %}
                         </td>
                         

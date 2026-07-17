@@ -34,6 +34,8 @@ class Curso(models.Model):
     # --- NUEVO CAMPO PARA MARKETING ---
     imagen_publicidad = models.ImageField(upload_to='marketing/', null=True, blank=True)
     
+    publicado_en_redes = models.BooleanField(default=False)
+    
     # --- NUEVO CAMPO PARA EL TEMARIO / CONTENIDO ---
     imagen_contenido = models.ImageField(upload_to='contenidos/', null=True, blank=True)
     # ==============================================================

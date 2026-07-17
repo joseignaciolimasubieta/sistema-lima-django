@@ -3064,9 +3064,12 @@ def marketing(request):
         if dias_para_inicio < 0:
             estado = 'CERRADA'
             color = 'gray'
-        elif dias_para_pub <= 0 and dias_para_inicio >= 0:
+        elif c.publicado_en_redes: # NUEVO: Si confirmaste, se marca verde
             estado = 'EN REDES'
             color = 'emerald'
+        elif dias_para_pub <= 0 and dias_para_inicio >= 0:
+            estado = 'PENDIENTE' # NUEVO: Si pasó la fecha y NO confirmaste, alerta roja
+            color = 'rose'
         elif 0 < dias_para_pub <= 7:
             estado = 'PREPARACIÓN'
             color = 'amber'
@@ -3074,8 +3077,8 @@ def marketing(request):
             estado = 'PROGRAMADA'
             color = 'blue'
             
-        # 2. SISTEMA DE ALERTAS: Si los días para publicar son exactamente CERO (Hoy)
-        if dias_para_pub == 0:
+        # 2. SISTEMA DE ALERTAS: Avisa si está PENDIENTE de publicarse
+        if estado == 'PENDIENTE':
             # Filtro doble seguridad para la alerta flotante
             if not any(n.id == c.id for n in notificaciones_hoy):
                 notificaciones_hoy.append(c)
@@ -3094,15 +3097,16 @@ def marketing(request):
     # ========================================================
     def prioridad_marketing(item):
         dias = item['dias_para_pub']
-        if dias == 0:
-            return (0, 0) # 1º: ¡PUBLICAR HOY! (Máxima prioridad)
-        elif dias > 0:
+        estado = item['estado']
+        
+        if estado == 'PENDIENTE':
+            return (0, dias) # 1º: Atrasados o para hoy (Máxima prioridad arriba)
+        elif estado in ['PREPARACIÓN', 'PROGRAMADA']:
             return (1, dias) # 2º: Próximos a publicar
+        elif estado == 'EN REDES':
+            return (2, abs(dias)) # 3º: Ya confirmados en redes
         else:
-            if item['estado'] != 'CERRADA':
-                return (2, abs(dias)) # 3º: Ya publicados/En redes
-            else:
-                return (3, abs(dias)) # 4º: Cerrados (Al fondo de la tabla)
+            return (3, abs(dias)) # 4º: Cerrados (Al fondo de la tabla)
 
     # Ordenamos aplicando nuestra regla de prioridad en la memoria RAM
     campanas = sorted(campanas, key=prioridad_marketing)
@@ -3681,3 +3685,13 @@ def configuracion_empleados(request):
     # Si es GET, cargamos todos los empleados para mostrarlos en la tabla
     empleados = Empleado.objects.all().order_by('nombre_completo')
     return render(request, 'configuracion_empleados.html', {'empleados': empleados})
+
+@login_required
+@user_passes_test(es_marketing)
+def confirmar_publicacion(request, curso_id):
+    if request.method == 'POST':
+        curso = get_object_or_404(Curso, id=curso_id)
+        curso.publicado_en_redes = True
+        curso.save()
+        messages.success(request, f'¡Excelente! El curso "{curso.nombre}" fue marcado como publicado oficialmente en redes.')
+    return redirect('marketing')

@@ -24,6 +24,7 @@ urlpatterns = [
     path('marketing/', views.marketing, name='marketing'),
     path('marketing/', views.marketing, name='marketing'),
     path('marketing/eliminar-afiche/<int:curso_id>/', views.eliminar_afiche_marketing, name='eliminar_afiche_marketing'), # <-- NUEVA RUTA AÑADIDA
+    path('marketing/confirmar/<int:curso_id>/', views.confirmar_publicacion, name='confirmar_publicacion'), 
    # --- NUEVO MÓDULO DE CERTIFICADOS INDEPENDIENTE ---
     path('certificados/', views.lista_cursos_certificados, name='lista_cursos_certificados'),
     path('certificados/<int:curso_id>/confirmar-envio/', views.confirmar_envio_certificados, name='confirmar_envio_certificados'), # <-- NUEVA LÍNEA
