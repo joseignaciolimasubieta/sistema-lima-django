@@ -2190,7 +2190,7 @@ def obtener_datos_empleado_pago(request, empleado_id):
         
         # Bono por envío masivo de certificados de cursos (Ej. para Patricia)
         bono_envio_lotes = 0.00
-        if '' in nombre_completo_emp:
+        if 'patricia' in nombre_completo_emp:
             cursos_enviados = Curso.objects.filter(certificados_enviados=True, fecha_envio_certificados__year=anio, fecha_envio_certificados__month=mes)
             for curso_env in cursos_enviados:
                 total_alumnos_curso = Inscripcion.objects.filter(curso=curso_env).count()
