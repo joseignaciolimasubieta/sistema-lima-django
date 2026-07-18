@@ -78,7 +78,7 @@
                 <div class="flex flex-col">
                     <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Tasa de Interés (%)</label>
                     <div class="campo-django bg-slate-50 border-2 border-slate-100 focus-within:border-[#0071e3] focus-within:bg-white rounded-xl transition-all shadow-sm relative">
-                        <input type="text" name="interes_porcentaje" id="input_porcentaje" placeholder="EJ. 5" value="0">
+                        <input type="text" name="interes_porcentaje" id="input_porcentaje" placeholder="EJ. 5">
                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-400 pointer-events-none"></span>
                     </div>
                     <p id="calculo_interes" class="text-[10px] font-black text-emerald-500 mt-2 ml-1 tracking-widest uppercase">Interés total: Bs 0.00</p>
@@ -224,13 +224,26 @@
 
         [inputMonto, inputPorcentaje].forEach(inputEl => {
             if (inputEl) {
+                // Al salir de la casilla
                 inputEl.addEventListener('blur', function() {
+                    if (this.value.trim() === '') return; // Si lo deja vacío, no hace nada
                     let num = limpiarMonto(this.value);
-                    if(!isNaN(num)) this.value = formatMoneda(num);
+                    if(!isNaN(num) && num !== 0) {
+                        this.value = formatMoneda(num);
+                    } else {
+                        this.value = ''; // Si es 0 o error, lo vacía para que no estorbe
+                    }
                 });
+
+                // Al entrar a la casilla a editar
                 inputEl.addEventListener('focus', function() {
+                    if (this.value.trim() === '') return;
                     let num = limpiarMonto(this.value);
-                    if(!isNaN(num)) this.value = num;
+                    if(!isNaN(num) && num !== 0) {
+                        this.value = num;
+                    } else {
+                        this.value = ''; // Si había un 0 feo, lo borra al instante
+                    }
                 });
             }
         });

@@ -132,51 +132,59 @@
         });
 
         // ----------------------------------------------------
-        // FORMATEADOR DE MONEDA (ACTUALIZADO Y BLINDADO)
+        // FORMATEADOR DE MONEDA (BLINDADO Y SIN CEROS FANTASMAS)
         // ----------------------------------------------------
         const inputMonto = document.querySelector('input[name="monto"], input[name="importe"]');
         if (inputMonto) {
             
-            // Función inteligente que entiende lo que el usuario escribe
             function limpiarMonto(val) {
                 if (!val) return 0;
-                val = val.toString().replace(/[^\d.,]/g, ''); // Deja solo números, puntos y comas
-                
+                val = val.toString().replace(/[^\d.,\-]/g, ''); 
                 if (val.includes(',') && val.includes('.')) {
-                    return parseFloat(val.replace(/\./g, '').replace(',', '.')); // Ej: 1.200,50 -> 1200.50
+                    return parseFloat(val.replace(/\./g, '').replace(',', '.'));
                 } else if (val.includes(',')) {
-                    return parseFloat(val.replace(',', '.')); // Ej: 1200,50 -> 1200.50
+                    return parseFloat(val.replace(',', '.'));
                 } else if (val.includes('.')) {
-                    // Si tiene punto, verifica si es de miles (Ej: 12.000) o decimal (Ej: 12.50)
                     let partes = val.split('.');
                     if (partes.length > 2 || partes[partes.length - 1].length === 3) {
-                        return parseFloat(val.replace(/\./g, '')); // Era de miles
+                        return parseFloat(val.replace(/\./g, ''));
                     }
-                    return parseFloat(val); // Era decimal
+                    return parseFloat(val);
                 }
-                return parseFloat(val); // Número entero normal
+                return parseFloat(val);
             }
 
-            function darFormato() {
-                let num = limpiarMonto(inputMonto.value);
-                if(!isNaN(num)) {
-                    inputMonto.value = num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                }
+            function formatMoneda(num) {
+                if (isNaN(num)) return "0.00";
+                let partes = Math.abs(num).toFixed(2).split('.');
+                partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                return (num < 0 ? "-" : "") + partes.join(',');
             }
 
-            function quitarFormato() {
-                let num = limpiarMonto(inputMonto.value);
-                if(!isNaN(num)) {
-                    inputMonto.value = num; // Lo deja como número puro al editar (12000 o 12000.5)
+            inputMonto.addEventListener('blur', function() {
+                if (this.value.trim() === '') return; // Si está vacío, lo deja en paz
+                let num = limpiarMonto(this.value);
+                if(!isNaN(num) && num !== 0) {
+                    this.value = formatMoneda(num);
+                } else {
+                    this.value = ''; // Borra el 0 para que no estorbe
                 }
-            }
+            });
 
-            inputMonto.addEventListener('blur', darFormato);
-            inputMonto.addEventListener('focus', quitarFormato);
+            inputMonto.addEventListener('focus', function() {
+                if (this.value.trim() === '') return;
+                let num = limpiarMonto(this.value);
+                if(!isNaN(num) && num !== 0) {
+                    this.value = num;
+                } else {
+                    this.value = ''; // Borra el 0 al hacer clic
+                }
+            });
 
             // Si ya tiene valor al cargar la vista de Editar, lo formatea
-            if (inputMonto.value.trim() !== '') {
-                darFormato();
+            if (inputMonto.value.trim() !== '' && inputMonto.value.trim() !== '0.00' && inputMonto.value.trim() !== '0') {
+                let num = limpiarMonto(inputMonto.value);
+                if(!isNaN(num) && num !== 0) inputMonto.value = formatMoneda(num);
             }
 
             // Escudo Protector al guardar: Envía a la BD el número perfecto
