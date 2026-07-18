@@ -159,18 +159,18 @@
                         
                         <td class="px-4 py-3 text-right whitespace-nowrap">
                             <span class="font-black text-xs transition-colors {% if mov.tipo == 'ENTRADA' %}text-emerald-600 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
-                                {% if mov.tipo == 'ENTRADA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
+                                {% if mov.tipo == 'ENTRADA' %}<span class="monto-formatear">{{ mov.monto|floatformat:"2f" }}</span>{% else %}-{% endif %}
                             </span>
                         </td>
             
                         <td class="px-4 py-3 text-right whitespace-nowrap">
                             <span class="font-black text-xs transition-colors {% if mov.tipo == 'SALIDA' %}text-red-500 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
-                                {% if mov.tipo == 'SALIDA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
+                                {% if mov.tipo == 'SALIDA' %}<span class="monto-formatear">{{ mov.monto|floatformat:"2f" }}</span>{% else %}-{% endif %}
                             </span>
                         </td>
 
                         <td class="px-5 py-3 text-right font-black text-[#0071e3] group-hover:text-blue-100 transition-colors text-xs whitespace-nowrap">
-                            Bs {{ mov.saldo_calculado|floatformat:"2g" }}
+                            Bs <span class="monto-formatear">{{ mov.saldo_calculado|floatformat:"2f" }}</span>
                         </td>
             
                         <td class="col-edicion hidden px-4 py-3 text-center whitespace-nowrap bg-gray-50/50 group-hover:bg-transparent transition-colors">
@@ -208,17 +208,17 @@
                         
                         <td class="px-4 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-emerald-600">Bs {{ total_entradas|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-emerald-600">Bs <span class="monto-formatear">{{ total_entradas|floatformat:"2f" }}</span></span>
                         </td>
                         
                         <td class="px-4 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-red-500">Bs {{ total_salidas|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-red-500">Bs <span class="monto-formatear">{{ total_salidas|floatformat:"2f" }}</span></span>
                         </td>
 
                         <td class="px-5 py-4 text-right whitespace-nowrap">
                             
-                            <span class="text-sm font-black text-[#0071e3]">Bs {{ saldo_total|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-[#0071e3]">Bs <span class="monto-formatear">{{ saldo_total|floatformat:"2f" }}</span></span>
                         </td>
 
                         <td class="col-edicion hidden px-4 py-4 bg-slate-100 border-l border-slate-200"></td>
@@ -387,6 +387,18 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // FORMATEADOR AUTOMÁTICO DE MONEDA (Puntito de mil)
+        document.querySelectorAll('.monto-formatear').forEach(el => {
+            // Reemplazamos la coma por punto por si llega con formato europeo desde la BD
+            let valLimpio = el.textContent.trim().replace(/\./g, '').replace(',', '.');
+            let valorOriginal = parseFloat(valLimpio);
+            if(!isNaN(valorOriginal)) {
+                el.textContent = valorOriginal.toLocaleString('es-ES', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
+            }
+        });
         
         flatpickr("#calendario_caja", {
             mode: "range",
