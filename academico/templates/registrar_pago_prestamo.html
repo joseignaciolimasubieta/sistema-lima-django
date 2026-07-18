@@ -23,7 +23,10 @@
             <h3 class="text-lg font-black text-black mt-0.5 uppercase tracking-tight">{{ prestamo.empleado.nombre_completo }}</h3>
             <div class="mt-2 pt-2 border-t border-blue-100/50 flex justify-between items-center text-xs">
                 <span class="font-medium text-gray-500">Saldo Pendiente de Deuda:</span>
-                <span type="text" class="font-black text-[#0071e3] text-sm">Bs {{ prestamo.saldo_restante|floatformat:2 }}</span>
+                
+                <span id="saldo_pendiente_display" class="font-black text-[#0071e3] text-sm">
+                    Bs {{ prestamo.saldo_restante }}
+                </span>
             </div>
         </div>
 
@@ -96,6 +99,14 @@
             let partes = Math.abs(num).toFixed(2).split('.');
             partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             return (num < 0 ? "-" : "") + partes.join(',');
+        }
+
+        // Formatear el saldo pendiente al cargar
+        const saldoElement = document.getElementById('saldo_pendiente_display');
+        const saldoValor = parseFloat("{{ prestamo.saldo_restante }}");
+        
+        if (saldoElement && !isNaN(saldoValor)) {
+            saldoElement.textContent = "Bs " + formatMoneda(saldoValor);
         }
 
         // Eventos para el formato visual
