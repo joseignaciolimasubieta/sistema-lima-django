@@ -146,7 +146,7 @@
                     <label class="block text-xs font-bold text-[#0071e3] uppercase tracking-widest mb-4">Total según Extracto Bancario</label>
                     <div class="relative max-w-sm mx-auto flex items-center">
                         <span class="absolute left-6 text-gray-500 font-black text-2xl" id="simbolo_banco">Bs</span>
-                        <input type="number" step="0.01" min="0" name="total_banco_input" id="total_banco_input" class="w-full bg-white border border-[#0071e3]/30 rounded-2xl py-6 pr-6 pl-16 text-3xl md:text-4xl font-black text-right text-black outline-none focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/20 transition-all shadow-sm" placeholder="0.00">
+                        <input type="text" name="total_banco_input" id="total_banco_input" class="w-full bg-white border border-[#0071e3]/30 rounded-2xl py-6 pr-6 pl-16 text-3xl md:text-4xl font-black text-right text-black outline-none focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/20 transition-all shadow-sm" placeholder="0.00">
                     </div>
                     <p class="text-[10px] font-semibold text-gray-400 mt-4 uppercase tracking-widest">Ingrese el saldo final que indica la entidad financiera.</p>
                 </div>
@@ -281,7 +281,7 @@
                             </label>
                             <div class="relative flex items-center">
                                 <span class="absolute left-0 text-gray-300 font-black text-2xl" id="simbolo_sistema">Bs</span>
-                                <input type="number" step="0.01" id="saldo_sistema" name="saldo_sistema" value="0.00" readonly class="w-full bg-transparent border-none text-white text-2xl md:text-3xl font-black text-right outline-none pl-10 cursor-not-allowed opacity-90">
+                                <input type="text" id="saldo_sistema" name="saldo_sistema" value="0.00" readonly class="w-full bg-transparent border-none text-white text-2xl md:text-3xl font-black text-right outline-none pl-10 cursor-not-allowed opacity-90">
                             </div>
                         </div>
 
@@ -347,18 +347,44 @@
         const simSistema = document.getElementById('simbolo_sistema');
         const simBanco = document.getElementById('simbolo_banco');
 
+        // =========================================================
+        // FUNCIONES DE FORMATEO INTELIGENTE
+        // =========================================================
+        function limpiarMonto(val) {
+            if (!val) return 0;
+            val = val.toString().replace(/[^\d.,]/g, '');
+            if (val.includes(',') && val.includes('.')) {
+                return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+            } else if (val.includes(',')) {
+                return parseFloat(val.replace(',', '.'));
+            } else if (val.includes('.')) {
+                let partes = val.split('.');
+                if (partes.length > 2 || partes[partes.length - 1].length === 3) {
+                    return parseFloat(val.replace(/\./g, ''));
+                }
+                return parseFloat(val);
+            }
+            return parseFloat(val);
+        }
+
+        function formatMoneda(num) {
+            return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // =========================================================
+        // MOTOR DE CÁLCULO
+        // =========================================================
         function calcularArqueo() {
             let granTotal = 0;
             const option = selectCuenta.options[selectCuenta.selectedIndex];
             const tipo = option ? option.getAttribute('data-tipo') : 'ninguno';
             const moneda = option ? (option.getAttribute('data-moneda') || 'Bs') : 'Bs';
 
-            // Actualiza Símbolos Visuales en la Interfaz a $us o Bs
             if(simSistema) simSistema.textContent = moneda;
             if(simBanco) simBanco.textContent = moneda;
 
             if (tipo === 'banco') {
-                granTotal = parseFloat(inputBanco.value) || 0;
+                granTotal = limpiarMonto(inputBanco.value) || 0;
             } else if (tipo === 'dolares') {
                 inputsDolares.forEach(input => {
                     const id = input.id;
@@ -366,7 +392,7 @@
                     const subtotal = cantidad * (valoresDolares[id] || 0);
                     granTotal += subtotal;
                     const elSub = document.getElementById(`sub_${id}`);
-                    if(elSub) elSub.textContent = `${moneda} ${subtotal.toFixed(2)}`;
+                    if(elSub) elSub.textContent = `${moneda} ${formatMoneda(subtotal)}`;
                 });
             } else { 
                 inputsEfectivo.forEach(input => {
@@ -375,16 +401,18 @@
                     const subtotal = cantidad * (valoresEfectivo[id] || 0);
                     granTotal += subtotal;
                     const elSub = document.getElementById(`sub_${id}`);
-                    if(elSub) elSub.textContent = `${moneda} ${subtotal.toFixed(2)}`;
+                    if(elSub) elSub.textContent = `${moneda} ${formatMoneda(subtotal)}`;
                 });
             }
 
-            uiTotalFisico.textContent = `${moneda} ${granTotal.toFixed(2)}`;
+            uiTotalFisico.textContent = `${moneda} ${formatMoneda(granTotal)}`;
 
-            const saldoSistema = parseFloat(inputSistema.value) || 0;
+            const saldoSistema = limpiarMonto(inputSistema.value) || 0;
             const diferencia = granTotal - saldoSistema;
 
-            uiValDiferencia.textContent = `${moneda} ${Math.abs(diferencia).toFixed(2)}`;
+            uiValDiferencia.textContent = `${moneda} ${formatMoneda(Math.abs(diferencia))}`;
+            
+            // Los ocultos siempre limpios para la BD
             document.getElementById('total_fisico_oculto').value = granTotal.toFixed(2);
             document.getElementById('diferencia_oculta').value = diferencia.toFixed(2);
 
@@ -418,9 +446,9 @@
             const saldoBackend = parseFloat(selectedOption.getAttribute('data-saldo')) || 0;
             const tipo = selectedOption.getAttribute('data-tipo');
             
-            inputSistema.value = saldoBackend.toFixed(2);
+            // Le pasamos el número con puntitos al input
+            inputSistema.value = formatMoneda(saldoBackend);
 
-            // Ocultar todos los paneles
             panelEfectivo.classList.add('hidden');
             panelBanco.classList.add('hidden');
             if(panelDolares) panelDolares.classList.add('hidden');
@@ -456,7 +484,25 @@
 
         if(inputBanco) {
             inputBanco.addEventListener('input', calcularArqueo);
-            inputBanco.addEventListener('focus', function() { this.select(); });
+            inputBanco.addEventListener('focus', function() { 
+                let num = limpiarMonto(this.value);
+                this.value = num === 0 ? '' : num;
+                this.select(); 
+            });
+            inputBanco.addEventListener('blur', function() { 
+                let num = limpiarMonto(this.value);
+                this.value = formatMoneda(num);
+                calcularArqueo();
+            });
+        }
+
+        // Antes de guardar, limpiamos todo para no crashear Django
+        const formObj = document.querySelector('form');
+        if(formObj){
+            formObj.addEventListener('submit', function() {
+                if(inputSistema) inputSistema.value = limpiarMonto(inputSistema.value);
+                if(inputBanco) inputBanco.value = limpiarMonto(inputBanco.value);
+            });
         }
 
         calcularArqueo();
