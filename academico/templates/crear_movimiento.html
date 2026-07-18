@@ -131,34 +131,60 @@
             altInputClass: "custom-input custom-input-icon cursor-pointer"
         });
 
-        // 2. FORMATEADOR DE MONEDA PARA EL MONTO
-        const inputMonto = document.querySelector('input[name="monto"]');
+        // ----------------------------------------------------
+        // FORMATEADOR DE MONEDA (ACTUALIZADO Y BLINDADO)
+        // ----------------------------------------------------
+        const inputMonto = document.querySelector('input[name="monto"], input[name="importe"]');
         if (inputMonto) {
+            
+            // Función inteligente que entiende lo que el usuario escribe
+            function limpiarMonto(val) {
+                if (!val) return 0;
+                val = val.toString().replace(/[^\d.,]/g, ''); // Deja solo números, puntos y comas
+                
+                if (val.includes(',') && val.includes('.')) {
+                    return parseFloat(val.replace(/\./g, '').replace(',', '.')); // Ej: 1.200,50 -> 1200.50
+                } else if (val.includes(',')) {
+                    return parseFloat(val.replace(',', '.')); // Ej: 1200,50 -> 1200.50
+                } else if (val.includes('.')) {
+                    // Si tiene punto, verifica si es de miles (Ej: 12.000) o decimal (Ej: 12.50)
+                    let partes = val.split('.');
+                    if (partes.length > 2 || partes[partes.length - 1].length === 3) {
+                        return parseFloat(val.replace(/\./g, '')); // Era de miles
+                    }
+                    return parseFloat(val); // Era decimal
+                }
+                return parseFloat(val); // Número entero normal
+            }
+
             function darFormato() {
-                let val = inputMonto.value.replace(/\./g, '').replace(',', '.');
-                let num = parseFloat(val);
+                let num = limpiarMonto(inputMonto.value);
                 if(!isNaN(num)) {
                     inputMonto.value = num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 }
             }
 
             function quitarFormato() {
-                let val = inputMonto.value.replace(/\./g, '').replace(',', '.');
-                let num = parseFloat(val);
+                let num = limpiarMonto(inputMonto.value);
                 if(!isNaN(num)) {
-                    inputMonto.value = num.toFixed(2);
+                    inputMonto.value = num; // Lo deja como número puro al editar (12000 o 12000.5)
                 }
             }
 
             inputMonto.addEventListener('blur', darFormato);
             inputMonto.addEventListener('focus', quitarFormato);
 
-            // Escudo Protector al guardar
+            // Si ya tiene valor al cargar la vista de Editar, lo formatea
+            if (inputMonto.value.trim() !== '') {
+                darFormato();
+            }
+
+            // Escudo Protector al guardar: Envía a la BD el número perfecto
             const form = inputMonto.closest('form');
             if (form) {
                 form.addEventListener('submit', function() {
-                    let valRaw = inputMonto.value.replace(/\./g, '').replace(',', '.');
-                    inputMonto.value = valRaw;
+                    let num = limpiarMonto(inputMonto.value);
+                    inputMonto.value = isNaN(num) ? 0 : num; 
                 });
             }
         }
