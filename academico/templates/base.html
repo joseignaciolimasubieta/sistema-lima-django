@@ -68,7 +68,7 @@
                         {% if request.user.is_superuser %}
                             <!-- Menú dinámico SÓLO para el Administrador -->
                             {% if url_name in 'consultora crear_servicio editar_servicio crear_cliente citas_consultora crear_cita_consultora editar_cita_consultora archivo_digital' %}
-                                <a href="{% url 'consultora' %}" class="apple-nav-link {% if 'consultora' in url_name or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
+                                <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
                                 <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                                 <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
                             {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados' %}
@@ -91,7 +91,7 @@
                             <!-- Menú fijo e infalible para los Empleados -->
                             {% for grupo in request.user.groups.all %}
                                 {% if grupo.name == 'Contabilidad' %}
-                                    <a href="{% url 'consultora' %}" class="apple-nav-link {% if 'consultora' in url_name or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
+                                    <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
                                     <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                                     <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
                                 {% endif %}

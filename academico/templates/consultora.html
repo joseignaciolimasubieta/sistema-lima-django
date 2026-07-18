@@ -177,13 +177,13 @@
                         </td>
                         
                         <td class="py-6 px-4 text-center font-bold text-black group-hover:text-white transition-colors whitespace-nowrap relative">
-                            Bs {{ s.importe }}
+                            Bs <span class="monto-formatear">{{ s.importe }}</span>
                         </td>
                         
                         <td class="py-4 px-4 text-center whitespace-nowrap">
                             <div class="text-xs font-bold text-black group-hover:text-white transition-colors uppercase mb-1">{{ s.contador|default:"-" }}</div>
                             <div class="text-[10px] font-black text-amber-600 group-hover:text-blue-200 transition-colors uppercase tracking-widest">
-                                COMISIÓN: Bs {{ s.comision|default:"0.00" }}
+                                COMISIÓN: Bs <span class="monto-formatear">{{ s.comision|default:"0.00" }}</span>
                             </div>
                         </td>
                         
@@ -263,6 +263,17 @@
                         el.textContent = meses[month - 1] + ' ' + year;
                     }
                 }
+            }
+        });
+        // FORMATEADOR AUTOMÁTICO DE MONEDA (Puntito de mil)
+        document.querySelectorAll('.monto-formatear').forEach(el => {
+            let valorOriginal = parseFloat(el.textContent.trim());
+            if(!isNaN(valorOriginal)) {
+                // El formato 'es-ES' coloca el punto en los miles y coma en los decimales
+                el.textContent = valorOriginal.toLocaleString('es-ES', { 
+                    minimumFractionDigits: 2, 
+                    maximumFractionDigits: 2 
+                });
             }
         });
     });
