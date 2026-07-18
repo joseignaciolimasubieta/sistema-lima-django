@@ -348,17 +348,19 @@
         const simBanco = document.getElementById('simbolo_banco');
 
         // =========================================================
-        // FUNCIONES DE FORMATEO INTELIGENTE
+        // FUNCIONES DE FORMATEO INTELIGENTE (PUNTOS FORZADOS)
         // =========================================================
         function limpiarMonto(val) {
             if (!val) return 0;
-            val = val.toString().replace(/[^\d.,]/g, '');
+            // Permitimos números, puntos, comas y el signo negativo
+            val = val.toString().replace(/[^\d.,\-]/g, ''); 
             if (val.includes(',') && val.includes('.')) {
                 return parseFloat(val.replace(/\./g, '').replace(',', '.'));
             } else if (val.includes(',')) {
                 return parseFloat(val.replace(',', '.'));
             } else if (val.includes('.')) {
                 let partes = val.split('.');
+                // Si tiene más de 1 punto, o el último bloque tiene 3 dígitos, es separador de miles
                 if (partes.length > 2 || partes[partes.length - 1].length === 3) {
                     return parseFloat(val.replace(/\./g, ''));
                 }
@@ -368,7 +370,12 @@
         }
 
         function formatMoneda(num) {
-            return num.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            // Fuerza 2 decimales y separa por el punto
+            let partes = Math.abs(num).toFixed(2).split('.');
+            // Obliga a poner un punto cada 3 dígitos
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            // Devuelve el signo negativo si existía y junta los decimales con coma
+            return (num < 0 ? "-" : "") + partes.join(',');
         }
 
         // =========================================================
