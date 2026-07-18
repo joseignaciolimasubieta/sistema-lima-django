@@ -78,12 +78,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Aumentar Capital (Bs)</label>
-                            <input type="number" step="0.01" name="aumento_capital" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
+                            <input type="text" name="aumento_capital" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
                             <p class="text-[9px] font-bold text-gray-400 mt-1 uppercase tracking-widest">Si no deseas ampliar, deja este campo vacío.</p>
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Nuevo Interés / Recargo (Bs)</label>
-                            <input type="number" step="0.01" name="aumento_interes" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
+                            <input type="text" name="aumento_interes" placeholder="0.00" class="w-full h-11 px-4 bg-white border border-blue-200 rounded-xl text-sm font-black text-[#0071e3] outline-none hover:border-blue-300 focus:border-[#0071e3] transition-colors focus:ring-2 focus:ring-blue-100 placeholder-blue-300">
                         </div>
                     </div>
 
@@ -162,6 +162,68 @@
             locale: "es",
             dateFormat: "Y-m-d",
             defaultDate: new Date() // Seteado automáticamente al día de hoy para ahorrar tiempo
+        });
+        // =========================================================
+        // FORMATEADOR BLINDADO DE MONEDA PARA AMPLIACIONES
+        // =========================================================
+        const inputsMoneda = document.querySelectorAll('input[name="aumento_capital"], input[name="aumento_interes"]');
+        
+        inputsMoneda.forEach(inputMonto => {
+            function limpiarMonto(val) {
+                if (!val) return 0;
+                val = val.toString().replace(/[^\d.,\-]/g, ''); 
+                if (val.includes(',') && val.includes('.')) {
+                    return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+                } else if (val.includes(',')) {
+                    return parseFloat(val.replace(',', '.'));
+                } else if (val.includes('.')) {
+                    let partes = val.split('.');
+                    if (partes.length > 2 || partes[partes.length - 1].length === 3) {
+                        return parseFloat(val.replace(/\./g, ''));
+                    }
+                    return parseFloat(val);
+                }
+                return parseFloat(val);
+            }
+
+            function formatMoneda(num) {
+                if (isNaN(num)) return "0.00";
+                let partes = Math.abs(num).toFixed(2).split('.');
+                partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                return (num < 0 ? "-" : "") + partes.join(',');
+            }
+
+            inputMonto.addEventListener('blur', function() {
+                let num = limpiarMonto(this.value);
+                // Evitamos formatear si el usuario solo hizo clic por error y dejó en 0 o vacío
+                if(!isNaN(num) && this.value.trim() !== '') {
+                    this.value = formatMoneda(num);
+                }
+            });
+
+            inputMonto.addEventListener('focus', function() {
+                let num = limpiarMonto(this.value);
+                if(!isNaN(num) && num !== 0) {
+                    this.value = num;
+                } else {
+                    this.value = ''; // Limpia el 0 para escribir rápido
+                }
+            });
+
+            // Formatea automáticamente al cargar si hay un valor preexistente
+            if (inputMonto.value.trim() !== '' && inputMonto.value.trim() !== '0.00' && inputMonto.value.trim() !== '0') {
+                let num = limpiarMonto(inputMonto.value);
+                if(!isNaN(num)) inputMonto.value = formatMoneda(num);
+            }
+
+            // Escudo para enviar limpio a la BD
+            const form = inputMonto.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    let num = limpiarMonto(inputMonto.value);
+                    inputMonto.value = isNaN(num) ? 0 : num; 
+                });
+            }
         });
     });
 </script>
