@@ -90,7 +90,7 @@
         <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Capital Prestado</span>
-                <h3 class="text-2xl font-black text-black tracking-tight">Bs {{ total_capital_prestado }}</h3>
+                <h3 class="text-2xl font-black text-black tracking-tight">Bs <span class="monto-formatear">{{ total_capital_prestado }}</span></h3>
             </div>
             <div class="bg-gray-50 border border-gray-100 p-3 rounded-2xl text-[#0071e3]">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
@@ -101,7 +101,7 @@
         <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Total Recuperado</span>
-                <h3 class="text-2xl font-black text-emerald-600 tracking-tight">Bs {{ total_recuperado }}</h3>
+                <h3 class="text-2xl font-black text-emerald-600 tracking-tight">Bs <span class="monto-formatear">{{ total_recuperado }}</span></h3>
             </div>
             <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-2xl text-emerald-600">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 11l3 3L22 4m-2 12a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2h11.751"></path></svg>
@@ -112,7 +112,7 @@
         <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between">
             <div>
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2">Saldo de Préstamos</span>
-                <h3 class="text-2xl font-black text-[#0071e3] tracking-tight">Bs {{ saldo_por_cobrar }}</h3>
+                <h3 class="text-2xl font-black text-[#0071e3] tracking-tight">Bs <span class="monto-formatear">{{ saldo_por_cobrar }}</span></h3>
             </div>
             <div class="bg-blue-50 border border-blue-100 p-3 rounded-2xl text-[#0071e3]">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
@@ -179,22 +179,22 @@
                         </td>
                         
                         <td class="py-4 px-3 md:px-4 text-right whitespace-nowrap">
-                            <span class="text-sm font-black text-black group-hover:text-white transition-colors block mb-0.5">Bs {{ p.total_deuda }}</span>
-                            <div class="text-[9px] text-gray-400 group-hover:text-blue-200 transition-colors font-bold leading-snug tracking-wider">Capital: Bs {{ p.monto_prestado }}<br>Interés: Bs {{ p.interes }}</div>
+                            <span class="text-sm font-black text-black group-hover:text-white transition-colors block mb-0.5">Bs <span class="monto-formatear">{{ p.total_deuda }}</span></span>
+                            <div class="text-[9px] text-gray-400 group-hover:text-blue-200 transition-colors font-bold leading-snug tracking-wider">Capital: Bs <span class="monto-formatear">{{ p.monto_prestado }}</span><br>Interés: Bs <span class="monto-formatear">{{ p.interes }}</span></div>
                         </td>
                         
                         <!-- BARRA DE PROGRESO INTACTA, SOLO TEXTOS CAMBIAN -->
                         <td class="py-4 px-3 md:px-4">
                             <div class="flex items-center justify-between text-[10px] font-black text-slate-500 group-hover:text-white transition-colors mb-1.5">
-                                <span class="text-emerald-600 group-hover:text-emerald-300 transition-colors">Pago: Bs {{ p.pago_acumulado }}</span>
-                                <span class="group-hover:text-blue-200 transition-colors">Meta: Bs {{ p.total_deuda }}</span>
+                                <span class="text-emerald-600 group-hover:text-emerald-300 transition-colors">Pago: Bs <span class="monto-formatear">{{ p.pago_acumulado }}</span></span>
+                                <span class="group-hover:text-blue-200 transition-colors">Meta: Bs <span class="monto-formatear">{{ p.total_deuda }}</span></span>
                             </div>
                             <div class="w-full bg-slate-100 group-hover:bg-white/20 transition-colors rounded-full h-2 border border-slate-200/60 group-hover:border-transparent overflow-hidden">
                                 <div class="bg-gradient-to-r from-blue-500 to-emerald-500 h-2 transition-all duration-500" style="width: calc(({{ p.pago_acumulado|stringformat:'s' }} / {{ p.total_deuda|stringformat:'s' }}) * 100%)"></div>
                             </div>
                         </td>
                         
-                        <td class="py-4 px-3 md:px-4 text-right font-black text-[#0071e3] group-hover:text-white transition-colors text-sm whitespace-nowrap">Bs {{ p.saldo_restante }}</td>
+                        <td class="py-4 px-3 md:px-4 text-right font-black text-[#0071e3] group-hover:text-white transition-colors text-sm whitespace-nowrap">Bs <span class="monto-formatear">{{ p.saldo_restante }}</span></td>
                         
                         <td class="py-4 px-3 md:px-4 text-center whitespace-nowrap">
                             {% if p.estado == 'ACTIVO' %}
@@ -251,18 +251,18 @@
                                         <div class="space-y-3">
                                             <div class="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
                                                 <span class="text-[10px] font-semibold text-gray-400 uppercase">Monto Otorgado</span>
-                                                <span class="font-bold text-black">Bs {{ p.total_deuda }}</span>
+                                                <span class="font-bold text-black">Bs <span class="monto-formatear">{{ p.total_deuda }}</span></span>
                                             </div>
                                             <div class="bg-white p-4 rounded-2xl border border-gray-100 flex justify-between items-center">
                                                 <span class="text-[10px] font-semibold text-gray-400 uppercase">Total Amortizado</span>
-                                                <span class="font-bold text-emerald-600">Bs {{ p.pago_acumulado }}</span>
+                                                <span class="font-bold text-emerald-600">Bs <span class="monto-formatear">{{ p.pago_acumulado }}</span></span>
                                             </div>
                                         </div>
                                     </div>
                                     
                                     <div class="pt-5 border-t border-gray-200">
                                         <span class="block text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Saldo Líquido Pendiente</span>
-                                        <h5 class="text-2xl font-bold text-[#0071e3]">Bs {{ p.saldo_restante }}</h5>
+                                        <h5 class="text-2xl font-bold text-[#0071e3]">Bs <span class="monto-formatear">{{ p.saldo_restante }}</span></h5>
                                     </div>
                                 </div>
                                 
@@ -294,7 +294,7 @@
                                                 </td>
                                                 <td class="p-4 text-right">
                                                     <div class="flex items-center justify-end gap-3">
-                                                        <span class="font-bold text-emerald-600 text-sm">Bs {{ abono.monto }}</span>
+                                                        <span class="font-bold text-emerald-600 text-sm">Bs <span class="monto-formatear">{{ abono.monto }}</span></span>
                                                         
                                                         {% if not abono.es_descuento_planilla %}
                                                         <a href="{% url 'imprimir_recibo_pago' abono.id %}" target="_blank" class="inline-flex items-center gap-1 text-[9px] font-black text-[#0071e3] hover:text-[#0077ED] uppercase tracking-wider bg-blue-50 px-2 py-1 rounded-md transition-colors" title="Imprimir Comprobante Oficial">
@@ -353,6 +353,42 @@
             svg.classList.remove('rotate-180');
         }
     }
+    // =========================================================
+    // FORMATEADOR DE MONEDA INTELIGENTE
+    // =========================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.monto-formatear').forEach(el => {
+            let val = el.textContent.trim();
+            if (!val) return;
+            
+            // 1. Limpiamos cualquier formato previo (dejando solo números, puntos y comas)
+            val = val.toString().replace(/[^\d.,\-]/g, ''); 
+            
+            let num = 0;
+            // 2. Traductor a formato comprensible por JavaScript (Float)
+            if (val.includes(',') && val.includes('.')) {
+                num = parseFloat(val.replace(/\./g, '').replace(',', '.'));
+            } else if (val.includes(',')) {
+                num = parseFloat(val.replace(',', '.'));
+            } else if (val.includes('.')) {
+                let partes = val.split('.');
+                if (partes.length > 2 || partes[partes.length - 1].length === 3) {
+                    num = parseFloat(val.replace(/\./g, ''));
+                } else {
+                    num = parseFloat(val);
+                }
+            } else {
+                num = parseFloat(val);
+            }
+            
+            // 3. Imprimimos forzando el separador de miles
+            if(!isNaN(num)) {
+                let partes = Math.abs(num).toFixed(2).split('.');
+                partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                el.textContent = (num < 0 ? "-" : "") + partes.join(',');
+            }
+        });
+    });
     
 </script>
 
