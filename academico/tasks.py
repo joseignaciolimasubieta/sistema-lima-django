@@ -3,7 +3,7 @@ from celery import shared_task
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from .models import Curso, Inscripcion
+from .models import Curso, Inscripcion 
 import os
 from pathlib import Path
 
@@ -64,3 +64,57 @@ def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
             correos_enviados += 1
             
     return f"Se enviaron {correos_enviados} certificados exitosamente."
+
+# tasks.py (Agregar al final)
+
+@shared_task
+def enviar_certificado_individual_task(inscripcion_id, base_url):
+    inscrito = Inscripcion.objects.select_related('curso', 'curso__docente', 'participante').get(id=inscripcion_id)
+    curso = inscrito.curso
+    correo_destino = inscrito.participante.correo
+    
+    if not correo_destino:
+        return f"El participante {inscrito.participante.nombre_completo} no tiene correo."
+
+    # Definimos fondos según el docente
+    ruta_actual = os.path.dirname(os.path.abspath(__file__))
+    nombre_docente = curso.docente.nombre.lower()
+    
+    if 'juan' in nombre_docente or 'juanjo' in nombre_docente:
+        archivo_fondo = 'certificado_juanjo.jpg'
+    elif 'mariana' in nombre_docente:
+        archivo_fondo = 'certificado_mariana.jpg'
+    elif 'rodrigo' in nombre_docente:
+        archivo_fondo = 'certificado_rodrigo.jpg'
+    else:
+        archivo_fondo = 'certificado.jpg'
+        
+    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
+    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
+    
+    # Renderizamos el PDF
+    contexto = {
+        'curso': curso,
+        'lista_inscritos': [inscrito],
+        'ruta_imagen': ruta_imagen,
+        'ruta_fuente': ruta_fuente,
+    }
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=base_url).write_pdf()
+
+    # Preparamos y enviamos el correo
+    asunto = f'Tu certificado del curso: {curso.nombre}'
+    mensaje = f'Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.'
+    
+    email = EmailMessage(
+        subject=asunto,
+        body=mensaje,
+        from_email=None, # Usa el correo por defecto de settings.py
+        to=[correo_destino]
+    )
+    
+    nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+    email.attach(f"Certificado_{nombre_limpio}.pdf", pdf_file, 'application/pdf')
+    email.send(fail_silently=True)
+    
+    return f"Certificado enviado a {correo_destino} exitosamente."
