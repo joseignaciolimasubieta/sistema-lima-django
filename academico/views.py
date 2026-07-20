@@ -33,6 +33,8 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.db.models.functions import TruncMonth, TruncYear
 from datetime import date, timedelta
+from django.core.mail import EmailMessage
+from .tasks import procesar_y_enviar_certificados
 from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
 
@@ -491,6 +493,7 @@ def crear_inscripcion(request):
         # 1. Extraemos los datos del formulario HTML
         nombre = request.POST.get('nombre_completo')
         celular = request.POST.get('celular')
+        correo = request.POST.get('correo', '').strip()
         
         curso_id = request.POST.get('curso')
         fecha = request.POST.get('fecha_inscripcion')
@@ -511,11 +514,14 @@ def crear_inscripcion(request):
         if participantes_existentes.exists():
             participante = participantes_existentes.first()
             participante.celular = celular
+            if correo: # <-- ACTUALIZAMOS SU CORREO SI LO INGRESA
+                participante.correo = correo
             participante.save()
         else:
             participante = Participante.objects.create(
                 nombre_completo=nombre.upper(),
-                celular=celular
+                celular=celular,
+                correo=correo # <-- GUARDAMOS EL CORREO AL CREARLO
             )
         
         # 3. Buscamos el curso o módulo seleccionado
@@ -1676,6 +1682,7 @@ def editar_inscripcion(request, id):
         # 2. Extraemos los nuevos datos enviados por el formulario
         nombre_completo = request.POST.get('nombre_completo')
         celular = request.POST.get('celular')
+        correo = request.POST.get('correo', '').strip()
         curso_id = request.POST.get('curso')
         modalidad = request.POST.get('modalidad')
         importe = request.POST.get('importe')
@@ -1698,8 +1705,8 @@ def editar_inscripcion(request, id):
             participante.nombre = nombre_completo
             
         participante.celular = celular
-        participante.save() # Guarda los cambios del alumno
-
+        participante.correo = correo # <-- ACTUALIZAMOS SU CORREO
+        participante.save()
         # Actualizar datos principales de la inscripción
         inscripcion.curso = get_object_or_404(Curso, id=curso_id)
         inscripcion.modalidad = modalidad
@@ -1754,6 +1761,7 @@ def editar_inscripcion_cc(request, id):
         # 1. Atrapamos los datos del formulario
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
         celular = request.POST.get('celular', '').strip()
+        correo = request.POST.get('correo', '').strip()
         curso_id = request.POST.get('curso')
         fecha = request.POST.get('fecha_inscripcion')
         
@@ -1772,7 +1780,9 @@ def editar_inscripcion_cc(request, id):
             participante.nombre_completo = nombre_completo
         else:
             participante.nombre = nombre_completo
+            
         participante.celular = celular
+        participante.correo = correo # <-- ACTUALIZAMOS SU CORREO
         participante.save()
 
         # 3. Actualizar Inscripción
@@ -2909,6 +2919,7 @@ def crear_inscripcion_cc(request):
     if request.method == 'POST':
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
         celular = request.POST.get('celular', '').strip()
+        correo = request.POST.get('correo', '').strip()
         
         curso_id = request.POST.get('curso')
         fecha = request.POST.get('fecha_inscripcion')
@@ -2924,10 +2935,13 @@ def crear_inscripcion_cc(request):
         
         participante, created = Participante.objects.get_or_create(
             nombre_completo=nombre_completo,
-            defaults={'celular': celular}
+            defaults={'celular': celular, 'correo': correo} # Guardamos correo si es nuevo
         )
-        if not created and celular and participante.celular != celular:
-            participante.celular = celular
+        if not created:
+            if celular and participante.celular != celular:
+                participante.celular = celular
+            if correo: # Si el participante ya existía pero ingresó correo, lo actualizamos
+                participante.correo = correo
             participante.save()
         
         curso_seleccionado = get_object_or_404(Curso, id=curso_id)
@@ -3486,12 +3500,19 @@ def confirmar_envio_certificados(request, curso_id):
     if request.method == 'POST':
         curso = get_object_or_404(Curso, id=curso_id)
         
-        # Solo marcamos como enviado y guardamos la fecha
+        # 1. Guardamos el estado en la base de datos de inmediato
         curso.certificados_enviados = True
         curso.fecha_envio_certificados = date.today()
         curso.save()
         
-        messages.success(request, f'¡Excelente! Confirmaste el envío de los certificados del curso "{curso.nombre}". El bono se calculará automáticamente en la planilla de este mes.')
+        # 2. Disparamos la tarea en segundo plano con Celery
+        modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
+        base_url = request.build_absolute_uri('/')
+        
+        # El .delay() es la magia que lo manda a segundo plano
+        procesar_y_enviar_certificados.delay(curso.id, modalidad_actual, base_url)
+        
+        messages.success(request, f'¡Excelente! Confirmaste el envío de los certificados del curso "{curso.nombre}". El bono se calculará automáticamente y los correos se están enviando en segundo plano.')
         
     return redirect('lista_cursos_certificados')
 
@@ -3695,3 +3716,58 @@ def confirmar_publicacion(request, curso_id):
         curso.save()
         messages.success(request, f'¡Excelente! El curso "{curso.nombre}" fue marcado como publicado oficialmente en redes.')
     return redirect('marketing')
+
+@login_required
+@user_passes_test(es_certificados)
+def enviar_certificados_masivos(request, curso_id):
+    if request.method == 'POST':
+        curso = get_object_or_404(Curso, id=curso_id)
+        
+        # Filtramos a los inscritos según modalidad (igual que tu función original)
+        modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
+        inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
+        
+        # --- Lógica de definición de fondos y fuentes (se mantiene igual) ---
+        # ...
+        
+        for inscrito in inscritos:
+            correo_destino = inscrito.participante.correo
+            
+            # Solo procesamos a los alumnos que tengan un correo registrado
+            if correo_destino:
+                # 1. Generar el PDF individual en memoria
+                contexto = {
+                    'curso': curso,
+                    'lista_inscritos': [inscrito], # Pasamos solo este alumno
+                    'ruta_imagen': ruta_imagen,
+                    'ruta_fuente': ruta_fuente,
+                }
+                html_string = render_to_string('pdf_certificados.html', contexto)
+                pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+
+                # 2. Preparar el correo electrónico
+                asunto = f'Tu certificado del curso: {curso.nombre}'
+                mensaje = f'Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.'
+                
+                email = EmailMessage(
+                    subject=asunto,
+                    body=mensaje,
+                    from_email='tu_correo@gmail.com', # Debe coincidir con el settings.py
+                    to=[correo_destino]
+                )
+                
+                # 3. Adjuntar el PDF de la memoria y enviarlo
+                nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+                nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
+                
+                email.attach(nombre_archivo, pdf_file, 'application/pdf')
+                email.send(fail_silently=True)
+
+        # 4. Actualizar el estado global del curso
+        curso.certificados_enviados = True
+        curso.fecha_envio_certificados = date.today()
+        curso.save()
+
+        messages.success(request, f'¡Excelente! Se generaron y enviaron los certificados del curso "{curso.nombre}" por correo electrónico.')
+        
+    return redirect('lista_cursos_certificados')

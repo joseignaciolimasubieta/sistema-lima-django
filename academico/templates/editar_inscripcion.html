@@ -24,16 +24,22 @@
                 <h3 class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Información del Participante</h3>
             </div>
             
-            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="flex flex-col">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Nombre Completo <span class="text-rose-500"></span></label>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Nombre Completo <span class="text-rose-500">*</span></label>
                     <input type="text" name="nombre_completo" value="{{ inscripcion.participante.nombre_completo|default:inscripcion.participante }}" placeholder="EJ. JUAN PEREZ" required 
                            class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
                 </div>
                 <div class="flex flex-col">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Número de Celular <span class="text-rose-500"></span></label>
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Número de Celular <span class="text-rose-500">*</span></label>
                     <input type="text" name="celular" value="{{ inscripcion.participante.celular }}" placeholder="EJ. 77712345" required 
                            class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                </div>
+                <!-- NUEVO CAMPO DE CORREO (CON VALUE CARGADO DE LA BD) -->
+                <div class="flex flex-col">
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Correo Electrónico (Para Certificado)</label>
+                    <input type="email" name="correo" value="{{ inscripcion.participante.correo|default:'' }}" placeholder="EJ. ALUMNO@GMAIL.COM" 
+                           class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm lowercase">
                 </div>
             </div>
         </div>
