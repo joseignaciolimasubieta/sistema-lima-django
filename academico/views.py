@@ -35,7 +35,7 @@ from django.db.models.functions import TruncMonth, TruncYear
 from datetime import date, timedelta
 from django.core.mail import EmailMessage
 import threading
-from .tasks import procesar_y_enviar_certificados, enviar_certificado_individual_task
+from .tasks import enviar_certificado_individual_task
 from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
 
@@ -3494,28 +3494,6 @@ def eliminar_archivo(request, archivo_id):
     archivo.delete()
     messages.success(request, 'Vínculo eliminado del Archivo Digital.')
     return redirect('archivo_digital')
-
-@login_required
-@user_passes_test(es_certificados)
-def confirmar_envio_certificados(request, curso_id):
-    if request.method == 'POST':
-        curso = get_object_or_404(Curso, id=curso_id)
-        
-        curso.certificados_enviados = True
-        curso.fecha_envio_certificados = date.today()
-        curso.save()
-        
-        modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
-        base_url = request.build_absolute_uri('/')
-        
-        # --- EJECUCIÓN DIRECTA (Adiós a los hilos que fallan en Render gratuito) ---
-        try:
-            procesar_y_enviar_certificados(curso.id, modalidad_actual, base_url)
-            messages.success(request, f'¡Excelente! Se enviaron todos los certificados del curso "{curso.nombre}" exitosamente.')
-        except Exception as e:
-            messages.error(request, f'Error al enviar correos: {str(e)}')
-        
-    return redirect('lista_cursos_certificados')
 
 @login_required
 def lista_anticipos(request):
