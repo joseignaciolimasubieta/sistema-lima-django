@@ -34,6 +34,7 @@ from openpyxl.utils import get_column_letter
 from django.db.models.functions import TruncMonth, TruncYear
 from datetime import date, timedelta
 from django.core.mail import EmailMessage
+import threading
 from .tasks import procesar_y_enviar_certificados, enviar_certificado_individual_task
 from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
@@ -3500,17 +3501,16 @@ def confirmar_envio_certificados(request, curso_id):
     if request.method == 'POST':
         curso = get_object_or_404(Curso, id=curso_id)
         
-        # 1. Guardamos el estado en la base de datos de inmediato
         curso.certificados_enviados = True
         curso.fecha_envio_certificados = date.today()
         curso.save()
         
-        # 2. Disparamos la tarea en segundo plano con Celery
         modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
         base_url = request.build_absolute_uri('/')
         
-        # El .delay() es la magia que lo manda a segundo plano
-        procesar_y_enviar_certificados.delay(curso.id, modalidad_actual, base_url)
+        # --- EL TRUCO GRATUITO (HILOS NATIVOS) ---
+        hilo = threading.Thread(target=procesar_y_enviar_certificados, args=(curso.id, modalidad_actual, base_url))
+        hilo.start()
         
         messages.success(request, f'¡Excelente! Confirmaste el envío de los certificados del curso "{curso.nombre}". El bono se calculará automáticamente y los correos se están enviando en segundo plano.')
         
@@ -3777,14 +3777,15 @@ def enviar_certificados_masivos(request, curso_id):
 def enviar_certificado_individual(request, inscripcion_id):
     inscrito = get_object_or_404(Inscripcion, id=inscripcion_id)
     
-    # Validamos que el alumno tenga un correo registrado
     if not inscrito.participante.correo:
         messages.error(request, f'No se puede enviar. El alumno {inscrito.participante.nombre_completo} no tiene un correo registrado en el sistema.')
     else:
-        # Enviamos la orden a Celery
         base_url = request.build_absolute_uri('/')
-        enviar_certificado_individual_task.delay(inscrito.id, base_url)
+        
+        # --- EL TRUCO GRATUITO (HILOS NATIVOS) ---
+        hilo = threading.Thread(target=enviar_certificado_individual_task, args=(inscrito.id, base_url))
+        hilo.start()
+        
         messages.success(request, f'¡Enviando certificado a {inscrito.participante.correo} en segundo plano!')
         
-    # Recargamos la misma página en la que estaba el usuario
     return redirect(request.META.get('HTTP_REFERER', 'lista_cursos_certificados'))

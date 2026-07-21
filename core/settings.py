@@ -182,9 +182,4 @@ EMAIL_HOST = 'smtp.gmail.com' # Ejemplo utilizando Gmail
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'digital.iodesarrollodesoftware@gmail.com'
-EMAIL_HOST_PASSWORD = 'ybph lseg dkrj chhg' #Contraseña generada en gmail
-
-# --- CONFIGURACIÓN DE CELERY Y REDIS ---
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+EMAIL_HOST_PASSWORD = 'ybphlsegdkrjchhg' #Contraseña generada en gmail

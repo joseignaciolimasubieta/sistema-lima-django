@@ -1,13 +1,12 @@
 # tasks.py
-from celery import shared_task
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from .models import Curso, Inscripcion 
+from .models import Curso, Inscripcion
 import os
 from pathlib import Path
 
-@shared_task
+# Borramos el @shared_task que estaba aquí arriba
 def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
     curso = Curso.objects.get(id=curso_id)
     inscritos = Inscripcion.objects.filter(curso=curso, modalidad=modalidad_actual).select_related('participante')
@@ -66,8 +65,6 @@ def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
     return f"Se enviaron {correos_enviados} certificados exitosamente."
 
 # tasks.py (Agregar al final)
-
-@shared_task
 def enviar_certificado_individual_task(inscripcion_id, base_url):
     inscrito = Inscripcion.objects.select_related('curso', 'curso__docente', 'participante').get(id=inscripcion_id)
     curso = inscrito.curso
