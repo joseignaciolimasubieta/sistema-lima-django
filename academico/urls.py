@@ -36,6 +36,10 @@ urlpatterns = [
     path('api/certificados/enviar/<int:inscripcion_id>/', views.api_enviar_certificado_js, name='api_enviar_certificado_js'),
     path('api/certificados/marcar/<int:curso_id>/', views.api_marcar_curso_enviado, name='api_marcar_curso_enviado'),
 
+    # --- PORTAL PÚBLICO DE DESCARGAS ---
+    path('mis-certificados/', views.portal_buscar_certificado, name='portal_buscar_certificado'),
+    path('mis-certificados/descargar/<int:inscripcion_id>/', views.descargar_certificado_publico, name='descargar_certificado_publico'),
+
     # --- MÓDULO DE CITAS CONSULTORA ---
     path('consultora/citas/', views.citas_consultora, name='citas_consultora'),
     path('consultora/citas/guardar/', views.guardar_cita, name='guardar_cita'),

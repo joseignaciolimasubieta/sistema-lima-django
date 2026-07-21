@@ -135,9 +135,9 @@
                                 </a>
 
                                 {% if not curso.certificados_enviados %}
-                                <button type="button" onclick="iniciarEnvioMasivo({{ curso.id }}, '{{ curso.nombre|escapejs }}')" class="inline-flex h-8 px-4 justify-center items-center gap-1.5 rounded-full bg-[#0071e3] text-white border border-transparent group-hover:bg-white/20 group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold shadow-sm shrink-0">
+                                <button type="button" onclick="iniciarEnvioMasivo({{ curso.id }}, '{{ curso.nombre|escapejs }}')" class="inline-flex h-8 px-4 justify-center items-center gap-1.5 rounded-full bg-[#0071e3] text-white border border-transparent hover:bg-blue-600 transition-all font-bold shadow-sm shrink-0">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                    <span class="text-[9px] font-black uppercase tracking-widest">Enviar Masivo</span>
+                                    <span class="text-[9px] font-black uppercase tracking-widest">Enviar y Publicar</span>
                                 </button>
                                 {% endif %}
                             </div>
@@ -201,7 +201,7 @@
 
 <script>
 async function iniciarEnvioMasivo(cursoId, cursoNombre) {
-    if (!confirm(`¿Iniciar envío automático uno a uno para el curso "${cursoNombre}"?\n\nPor favor, no cierres la ventana hasta que el proceso termine.`)) {
+    if (!confirm(`¿Iniciar envío automático por correo y habilitar en el portal para el curso "${cursoNombre}"?\n\nPor favor, no cierres la ventana hasta que el proceso termine.`)) {
         return;
     }
 
@@ -215,35 +215,34 @@ async function iniciarEnvioMasivo(cursoId, cursoNombre) {
         const response = await fetch(`/api/certificados/alumnos/${cursoId}/`);
         const data = await response.json();
         
-        if (data.ids.length === 0) {
-            alert('No hay alumnos con correo electrónico registrado en este curso.');
-            document.getElementById('modal-progreso').classList.add('hidden');
-            return;
-        }
-
         const total = data.ids.length;
-        document.getElementById('contador-progreso').innerText = `0 / ${total}`;
+        
+        if (total > 0) {
+            document.getElementById('contador-progreso').innerText = `0 / ${total}`;
 
-        // 2. Bucle Maestro: Enviar uno por uno
-        for (let i = 0; i < total; i++) {
-            let alumnoId = data.ids[i];
-            
-            document.getElementById('texto-progreso').innerText = `Enviando certificado ${i + 1} de ${total}...`;
-            
-            // Disparar envío
-            await fetch(`/api/certificados/enviar/${alumnoId}/`);
-            
-            // Actualizar diseño
-            let porcentaje = Math.round(((i + 1) / total) * 100);
-            document.getElementById('barra-progreso').style.width = `${porcentaje}%`;
-            document.getElementById('contador-progreso').innerText = `${i + 1} / ${total}`;
+            // 2. Bucle Maestro: Enviar uno por uno vía Gmail SMTP
+            for (let i = 0; i < total; i++) {
+                let alumnoId = data.ids[i];
+                
+                document.getElementById('texto-progreso').innerText = `Enviando correo ${i + 1} de ${total}...`;
+                
+                // Disparar envío
+                await fetch(`/api/certificados/enviar/${alumnoId}/`);
+                
+                // Actualizar diseño
+                let porcentaje = Math.round(((i + 1) / total) * 100);
+                document.getElementById('barra-progreso').style.width = `${porcentaje}%`;
+                document.getElementById('contador-progreso').innerText = `${i + 1} / ${total}`;
 
-            // PAUSA ESTRATÉGICA DE 2 SEGUNDOS (Evita detección de SPAM en Gmail y asegura estabilidad en Render)
-            await new Promise(r => setTimeout(r, 2000));
+                // PAUSA ESTRATÉGICA DE 2 SEGUNDOS
+                await new Promise(r => setTimeout(r, 2000));
+            }
         }
 
-        // 3. Finalizar y marcar curso como enviado
-        document.getElementById('texto-progreso').innerText = "¡Proceso finalizado! Guardando estado...";
+        // 3. Finalizar y habilitar portal
+        document.getElementById('texto-progreso').innerText = "¡Correos enviados! Habilitando descargas en el portal...";
+        document.getElementById('barra-progreso').style.width = `100%`;
+        
         await fetch(`/api/certificados/marcar/${cursoId}/`);
         
         // Recargar la página para ver los cambios

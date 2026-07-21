@@ -3798,3 +3798,61 @@ def api_marcar_curso_enviado(request, curso_id):
     curso.fecha_envio_certificados = date.today()
     curso.save()
     return JsonResponse({'status': 'ok'})
+
+# ==============================================================
+# --- PORTAL PÚBLICO DE DESCARGA DE CERTIFICADOS ---
+# ==============================================================
+
+def portal_buscar_certificado(request):
+    inscripciones = None
+    buscado = False
+    
+    if request.method == 'POST':
+        celular = request.POST.get('celular', '').strip()
+        if celular:
+            # Buscamos inscripciones que coincidan con el celular Y que el curso ya esté marcado como enviado
+            inscripciones = Inscripcion.objects.filter(
+                participante__celular=celular,
+                curso__certificados_enviados=True
+            ).select_related('curso', 'curso__docente', 'participante')
+        buscado = True
+        
+    return render(request, 'portal_buscar_certificado.html', {
+        'inscripciones': inscripciones,
+        'buscado': buscado
+    })
+
+def descargar_certificado_publico(request, inscripcion_id):
+    # Validamos que el curso realmente ya tenga los certificados habilitados
+    inscrito = get_object_or_404(Inscripcion, id=inscripcion_id, curso__certificados_enviados=True)
+    curso = inscrito.curso
+    
+    nombre_docente = curso.docente.nombre.lower()
+    if 'juan' in nombre_docente or 'juanjo' in nombre_docente:
+        archivo_fondo = 'certificado_juanjo.jpg'
+    elif 'mariana' in nombre_docente:
+        archivo_fondo = 'certificado_mariana.jpg'
+    elif 'rodrigo' in nombre_docente:
+        archivo_fondo = 'certificado_rodrigo.jpg'
+    else:
+        archivo_fondo = 'certificado.jpg' 
+
+    ruta_actual = os.path.dirname(os.path.abspath(__file__))
+    ruta_imagen = Path(os.path.join(ruta_actual, 'static', archivo_fondo)).as_uri()
+    ruta_fuente = Path(os.path.join(ruta_actual, 'static', 'Montserrat-Bold.ttf')).as_uri()
+    
+    contexto = {
+        'curso': curso,
+        'lista_inscritos': [inscrito], 
+        'ruta_imagen': ruta_imagen,
+        'ruta_fuente': ruta_fuente,
+    }
+    
+    html_string = render_to_string('pdf_certificados.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Certificado_{nombre_limpio}.pdf"'
+    
+    return response

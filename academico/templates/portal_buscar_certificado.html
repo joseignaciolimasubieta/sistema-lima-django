@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Certificados - Grupo LIMA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col items-center py-12 px-4 font-sans">
+
+    <div class="w-full max-w-xl text-center mb-8">
+        <h1 class="text-4xl font-black text-[#0071e3] tracking-tight mb-2">Grupo Empresarial LIMA</h1>
+        <p class="text-gray-500 font-bold tracking-widest text-sm uppercase">Portal de Certificados Digitales</p>
+    </div>
+
+    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 w-full max-w-xl">
+        <form method="POST" class="flex flex-col gap-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Ingresa tu Número de Celular</label>
+                <input type="text" name="celular" required placeholder="Ej: 71234567" class="w-full h-12 px-4 rounded-xl border border-gray-300 focus:border-[#0071e3] focus:ring-2 focus:ring-blue-100 outline-none transition-all font-bold text-black text-center text-lg">
+            </div>
+            <button type="submit" class="w-full h-12 bg-[#0071e3] hover:bg-[#0077ED] text-white font-black rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">
+                Buscar Mis Certificados
+            </button>
+        </form>
+
+        {% if buscado %}
+        <div class="mt-8 pt-8 border-t border-gray-100">
+            {% if inscripciones %}
+                <h3 class="text-sm font-black text-black uppercase tracking-widest mb-4">Certificados Encontrados:</h3>
+                <div class="flex flex-col gap-3">
+                    {% for ins in inscripciones %}
+                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-[#0071e3] transition-colors">
+                        <div>
+                            <p class="font-bold text-black text-sm uppercase">{{ ins.curso.nombre }}</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Aprobado el: {{ ins.curso.fecha_finalizacion|date:"d M, Y" }}</p>
+                        </div>
+                        <a href="{% url 'descargar_certificado_publico' ins.id %}" class="h-10 px-4 flex items-center justify-center bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-colors shadow-sm shrink-0">
+                            Descargar
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center p-6 bg-rose-50 rounded-2xl border border-rose-100">
+                    <p class="text-rose-600 font-bold text-sm">No encontramos certificados liberados para este celular.</p>
+                    <p class="text-rose-400 font-medium text-xs mt-1">Verifica tu número o consulta si el curso ya cerró.</p>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
