@@ -11,3 +11,4 @@ xhtml2pdf
 apscheduler
 django-storages
 boto3
+requests

@@ -1,12 +1,13 @@
 # tasks.py
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
+import requests
+import base64
+from django.conf import settings
+import tempfile
 from weasyprint import HTML
+from django.template.loader import render_to_string
 from .models import Curso, Inscripcion
 import os
 from pathlib import Path
-from django.conf import settings
-import tempfile
 
 def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
     curso = Curso.objects.get(id=curso_id)
@@ -41,29 +42,45 @@ def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
             }
             html_string = render_to_string('pdf_certificados.html', contexto)
             
-            # Usando disco duro para envíos masivos también (evita saturar la memoria)
             with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
                 HTML(string=html_string, base_url=base_url).write_pdf(temp_pdf.name)
                 temp_pdf_path = temp_pdf.name
 
             try:
-                asunto = f'Tu certificado del curso: {curso.nombre}'
-                mensaje = f'Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.'
-                
-                email = EmailMessage(
-                    subject=asunto,
-                    body=mensaje,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[correo_destino]
-                )
-                
                 nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
-                with open(temp_pdf_path, 'rb') as f:
-                    email.attach(f"Certificado_{nombre_limpio}.pdf", f.read(), 'application/pdf')
+                nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
                 
-                email.send(fail_silently=False)
-                correos_enviados += 1
-                print(f"✅ Correo enviado con éxito a {correo_destino}")
+                with open(temp_pdf_path, 'rb') as f:
+                    pdf_bytes = f.read()
+                    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+
+                url = "https://api.brevo.com/v3/smtp/email"
+                
+                payload = {
+                    "sender": {"name": "Grupo Empresarial LIMA", "email": settings.DEFAULT_FROM_EMAIL},
+                    "to": [{"email": correo_destino, "name": inscrito.participante.nombre_completo}],
+                    "subject": f"Tu certificado del curso: {curso.nombre}",
+                    "textContent": f"Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.",
+                    "attachment": [{
+                        "content": pdf_base64,
+                        "name": nombre_archivo
+                    }]
+                }
+                
+                headers = {
+                    "accept": "application/json",
+                    "api-key": os.environ.get("BREVO_API_KEY"),
+                    "content-type": "application/json"
+                }
+
+                response = requests.post(url, json=payload, headers=headers)
+                
+                if response.status_code == 201 or response.status_code == 200:
+                    correos_enviados += 1
+                    print(f"✅ Correo enviado con éxito a {correo_destino} vía API")
+                else:
+                    print(f"❌ Error de API para {correo_destino}: {response.text}")
+                
             except Exception as e:
                 print(f"❌ Error al enviar correo a {correo_destino}: {str(e)}")
             finally:
@@ -109,27 +126,46 @@ def enviar_certificado_individual_task(inscripcion_id, base_url):
         temp_pdf_path = temp_pdf.name
 
     try:
-        asunto = f'Tu certificado del curso: {curso.nombre}'
-        mensaje = f'Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.'
-        
-        email = EmailMessage(
-            subject=asunto,
-            body=mensaje,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            to=[correo_destino]
-        )
-        
         nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
+        nombre_archivo = f"Certificado_{nombre_limpio}.pdf"
+        
+        # Leemos el PDF temporal y lo convertimos a Base64 para enviarlo por API
         with open(temp_pdf_path, 'rb') as f:
-            email.attach(f"Certificado_{nombre_limpio}.pdf", f.read(), 'application/pdf')
-            
-        email.send(fail_silently=False)
-        print(f"✅ Certificado enviado correctamente a {correo_destino}")
+            pdf_bytes = f.read()
+            pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
+
+        # --- ENVÍO SEGURIZADO VÍA API HTTP (A PRUEBA DE BLOQUEOS EN RENDER) ---
+        # Usamos Brevo (puedes crear una cuenta gratis en brevo.com y sacar tu API Key)
+        url = "https://api.brevo.com/v3/smtp/email"
+        
+        payload = {
+            "sender": {"name": "Grupo Empresarial LIMA", "email": settings.DEFAULT_FROM_EMAIL},
+            "to": [{"email": correo_destino, "name": inscrito.participante.nombre_completo}],
+            "subject": f"Tu certificado del curso: {curso.nombre}",
+            "textContent": f"Hola {inscrito.participante.nombre_completo},\n\nAdjuntamos tu certificado digital emitido por el Grupo Empresarial LIMA. ¡Felicidades por culminar el curso!\n\nSaludos cordiales.",
+            "attachment": [{
+                "content": pdf_base64,
+                "name": nombre_archivo
+            }]
+        }
+        
+        headers = {
+            "accept": "application/json",
+            "api-key": os.environ.get("BREVO_API_KEY"), # Tu llave de API segura en las variables de entorno de Render
+            "content-type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 201 or response.status_code == 200:
+            print(f"✅ Certificado enviado correctamente a {correo_destino} vía API")
+        else:
+            print(f"❌ Error de API: {response.text}")
         
     except Exception as e:
-        print(f"❌ Error al enviar correo a {correo_destino}: {str(e)}")
+        print(f"❌ Error crítico: {str(e)}")
     finally:
         if os.path.exists(temp_pdf_path):
             os.remove(temp_pdf_path)
             
-    return f"Certificado enviado a {correo_destino} exitosamente."
+    return f"Proceso finalizado para {correo_destino}."
