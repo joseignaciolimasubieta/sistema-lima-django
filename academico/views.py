@@ -3508,11 +3508,12 @@ def confirmar_envio_certificados(request, curso_id):
         modalidad_actual = request.GET.get('modalidad', 'VIRTUAL')
         base_url = request.build_absolute_uri('/')
         
-        # --- EL TRUCO GRATUITO (HILOS NATIVOS) ---
-        hilo = threading.Thread(target=procesar_y_enviar_certificados, args=(curso.id, modalidad_actual, base_url))
-        hilo.start()
-        
-        messages.success(request, f'¡Excelente! Confirmaste el envío de los certificados del curso "{curso.nombre}". El bono se calculará automáticamente y los correos se están enviando en segundo plano.')
+        # --- EJECUCIÓN DIRECTA (Adiós a los hilos que fallan en Render gratuito) ---
+        try:
+            procesar_y_enviar_certificados(curso.id, modalidad_actual, base_url)
+            messages.success(request, f'¡Excelente! Se enviaron todos los certificados del curso "{curso.nombre}" exitosamente.')
+        except Exception as e:
+            messages.error(request, f'Error al enviar correos: {str(e)}')
         
     return redirect('lista_cursos_certificados')
 
@@ -3782,10 +3783,11 @@ def enviar_certificado_individual(request, inscripcion_id):
     else:
         base_url = request.build_absolute_uri('/')
         
-        # --- EL TRUCO GRATUITO (HILOS NATIVOS) ---
-        hilo = threading.Thread(target=enviar_certificado_individual_task, args=(inscrito.id, base_url))
-        hilo.start()
-        
-        messages.success(request, f'¡Enviando certificado a {inscrito.participante.correo} en segundo plano!')
+        # --- EJECUCIÓN DIRECTA ---
+        try:
+            enviar_certificado_individual_task(inscrito.id, base_url)
+            messages.success(request, f'¡Certificado enviado con éxito a {inscrito.participante.correo}!')
+        except Exception as e:
+            messages.error(request, f'Error al enviar el correo: {str(e)}')
         
     return redirect(request.META.get('HTTP_REFERER', 'lista_cursos_certificados'))
