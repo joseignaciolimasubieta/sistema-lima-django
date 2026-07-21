@@ -5,6 +5,7 @@ from weasyprint import HTML
 from .models import Curso, Inscripcion
 import os
 from pathlib import Path
+from django.conf import settings
 
 # Borramos el @shared_task que estaba aquí arriba
 def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
@@ -51,16 +52,20 @@ def procesar_y_enviar_certificados(curso_id, modalidad_actual, base_url):
             email = EmailMessage(
                 subject=asunto,
                 body=mensaje,
-                from_email='tu_correo@gmail.com', # Cambia esto si usas otro dominio
+                from_email=settings.DEFAULT_FROM_EMAIL, # <-- Usa el correo oficial de settings
                 to=[correo_destino]
             )
             
             # Adjuntar el archivo y enviarlo
             nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
             email.attach(f"Certificado_{nombre_limpio}.pdf", pdf_file, 'application/pdf')
-            email.send(fail_silently=True)
             
-            correos_enviados += 1
+            # --- TRUCO DE DEPURACIÓN ---
+            try:
+                email.send(fail_silently=False) # <-- Cambiamos a False para que nos muestre si hay errores
+                print(f"✅ Correo enviado con éxito a {correo_destino}")
+            except Exception as e:
+                print(f"❌ Error al enviar correo a {correo_destino}: {str(e)}")
             
     return f"Se enviaron {correos_enviados} certificados exitosamente."
 
@@ -106,12 +111,19 @@ def enviar_certificado_individual_task(inscripcion_id, base_url):
     email = EmailMessage(
         subject=asunto,
         body=mensaje,
-        from_email=None, # Usa el correo por defecto de settings.py
+        from_email=settings.DEFAULT_FROM_EMAIL, # <-- Usa el correo oficial de settings
         to=[correo_destino]
     )
-    
+            
+    # Adjuntar el archivo y enviarlo
     nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
     email.attach(f"Certificado_{nombre_limpio}.pdf", pdf_file, 'application/pdf')
-    email.send(fail_silently=True)
+            
+    # --- TRUCO DE DEPURACIÓN ---
+    try:
+        email.send(fail_silently=False) # <-- Cambiamos a False para que nos muestre si hay errores
+        print(f"✅ Correo enviado con éxito a {correo_destino}")
+    except Exception as e:
+        print(f"❌ Error al enviar correo a {correo_destino}: {str(e)}")
     
     return f"Certificado enviado a {correo_destino} exitosamente."
