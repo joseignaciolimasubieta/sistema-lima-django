@@ -27,7 +27,6 @@ urlpatterns = [
     path('marketing/confirmar/<int:curso_id>/', views.confirmar_publicacion, name='confirmar_publicacion'), 
    # --- NUEVO MÓDULO DE CERTIFICADOS INDEPENDIENTE ---
     path('certificados/', views.lista_cursos_certificados, name='lista_cursos_certificados'),
-    path('certificados/<int:curso_id>/confirmar-envio/', views.confirmar_envio_certificados, name='confirmar_envio_certificados'), # <-- NUEVA LÍNEA
     path('certificados/<int:curso_id>/', views.detalle_curso_certificados, name='detalle_curso_certificados'),
     # NUEVA RUTA PARA EL ENVÍO INDIVIDUAL
     path('certificado/individual/enviar/<int:inscripcion_id>/', views.enviar_certificado_individual, name='enviar_certificado_individual'),
