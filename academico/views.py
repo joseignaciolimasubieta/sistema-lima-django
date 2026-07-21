@@ -3791,3 +3791,32 @@ def enviar_certificado_individual(request, inscripcion_id):
             messages.error(request, f'Error al enviar el correo: {str(e)}')
         
     return redirect(request.META.get('HTTP_REFERER', 'lista_cursos_certificados'))
+
+@login_required
+@user_passes_test(es_certificados)
+def api_obtener_alumnos_correo(request, curso_id):
+    # Obtenemos los alumnos de este curso que SÍ tienen correo registrado
+    curso = get_object_or_404(Curso, id=curso_id)
+    inscritos = Inscripcion.objects.filter(curso=curso).exclude(participante__correo__isnull=True).exclude(participante__correo__exact='')
+    ids = list(inscritos.values_list('id', flat=True))
+    return JsonResponse({'status': 'ok', 'ids': ids})
+
+@login_required
+@user_passes_test(es_certificados)
+def api_enviar_certificado_js(request, inscripcion_id):
+    base_url = request.build_absolute_uri('/')
+    try:
+        # Reutilizamos la función individual que modificamos
+        enviar_certificado_individual_task(inscripcion_id, base_url)
+        return JsonResponse({'status': 'ok'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'mensaje': str(e)})
+
+@login_required
+@user_passes_test(es_certificados)
+def api_marcar_curso_enviado(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
+    curso.certificados_enviados = True
+    curso.fecha_envio_certificados = date.today()
+    curso.save()
+    return JsonResponse({'status': 'ok'})

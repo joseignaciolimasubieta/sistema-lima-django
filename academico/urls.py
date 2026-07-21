@@ -32,6 +32,10 @@ urlpatterns = [
     # NUEVA RUTA PARA EL ENVÍO INDIVIDUAL
     path('certificado/individual/enviar/<int:inscripcion_id>/', views.enviar_certificado_individual, name='enviar_certificado_individual'),
     path('informacion-cursos/', views.informacion_cursos, name='informacion_cursos'),
+    # ... otras rutas ...
+    path('api/certificados/alumnos/<int:curso_id>/', views.api_obtener_alumnos_correo, name='api_obtener_alumnos_correo'),
+    path('api/certificados/enviar/<int:inscripcion_id>/', views.api_enviar_certificado_js, name='api_enviar_certificado_js'),
+    path('api/certificados/marcar/<int:curso_id>/', views.api_marcar_curso_enviado, name='api_marcar_curso_enviado'),
 
     # --- MÓDULO DE CITAS CONSULTORA ---
     path('consultora/citas/', views.citas_consultora, name='citas_consultora'),
