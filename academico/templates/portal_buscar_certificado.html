@@ -3,53 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Certificados - Grupo LIMA</title>
+    <title>Validación de Certificados - Escuela Financiera Luca Pacioli</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col items-center py-12 px-4 font-sans">
+<body class="bg-[#f8fafc] min-h-screen flex flex-col justify-center items-center py-12 px-5 relative overflow-hidden">
 
-    <div class="w-full max-w-xl text-center mb-8">
-        <h1 class="text-4xl font-black text-[#0071e3] tracking-tight mb-2">Grupo Empresarial LIMA</h1>
-        <p class="text-gray-500 font-bold tracking-widest text-sm uppercase">Portal de Certificados Digitales</p>
-    </div>
+    <!-- Fondo Decorativo -->
+    <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-400 rounded-full mix-blend-multiply filter blur-[100px] opacity-20"></div>
 
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200 w-full max-w-xl">
-        <form method="POST" class="flex flex-col gap-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-[11px] font-black text-gray-400 uppercase tracking-widest mb-2">Ingresa tu Número de Celular</label>
-                <input type="text" name="celular" required placeholder="Ej: 71234567" class="w-full h-12 px-4 rounded-xl border border-gray-300 focus:border-[#0071e3] focus:ring-2 focus:ring-blue-100 outline-none transition-all font-bold text-black text-center text-lg">
+    <div class="w-full max-w-lg relative z-10">
+        <!-- Cabecera -->
+        <div class="text-center mb-10">
+            <div class="w-20 h-20 bg-white shadow-md rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                <svg class="w-10 h-10 text-[#0071e3] transform -rotate-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
             </div>
-            <button type="submit" class="w-full h-12 bg-[#0071e3] hover:bg-[#0077ED] text-white font-black rounded-xl uppercase tracking-widest transition-all shadow-md mt-2">
-                Buscar Mis Certificados
-            </button>
-        </form>
+            <h1 class="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Validación Oficial</h1>
+            <p class="text-slate-500 font-bold tracking-widest text-[11px] uppercase">Escuela Financiera Luca Pacioli</p>
+        </div>
 
-        {% if buscado %}
-        <div class="mt-8 pt-8 border-t border-gray-100">
-            {% if inscripciones %}
-                <h3 class="text-sm font-black text-black uppercase tracking-widest mb-4">Certificados Encontrados:</h3>
-                <div class="flex flex-col gap-3">
-                    {% for ins in inscripciones %}
-                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200 hover:border-[#0071e3] transition-colors">
-                        <div>
-                            <p class="font-bold text-black text-sm uppercase">{{ ins.curso.nombre }}</p>
-                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Aprobado el: {{ ins.curso.fecha_finalizacion|date:"d M, Y" }}</p>
+        <!-- Tarjeta del Buscador -->
+        <div class="bg-white/80 backdrop-blur-xl p-8 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
+            
+            <form method="POST" class="flex flex-col gap-5">
+                {% csrf_token %}
+                <div class="space-y-3">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest text-center">Número de Documento (C.I.)</label>
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-5 pointer-events-none text-slate-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
                         </div>
-                        <a href="{% url 'descargar_certificado_publico' ins.id %}" class="h-10 px-4 flex items-center justify-center bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-gray-800 transition-colors shadow-sm shrink-0">
-                            Descargar
-                        </a>
+                        <input type="text" name="ci" required placeholder="Ej: 1234567" class="w-full h-14 pl-12 pr-4 rounded-2xl bg-slate-50 border-2 border-slate-100 focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 outline-none transition-all font-black text-slate-800 text-lg">
                     </div>
-                    {% endfor %}
                 </div>
-            {% else %}
-                <div class="text-center p-6 bg-rose-50 rounded-2xl border border-rose-100">
-                    <p class="text-rose-600 font-bold text-sm">No encontramos certificados liberados para este celular.</p>
-                    <p class="text-rose-400 font-medium text-xs mt-1">Verifica tu número o consulta si el curso ya cerró.</p>
-                </div>
+                
+                <button type="submit" class="w-full h-14 bg-[#0071e3] hover:bg-blue-600 text-white text-sm font-black rounded-2xl uppercase tracking-widest transition-all shadow-[0_8px_20px_rgb(0,113,227,0.25)] hover:shadow-[0_8px_25px_rgb(0,113,227,0.35)] active:scale-[0.98] flex items-center justify-center gap-2">
+                    <span>Consultar Registros</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </form>
+
+            {% if buscado %}
+            <div class="mt-8 pt-8 border-t border-slate-100 animate-fade-in-down">
+                {% if inscripciones %}
+                    <div class="flex items-center gap-2 mb-5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest">Certificados Disponibles</h3>
+                    </div>
+                    
+                    <div class="flex flex-col gap-3">
+                        {% for ins in inscripciones %}
+                        <div class="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white rounded-2xl border-2 border-slate-100 hover:border-[#0071e3] transition-all shadow-sm hover:shadow-md gap-4">
+                            <div>
+                                <h4 class="font-black text-slate-900 text-sm uppercase leading-tight mb-1">{{ ins.curso.nombre }}</h4>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    Aprobado: {{ ins.curso.fecha_finalizacion|date:"d/m/Y" }}
+                                </p>
+                            </div>
+                            <a href="{% url 'descargar_certificado_publico' ins.id %}" target="_blank" class="h-10 px-5 flex items-center justify-center gap-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-[#0071e3] transition-colors shadow-sm shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Descargar
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center p-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <p class="text-slate-800 font-black text-sm uppercase">Sin Resultados</p>
+                        <p class="text-slate-500 font-bold text-[11px] mt-2 leading-relaxed">No encontramos certificados liberados para el C.I. ingresado.<br>Asegúrate de no haber incluido extensiones (Ej: LP, SC).</p>
+                    </div>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
-        {% endif %}
+        
+        <p class="text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-8">
+            Protegido por el sistema de validación criptográfica de LIMA S.R.L.
+        </p>
     </div>
+
+    <style>
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-down { animation: fadeInDown 0.4s ease-out forwards; }
+    </style>
 </body>
 </html>

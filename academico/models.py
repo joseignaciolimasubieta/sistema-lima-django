@@ -63,6 +63,7 @@ class Curso(models.Model):
 
 class Participante(models.Model):
     nombre_completo = models.CharField(max_length=255)
+    ci = models.CharField(max_length=50, blank=True, null=True, verbose_name="Carnet de Identidad") # <-- NUEVO CAMPO
     celular = models.CharField(max_length=20)
     correo = models.EmailField(max_length=255, blank=True, null=True)
 

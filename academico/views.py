@@ -493,6 +493,7 @@ def crear_inscripcion(request):
     if request.method == 'POST':
         # 1. Extraemos los datos del formulario HTML
         nombre = request.POST.get('nombre_completo')
+        ci = request.POST.get('ci', '').strip() # <-- ATRAPAMOS EL CI
         celular = request.POST.get('celular')
         correo = request.POST.get('correo', '').strip()
         
@@ -511,18 +512,18 @@ def crear_inscripcion(request):
         
         # 2. Inteligencia: Buscamos si el alumno ya existe
         participantes_existentes = Participante.objects.filter(nombre_completo=nombre.upper())
-        
         if participantes_existentes.exists():
             participante = participantes_existentes.first()
             participante.celular = celular
-            if correo: # <-- ACTUALIZAMOS SU CORREO SI LO INGRESA
-                participante.correo = correo
+            if ci: participante.ci = ci # <-- ACTUALIZAMOS CI
+            if correo: participante.correo = correo
             participante.save()
         else:
             participante = Participante.objects.create(
                 nombre_completo=nombre.upper(),
+                ci=ci, # <-- GUARDAMOS CI
                 celular=celular,
-                correo=correo # <-- GUARDAMOS EL CORREO AL CREARLO
+                correo=correo 
             )
         
         # 3. Buscamos el curso o módulo seleccionado
@@ -1682,6 +1683,7 @@ def editar_inscripcion(request, id):
     if request.method == 'POST':
         # 2. Extraemos los nuevos datos enviados por el formulario
         nombre_completo = request.POST.get('nombre_completo')
+        ci = request.POST.get('ci', '').strip() # <-- ATRAPAMOS EL CI
         celular = request.POST.get('celular')
         correo = request.POST.get('correo', '').strip()
         curso_id = request.POST.get('curso')
@@ -1705,8 +1707,9 @@ def editar_inscripcion(request, id):
         else:
             participante.nombre = nombre_completo
             
+        participante.ci = ci # <-- ACTUALIZAMOS CI
         participante.celular = celular
-        participante.correo = correo # <-- ACTUALIZAMOS SU CORREO
+        participante.correo = correo
         participante.save()
         # Actualizar datos principales de la inscripción
         inscripcion.curso = get_object_or_404(Curso, id=curso_id)
@@ -1761,6 +1764,7 @@ def editar_inscripcion_cc(request, id):
     if request.method == 'POST':
         # 1. Atrapamos los datos del formulario
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
+        ci = request.POST.get('ci', '').strip() # <-- ATRAPAMOS EL CI
         celular = request.POST.get('celular', '').strip()
         correo = request.POST.get('correo', '').strip()
         curso_id = request.POST.get('curso')
@@ -1781,7 +1785,8 @@ def editar_inscripcion_cc(request, id):
             participante.nombre_completo = nombre_completo
         else:
             participante.nombre = nombre_completo
-            
+
+        participante.ci = ci # <-- ACTUALIZAMOS CI    
         participante.celular = celular
         participante.correo = correo # <-- ACTUALIZAMOS SU CORREO
         participante.save()
@@ -2919,6 +2924,7 @@ def liquidar_saldo_inscripcion(request, id):
 def crear_inscripcion_cc(request):
     if request.method == 'POST':
         nombre_completo = request.POST.get('nombre_completo', '').strip().upper()
+        ci = request.POST.get('ci', '').strip() # <-- ATRAPAMOS EL CI
         celular = request.POST.get('celular', '').strip()
         correo = request.POST.get('correo', '').strip()
         
@@ -2941,9 +2947,11 @@ def crear_inscripcion_cc(request):
         if not created:
             if celular and participante.celular != celular:
                 participante.celular = celular
+            if ci: participante.ci = ci # <-- ACTUALIZAMOS CI
             if correo: # Si el participante ya existía pero ingresó correo, lo actualizamos
                 participante.correo = correo
             participante.save()
+
         
         curso_seleccionado = get_object_or_404(Curso, id=curso_id)
         subcursos = curso_seleccionado.subcursos.all().order_by('id')
@@ -3808,11 +3816,11 @@ def portal_buscar_certificado(request):
     buscado = False
     
     if request.method == 'POST':
-        celular = request.POST.get('celular', '').strip()
-        if celular:
-            # Buscamos inscripciones que coincidan con el celular Y que el curso ya esté marcado como enviado
+        ci_buscado = request.POST.get('ci', '').strip()
+        if ci_buscado:
+            # Buscamos inscripciones que coincidan con el C.I. Y que el curso ya esté marcado como enviado
             inscripciones = Inscripcion.objects.filter(
-                participante__celular=celular,
+                participante__ci=ci_buscado,
                 curso__certificados_enviados=True
             ).select_related('curso', 'curso__docente', 'participante')
         buscado = True
