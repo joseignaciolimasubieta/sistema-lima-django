@@ -136,8 +136,12 @@
                     <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Registrado Por <span class="text-rose-500"></span></label>
                     <div class="relative">
                         <select name="registrado_por" required class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
-                            <option value="JUANJO" {% if venta.registrado_por == 'JUANJO' %}selected{% endif %}>JUANJO</option>
-                            <option value="IGNACIO" {% if venta.registrado_por == 'IGNACIO' %}selected{% endif %}>IGNACIO</option>
+                            <option value="">SELECCIONE QUIEN REGISTRA</option>
+                            <option value="XIOMARA" {% if venta.registrado_por|upper == 'XIOMARA' %}selected{% endif %}>XIOMARA</option>
+                            <option value="PATRICIA" {% if venta.registrado_por|upper == 'PATRICIA' %}selected{% endif %}>PATRICIA</option>
+                            <option value="IGNACIO" {% if venta.registrado_por|upper == 'IGNACIO' %}selected{% endif %}>IGNACIO</option>
+                            <option value="JUAN JOSE" {% if venta.registrado_por|upper == 'JUAN JOSE' or venta.registrado_por|upper == 'JUANJO' %}selected{% endif %}>JUAN JOSE</option>
+                            <option value="GABRIEL" {% if venta.registrado_por|upper == 'GABRIEL' %}selected{% endif %}>GABRIEL</option>
                         </select>
                         <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
