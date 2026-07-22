@@ -113,6 +113,10 @@
                         
                         <div class="mt-4 flex gap-2">
                             <a href="{% url 'cambiar_estado_cita' cita.id 'REALIZADA' %}" class="flex-1 py-2 text-center rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-[9px] font-black uppercase tracking-widest transition-colors border border-emerald-100">✔ Realizada</a>
+                            
+                            <!-- NUEVO BOTÓN DE BOLETA -->
+                            <a href="{% url 'imprimir_boleta_cita' cita.id %}" target="_blank" class="flex-1 py-2 text-center rounded-xl bg-blue-50 hover:bg-blue-100 text-[#0071e3] text-[9px] font-black uppercase tracking-widest transition-colors border border-blue-100">📄 Boleta</a>
+                            
                             <a href="{% url 'cambiar_estado_cita' cita.id 'CANCELADA' %}" class="flex-1 py-2 text-center rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-[9px] font-black uppercase tracking-widest transition-colors border border-rose-100">✘ Cancelar</a>
                         </div>
                     </div>
@@ -149,6 +153,11 @@
                         </div>
                         
                         <div class="flex items-center gap-2 shrink-0">
+                            <!-- NUEVO BOTÓN DE IMPRESORA -->
+                            <a href="{% url 'imprimir_boleta_cita' cita.id %}" target="_blank" class="w-8 h-8 rounded-full bg-gray-50 text-[#0071e3] hover:bg-blue-50 flex items-center justify-center transition-colors" title="Descargar Boleta">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            </a>
+
                             <a href="{% url 'cambiar_estado_cita' cita.id 'REALIZADA' %}" class="w-8 h-8 rounded-full bg-gray-50 text-emerald-500 hover:bg-emerald-50 flex items-center justify-center transition-colors" title="Marcar Realizada">✔</a>
                             <a href="{% url 'cambiar_estado_cita' cita.id 'CANCELADA' %}" class="w-8 h-8 rounded-full bg-gray-50 text-rose-500 hover:bg-rose-50 flex items-center justify-center transition-colors" title="Cancelar Cita">✘</a>
                             <a href="{% url 'eliminar_cita' cita.id %}" onclick="return confirm('¿Estás seguro de eliminar esta cita?');" class="w-8 h-8 rounded-full bg-gray-50 text-gray-400 hover:bg-rose-50 hover:text-rose-600 flex items-center justify-center transition-colors">

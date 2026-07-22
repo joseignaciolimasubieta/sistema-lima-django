@@ -3864,3 +3864,24 @@ def descargar_certificado_publico(request, inscripcion_id):
     response['Content-Disposition'] = f'attachment; filename="Certificado_{nombre_limpio}.pdf"'
     
     return response
+
+@login_required
+@user_passes_test(es_contabilidad)
+def imprimir_boleta_cita(request, cita_id):
+    # Obtenemos la cita de la base de datos
+    cita = get_object_or_404(CitaConsultora, id=cita_id)
+    
+    contexto = {
+        'cita': cita,
+        'fecha_actual': date.today().strftime('%d/%m/%Y'),
+    }
+    
+    # Renderizamos y convertimos a PDF
+    html_string = render_to_string('boleta_cita_pdf.html', contexto)
+    pdf_file = HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
+    
+    # Preparamos la descarga
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="Boleta_Cita_{cita.id:04d}.pdf"'
+    
+    return response

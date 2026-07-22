@@ -45,6 +45,7 @@ urlpatterns = [
     path('consultora/citas/guardar/', views.guardar_cita, name='guardar_cita'),
     path('consultora/citas/estado/<int:cita_id>/<str:nuevo_estado>/', views.cambiar_estado_cita, name='cambiar_estado_cita'),
     path('consultora/citas/eliminar/<int:cita_id>/', views.eliminar_cita, name='eliminar_cita'),
+    path('consultora/citas/boleta/<int:cita_id>/', views.imprimir_boleta_cita, name='imprimir_boleta_cita'),
 
     # --- MÓDULO DE ARCHIVO DIGITAL (DRIVE) ---
     path('consultora/archivo/', views.archivo_digital, name='archivo_digital'),

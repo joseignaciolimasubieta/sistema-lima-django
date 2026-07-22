@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: letter; margin: 0; }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1f2937; }
+        .header { background-color: #1e3a8a; color: white; padding: 40px; text-align: left; position: relative; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .header .meta { position: absolute; right: 40px; top: 40px; text-align: right; font-size: 12px; }
+        .header .meta strong { font-size: 14px; display: block; margin-top: 5px; }
+        .content { padding: 40px; }
+        .title { font-size: 18px; font-weight: bold; border-bottom: 1px solid #d1d5db; padding-bottom: 10px; margin-bottom: 30px; text-transform: uppercase; }
+        .row { margin-bottom: 18px; font-size: 14px; }
+        .label { font-weight: bold; width: 180px; display: inline-block; vertical-align: top; }
+        .value { display: inline-block; width: calc(100% - 190px); text-transform: uppercase; }
+        .box { background-color: #f9fafb; border: 1px solid #e5e7eb; padding: 25px; margin-top: 40px; border-radius: 5px; }
+        .signatures { margin-top: 100px; text-align: center; font-size: 12px; }
+        .sig-line { border-top: 1px solid #9ca3af; width: 250px; margin: 0 auto 5px auto; }
+        .sig-block { display: inline-block; width: 45%; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>GRUPO EMPRESARIAL "LIMA" S.R.L.</h1>
+        <div class="meta">
+            Fecha de Emisión: {{ fecha_actual }}<br>
+            <strong>COMPROBANTE Nº: CITA-{{ cita.id|stringformat:"04d" }}</strong>
+        </div>
+    </div>
+    
+    <div class="content">
+        <div class="title">BOLETA DE CITA PROGRAMADA</div>
+        
+        <div class="row">
+            <div class="label">Cliente:</div>
+            <div class="value">{{ cita.nombre_cliente }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Documento/Contacto:</div>
+            <div class="value">Celular: {{ cita.celular|default:"NO REGISTRADO" }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Fecha Programada:</div>
+            <div class="value">{{ cita.fecha|date:"d/m/Y" }} a las {{ cita.hora }} Hrs.</div>
+        </div>
+        <div class="row">
+            <div class="label">Modalidad:</div>
+            <div class="value">{{ cita.modalidad }}</div>
+        </div>
+        <div class="row">
+            <div class="label">Concepto / Motivo:</div>
+            <div class="value">{{ cita.motivo|default:"Atención y asesoría contable." }}</div>
+        </div>
+
+        <div class="box">
+            <p style="font-size: 13px; color: #4b5563; text-align: center; margin: 0; line-height: 1.5;">
+                <strong>RECORDATORIO IMPORTANTE</strong><br>
+                Por favor, presente este comprobante (físico o digital) el día de su consulta.<br>
+                Se ruega máxima puntualidad para garantizar una atención óptima.
+            </p>
+        </div>
+
+        <div class="signatures">
+            <div class="sig-block">
+                <div class="sig-line"></div>
+                <strong>Firma Conforme</strong><br>
+                {{ cita.nombre_cliente }}<br>
+                Celular: {{ cita.celular|default:"-" }}
+            </div>
+            <div class="sig-block">
+                <div class="sig-line"></div>
+                <strong>Atención al Cliente</strong><br>
+                Administración / G.E. "LIMA" S.R.L.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
