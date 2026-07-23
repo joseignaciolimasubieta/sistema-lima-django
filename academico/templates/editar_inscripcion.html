@@ -32,7 +32,7 @@
                 </div>
                 
                 <div class="flex flex-col">
-                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-2">Carnet de Identidad (C.I.)</label>
+                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-2">Cédula de Identidad (C.I.)</label>
                     <input type="text" name="ci" value="{{ inscripcion.participante.ci|default:'' }}" placeholder="EJ. 1234567" required 
                         class="w-full h-12 bg-blue-50/30 border-2 border-blue-100 rounded-xl px-4 text-sm font-bold text-[#0071e3] uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
                 </div>
@@ -44,8 +44,8 @@
                 </div>
                 
                 <div class="flex flex-col">
-                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Correo (Certificado)</label>
-                    <input type="email" name="correo" value="{{ inscripcion.participante.correo|default:'' }}" placeholder="Ej. Alumno@gmail.com" 
+                    <label class="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Correo Electrónico</label>
+                    <input type="text" name="correo" value="{{ inscripcion.participante.correo|default:'' }}" placeholder="Ej. correo@gmail.com o 'NO TIENE'" 
                         class="w-full h-12 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 text-sm font-bold text-black outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
                 </div>
             </div>
