@@ -43,26 +43,30 @@
     {% load static %}
 
     <header class="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200 h-14 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <nav class="w-full max-w-[1200px] px-6 flex items-center justify-between text-[11px] lg:text-xs font-normal">
+        <nav class="w-full max-w-[1200px] px-6 flex items-center justify-between text-[11px] lg:text-xs font-normal relative">
             
-            <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group">
-                <svg class="w-5 h-5 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path>
-                </svg>
-                G. E. LIMA S.R.L.
-            </a>
+            <!-- Izquierda: Logo (Con whitespace-nowrap para evitar saltos de línea) -->
+            <div class="flex-1 flex justify-start">
+                <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group whitespace-nowrap">
+                    <svg class="w-5 h-5 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path>
+                    </svg>
+                    <span>G. E. LIMA S.R.L.</span>
+                </a>
+            </div>
             
-            <div class="hidden md:flex items-center justify-center gap-10 lg:gap-14 w-full max-w-2xl tracking-wide text-gray-500 font-medium">
+            <!-- Centro Perfecto (Posicionamiento Absoluto) -->
+            <div class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center justify-center tracking-wide text-gray-500 font-medium whitespace-nowrap">
                 <span class="cursor-default select-none">ENTORNO OPERATIVO UNIFICADO</span>
             </div>
 
-            <!-- Menú Derecho: Tareas + Campanita + Perfil + Salir -->
-            <div class="flex items-center gap-5">
+            <!-- Derecha: Menú, Campanita, Perfil y Salir -->
+            <div class="flex-1 flex items-center justify-end gap-5">
                 
                 <!-- Link Tablero de Tareas (Sólo Admin) -->
                 {% if request.user.is_superuser %}
-                    <a href="{% url 'lista_tareas' %}" class="hidden sm:flex items-center text-gray-500 hover:text-[#0071e3] transition-colors uppercase tracking-widest text-[10px] font-bold border-r border-gray-200 pr-5">
+                    <a href="{% url 'lista_tareas' %}" class="hidden sm:flex items-center text-gray-500 hover:text-[#0071e3] transition-colors uppercase tracking-widest text-[10px] font-bold border-r border-gray-200 pr-5 whitespace-nowrap">
                         Tablero de Tareas
                     </a>
                 {% endif %}
@@ -71,13 +75,11 @@
                 <div class="relative" id="notif-container">
                     <button id="btn-notif" class="relative p-1 text-gray-400 hover:text-black transition-colors rounded-full hover:bg-gray-200 outline-none">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        
                         <span id="notif-badge" class="hidden absolute top-0.5 right-0.5 flex h-2 w-2">
                             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                             <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 shadow-sm border border-white"></span>
                         </span>
                     </button>
-
                     <!-- Menú Desplegable -->
                     <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 transform origin-top-right transition-all">
                         <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
@@ -90,6 +92,7 @@
                     </div>
                 </div>
 
+                <!-- Perfil -->
                 <div class="hidden sm:flex items-center gap-2 border-l border-gray-200 pl-5">
                     <div class="w-5 h-5 rounded-full bg-[#0071e3] text-white flex items-center justify-center text-[9px] font-bold shadow-sm">
                         {% if request.user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}A{% endif %}
@@ -99,6 +102,7 @@
                     </span>
                 </div>
                 
+                <!-- Salir -->
                 <form action="{% url 'logout' %}" method="post" class="inline m-0 border-l border-gray-300 pl-5">
                     {% if csrf_token %}{% csrf_token %}{% endif %}
                     <button type="submit" class="flex items-center gap-1.5 text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest text-[10px] font-bold outline-none">
