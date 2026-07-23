@@ -1650,11 +1650,25 @@ def editar_servicio(request, servicio_id):
 def portal_inicio(request):
     user = request.user
     
-    # 1. Si eres tú (el dueño), te mostramos tu pantalla de Portal
+    # 1. Si eres tú (el dueño), te mostramos tu pantalla de Portal con Tareas
     if user.is_superuser:
-        return render(request, 'portal.html')
+        from .models import Tarea, Empleado
+        from datetime import date, timedelta
         
-    # 2. Distribución inteligente para empleados (Ellos sí son redirigidos a su área)
+        tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado')
+        tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado')
+        tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=date.today() - timedelta(days=7)).select_related('empleado')
+        empleados = Empleado.objects.all().order_by('nombre_completo')
+        
+        contexto = {
+            'pendientes': tareas_pendientes,
+            'en_progreso': tareas_progreso,
+            'completadas': tareas_completadas,
+            'empleados': empleados
+        }
+        return render(request, 'portal.html', contexto)
+        
+    # 2. Distribución inteligente para empleados
     if user.groups.filter(name='Ventas').exists():
         return redirect('inscripciones')
     elif user.groups.filter(name='Marketing').exists():
@@ -1663,11 +1677,9 @@ def portal_inicio(request):
         return redirect('flujo_caja')
     elif user.groups.filter(name='Certificados').exists():
         return redirect('lista_cursos_certificados')
-    # 👇 ¡AQUÍ AGREGAMOS LA NUEVA REGLA PARA CONTABILIDAD!
     elif user.groups.filter(name='Contabilidad').exists():
         return redirect('consultora')
         
-    # 3. Si un empleado no tiene grupos asignados aún, lo sacamos por seguridad
     from django.contrib.auth import logout
     logout(request)
     return redirect('login')
@@ -3949,28 +3961,18 @@ def api_notificaciones(request):
         'notificaciones': notificaciones
     })
 
+# --- CONTROLADORES DE TAREAS ACTUALIZADOS ---
 @login_required
 @user_passes_test(es_administrador)
 def lista_tareas(request):
-    # Optimizamos las consultas para carga instantánea
-    tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado')
-    tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado')
-    tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=date.today() - timedelta(days=7)).select_related('empleado')
-    
-    empleados = Empleado.objects.all().order_by('nombre_completo')
-    
-    contexto = {
-        'pendientes': tareas_pendientes,
-        'en_progreso': tareas_progreso,
-        'completadas': tareas_completadas,
-        'empleados': empleados
-    }
-    return render(request, 'tareas.html', contexto)
+    # Esta vista ya no se usa como página independiente, redirigimos al portal
+    return redirect('portal_inicio')
 
 @login_required
 @user_passes_test(es_administrador)
 def crear_tarea(request):
     if request.method == 'POST':
+        from .models import Tarea
         Tarea.objects.create(
             titulo=request.POST.get('titulo'),
             descripcion=request.POST.get('descripcion'),
@@ -3979,22 +3981,24 @@ def crear_tarea(request):
             prioridad=request.POST.get('prioridad')
         )
         messages.success(request, 'Tarea asignada exitosamente al equipo.')
-    return redirect('lista_tareas')
+    return redirect('portal_inicio') # <- Redirige al portal
 
 @login_required
 @user_passes_test(es_administrador)
 def cambiar_estado_tarea(request, tarea_id):
+    from .models import Tarea
     tarea = get_object_or_404(Tarea, id=tarea_id)
     nuevo_estado = request.GET.get('estado')
     if nuevo_estado in ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADA']:
         tarea.estado = nuevo_estado
         tarea.save()
-    return redirect('lista_tareas')
+    return redirect('portal_inicio') # <- Redirige al portal
 
 @login_required
 @user_passes_test(es_administrador)
 def eliminar_tarea(request, tarea_id):
+    from .models import Tarea
     tarea = get_object_or_404(Tarea, id=tarea_id)
     tarea.delete()
     messages.success(request, 'La tarea fue eliminada del tablero.')
-    return redirect('lista_tareas')
+    return redirect('portal_inicio') # <- Redirige al portal

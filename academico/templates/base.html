@@ -4,40 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Gestión | G.E. LIMA{% endblock %}</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Tipografía oficial (Imitación Apple) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #F5F5F7; /* Gris muy claro de fondo */
+            background-color: #F5F5F7; 
             color: #1D1D1F;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             margin: 0;
         }
-
-        /* Transición suave para los enlaces de la barra superior (Tema Claro) */
-        .apple-nav-link {
-            color: #6e6e73; /* Gris clásico de Apple para menús */
-            transition: color 0.3s ease;
-            text-decoration: none;
-            position: relative;
-            font-weight: 500;
-            white-space: nowrap; 
-        }
-        .apple-nav-link:hover {
-            color: #1D1D1F; /* Negro profundo al pasar el mouse */
-        }
-        
-        /* Enlace activo (Resaltado oscuro) */
-        .apple-nav-link-active {
-            color: #1D1D1F;
-            font-weight: 700;
-        }
-
-        /* Utilidad para la lista de notificaciones */
+        .apple-nav-link { color: #6e6e73; transition: color 0.3s ease; text-decoration: none; position: relative; font-weight: 500; white-space: nowrap; }
+        .apple-nav-link:hover { color: #1D1D1F; }
+        .apple-nav-link-active { color: #1D1D1F; font-weight: 700; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -45,127 +25,116 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-[#0071e3]/20 selection:text-[#0071e3]">
 
-    <header class="fixed top-0 inset-x-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-200 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] min-h-[56px] flex flex-col justify-center">
-        <nav class="w-full max-w-[1200px] mx-auto px-4 md:px-6 py-3 md:py-0 flex flex-col md:flex-row md:items-center justify-between text-[11px] md:text-[12px]">
+    <header class="fixed top-0 inset-x-0 z-50 bg-white/85 backdrop-blur-xl border-b border-gray-200 transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] h-14 flex items-center justify-center">
+        <!-- Navegación Fija (Nunca se rompe en 2 líneas) -->
+        <nav class="w-full max-w-[1200px] mx-auto px-4 md:px-6 flex items-center justify-between h-full relative">
             
-            <div class="flex items-center justify-between w-full md:w-[220px] shrink-0">
-                <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group shrink-0 outline-none">
-                    <svg class="w-6 h-6 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path>
-                    </svg>
-                    <span class="text-[12px] uppercase tracking-[0.2em] whitespace-nowrap">G. E. LIMA S.R.L.</span>
-                </a>
-
+            <!-- Izquierda: Logo y Menú Móvil -->
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- Botón Hamburguesa (Móvil) -->
                 <button id="btn-menu-movil" type="button" class="md:hidden text-gray-500 hover:text-black focus:outline-none p-1 transition-colors">
-                    <svg id="icono-abrir" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    <svg id="icono-cerrar" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <svg id="icono-abrir" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <svg id="icono-cerrar" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
+
+                <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group shrink-0 outline-none">
+                    <svg class="w-5 h-5 hidden sm:block text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path></svg>
+                    <span class="text-[11px] md:text-[12px] uppercase tracking-[0.2em] whitespace-nowrap">G.E. LIMA</span>
+                </a>
             </div>
             
-            <div id="menu-colapsable" class="hidden md:flex flex-col md:flex-row items-start md:items-center md:flex-1 md:justify-between gap-4 xl:gap-7 w-full tracking-wide mt-4 md:mt-0 pt-4 md:pt-0 border-t border-gray-200 md:border-none">
-                
-                <div class="flex flex-col md:flex-row items-start md:items-center md:justify-center gap-5 md:gap-4 xl:gap-7 w-full md:flex-1">
-    
-                    {% with url_name=request.resolver_match.url_name|default:'' %}
-    
-                        {% if request.user.is_superuser %}
-                            <!-- Menú dinámico SÓLO para el Administrador -->
-                            {% if url_name in 'consultora crear_servicio editar_servicio crear_cliente citas_consultora crear_cita_consultora editar_cita_consultora archivo_digital' %}
+            <!-- Centro: Enlaces (Absolute en Móvil para no empujar la cabecera) -->
+            <div id="menu-colapsable" class="hidden absolute top-14 left-0 w-full bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-xl md:shadow-none md:static md:w-auto md:bg-transparent md:border-none md:flex flex-col md:flex-row items-start md:items-center gap-4 xl:gap-7 tracking-wide px-6 py-5 md:p-0 z-40">
+                {% with url_name=request.resolver_match.url_name|default:'' %}
+                    {% if request.user.is_superuser %}
+                        {% if url_name in 'consultora crear_servicio editar_servicio crear_cliente citas_consultora crear_cita_consultora editar_cita_consultora archivo_digital' %}
+                            <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
+                            <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
+                            <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
+                        {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados' %}
+                            <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
+                            <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
+                            <a href="{% url 'planillas' %}" class="apple-nav-link {% if url_name == 'planillas' or url_name == 'buscar_boletas' or url_name == 'crear_pago' or url_name == 'editar_pago' %}apple-nav-link-active{% endif %}">Planillas Salariales</a>
+                            <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if url_name == 'asistencia_empleados' %}apple-nav-link-active{% endif %}">Control Asistencia</a>
+                            <a href="{% url 'lista_prestamos' %}" class="apple-nav-link {% if url_name == 'lista_prestamos' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' %}apple-nav-link-active{% endif %}">Financiera</a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="apple-nav-link {% if url_name == 'dashboard' %}apple-nav-link-active{% endif %}">Reportes</a>
+                            <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>
+                            <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
+                            <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                            <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
+                            <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
+                            <a href="{% url 'honorarios' %}" class="apple-nav-link {% if 'honorario' in url_name %}apple-nav-link-active{% endif %}">Honorarios Docentes</a>
+                        {% endif %}
+                    {% else %}
+                        <!-- Menú Empleados -->
+                        {% for grupo in request.user.groups.all %}
+                            {% if grupo.name == 'Contabilidad' %}
                                 <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
                                 <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                                 <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
-                            {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados' %}
+                            {% endif %}
+                            {% if grupo.name == 'Caja' %}
                                 <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
                                 <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
-                                <a href="{% url 'planillas' %}" class="apple-nav-link {% if url_name == 'planillas' or url_name == 'buscar_boletas' or url_name == 'crear_pago' or url_name == 'editar_pago' %}apple-nav-link-active{% endif %}">Planillas Salariales</a>
-                                <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if url_name == 'asistencia_empleados' %}apple-nav-link-active{% endif %}">Control Asistencia</a>
-                                <a href="{% url 'lista_prestamos' %}" class="apple-nav-link {% if url_name == 'lista_prestamos' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' %}apple-nav-link-active{% endif %}">Financiera</a>
-                            {% else %}
-                                <a href="{% url 'dashboard' %}" class="apple-nav-link {% if url_name == 'dashboard' %}apple-nav-link-active{% endif %}">Reportes</a>
-                                <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>
-                                <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información <br class="hidden md:block"> de Cursos</a>
-                                <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
-                                <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
-                                <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
-                                <a href="{% url 'honorarios' %}" class="apple-nav-link {% if 'honorario' in url_name %}apple-nav-link-active{% endif %}">Honorarios Docentes</a>
                             {% endif %}
+                            {% if grupo.name == 'Ventas' %}
+                                <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
+                                <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name or 'cuentas_por_cobrar' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
+                            {% endif %}
+                            {% if grupo.name == 'Marketing' %}
+                                <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
+                            {% endif %}
+                            {% if grupo.name == 'Certificados' %}
+                                <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
 
-                        {% else %}
-                            <!-- Menú fijo e infalible para los Empleados -->
-                            {% for grupo in request.user.groups.all %}
-                                {% if grupo.name == 'Contabilidad' %}
-                                    <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
-                                    <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
-                                    <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
-                                {% endif %}
-                                
-                                {% if grupo.name == 'Caja' %}
-                                    <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
-                                    <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
-                                {% endif %}
-
-                                {% if grupo.name == 'Ventas' %}
-                                    <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
-                                    <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name or 'cuentas_por_cobrar' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
-                                {% endif %}
-
-                                {% if grupo.name == 'Marketing' %}
-                                    <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
-                                {% endif %}
-
-                                {% if grupo.name == 'Certificados' %}
-                                    <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-
-                    {% endwith %}
-                </div>
-
-                <div class="flex items-center justify-between md:justify-end w-full md:w-[auto] shrink-0 gap-4 mt-4 md:mt-0 pb-2 md:pb-0">
-                    
-                    <!-- 🔔 Campanita de Notificaciones Exclusiva -->
-                    <div class="relative" id="notif-container">
-                        <button id="btn-notif" class="relative p-1.5 text-gray-500 hover:text-black transition-colors rounded-full hover:bg-gray-100 outline-none">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                            <!-- Badge Rojo (Pulsante) -->
-                            <span id="notif-badge" class="hidden absolute top-0.5 right-1 flex h-2.5 w-2.5">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-sm border border-white"></span>
-                            </span>
-                        </button>
-
-                        <!-- Menú Desplegable de Notificaciones -->
-                        <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 transform origin-top-right transition-all">
-                            <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Centro de Alertas</h3>
-                                <span id="notif-count-text" class="text-[9px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">0</span>
-                            </div>
-                            <div id="notif-list" class="max-h-80 overflow-y-auto hide-scrollbar p-2">
-                                <div class="p-4 text-center text-xs text-gray-400 font-medium">Cargando...</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Perfil de Usuario -->
-                    <div class="flex items-center gap-2 border-l border-gray-200 pl-4">
-                        <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-[#0071e3] to-blue-400 text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
-                            {% if request.user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}A{% endif %}
-                        </div>
-                        <span class="text-gray-600 font-bold uppercase tracking-widest text-[10px] pointer-events-none">
-                            {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}ADMIN{% endif %}
+            <!-- Derecha: Campanita + Perfil + Salir (SIEMPRE EN LINEA) -->
+            <div class="flex items-center gap-3 md:gap-5 shrink-0">
+                
+                <!-- 🔔 Campanita de Notificaciones -->
+                <div class="relative" id="notif-container">
+                    <button id="btn-notif" class="relative p-1.5 text-gray-500 hover:text-black transition-colors rounded-full hover:bg-gray-100 outline-none">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <span id="notif-badge" class="hidden absolute top-0.5 right-1 flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-sm border border-white"></span>
                         </span>
+                    </button>
+                    <!-- Menú Desplegable -->
+                    <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-[280px] sm:w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 transform origin-top-right transition-all">
+                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Centro de Alertas</h3>
+                            <span id="notif-count-text" class="text-[9px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">0</span>
+                        </div>
+                        <div id="notif-list" class="max-h-80 overflow-y-auto hide-scrollbar p-2">
+                            <div class="p-4 text-center text-xs text-gray-400 font-medium">Cargando...</div>
+                        </div>
                     </div>
-                    
-                    <!-- Botón Salir -->
-                    <form action="{% url 'logout' %}" method="post" class="inline m-0 border-l border-gray-200 pl-4">
-                        {% csrf_token %}
-                        <button type="submit" class="flex items-center gap-1 text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest text-[9px] font-bold outline-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        </button>
-                    </form>
                 </div>
+
+                <!-- Perfil -->
+                <div class="flex items-center gap-2 border-l border-gray-200 pl-3 md:pl-5">
+                    <div class="w-6 h-6 rounded-full bg-[#0071e3] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                        {% if request.user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}A{% endif %}
+                    </div>
+                    <span class="hidden sm:block text-gray-500 font-bold uppercase tracking-widest text-[10px] pointer-events-none">
+                        {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}ADMIN{% endif %}
+                    </span>
+                </div>
+                
+                <!-- Salir -->
+                <form action="{% url 'logout' %}" method="post" class="inline m-0 border-l border-gray-200 pl-3 md:pl-5">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center gap-1.5 text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest text-[9px] md:text-[10px] font-bold outline-none">
+                        <span class="hidden sm:block">Salir</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    </button>
+                </form>
             </div>
         </nav>
     </header>
@@ -188,26 +157,19 @@
 
             if (btnMenu) {
                 btnMenu.addEventListener('click', function() {
-                    // Muestra u oculta el contenedor
                     menuColapsable.classList.toggle('hidden');
                     menuColapsable.classList.toggle('flex');
-                    
-                    // Cambia las rayitas por una X
                     iconoAbrir.classList.toggle('hidden');
                     iconoCerrar.classList.toggle('hidden');
                 });
             }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+
             const btnNotif = document.getElementById('btn-notif');
             const dropdownNotif = document.getElementById('notif-dropdown');
             const badgeNotif = document.getElementById('notif-badge');
             const listNotif = document.getElementById('notif-list');
             const countText = document.getElementById('notif-count-text');
 
-            // Toggle menú
             if (btnNotif) {
                 btnNotif.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -215,14 +177,13 @@
                 });
             }
 
-            // Cierra al hacer clic fuera
             document.addEventListener('click', function(e) {
                 if (dropdownNotif && !dropdownNotif.contains(e.target) && !btnNotif.contains(e.target)) {
                     dropdownNotif.classList.add('hidden');
                 }
             });
 
-            // Obtener Notificaciones del Servidor
+            // Obtener Notificaciones
             fetch('/api/notificaciones/')
                 .then(res => res.json())
                 .then(data => {
