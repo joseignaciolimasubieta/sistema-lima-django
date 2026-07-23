@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Gestión | G.E. LIMA{% endblock %}</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #F5F5F7;
+            background-color: #F5F5F7; 
             color: #1D1D1F;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -30,9 +29,9 @@
         <nav class="w-full max-w-[1200px] mx-auto px-4 md:px-6 py-2 md:py-0 flex items-center justify-between min-h-[56px] relative">
             
             <!-- Izquierda: Logo -->
-            <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group shrink-0 outline-none z-50">
-                <svg class="w-6 h-6 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path></svg>
-                <span class="text-[11px] md:text-[12px] uppercase tracking-[0.2em] whitespace-nowrap">G. E. LIMA S.R.L.</span>
+            <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group shrink-0 outline-none z-50">
+                <svg class="w-5 h-5 hidden sm:block text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path><path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path></svg>
+                <span class="text-[11px] md:text-[12px] uppercase tracking-[0.2em] whitespace-nowrap">G.E. LIMA</span>
             </a>
             
             <!-- Centro: Menú (Colapsable en móvil) -->
@@ -52,21 +51,34 @@
                         {% else %}
                             <a href="{% url 'dashboard' %}" class="apple-nav-link {% if url_name == 'dashboard' %}apple-nav-link-active{% endif %}">Reportes</a>
                             <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>
-                            <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Info Cursos</a>
+                            <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
                             <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
                             <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
                             <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
-                            <a href="{% url 'honorarios' %}" class="apple-nav-link {% if 'honorario' in url_name %}apple-nav-link-active{% endif %}">Honorarios</a>
+                            <a href="{% url 'honorarios' %}" class="apple-nav-link {% if 'honorario' in url_name %}apple-nav-link-active{% endif %}">Honorarios Docentes</a>
                         {% endif %}
-                        <!-- Enlace Tareas -->
-                        <a href="{% url 'lista_tareas' %}" class="apple-nav-link font-bold text-[#0071e3] {% if 'tarea' in url_name %}apple-nav-link-active{% endif %}">Tablero de Tareas</a>
                     {% else %}
+                        <!-- Menú Empleados -->
                         {% for grupo in request.user.groups.all %}
+                            {% if grupo.name == 'Contabilidad' %}
+                                <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
+                                <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
+                                <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
+                            {% endif %}
+                            {% if grupo.name == 'Caja' %}
+                                <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
+                                <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
+                            {% endif %}
                             {% if grupo.name == 'Ventas' %}
                                 <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Información de Cursos</a>
                                 <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
                             {% endif %}
-                            <!-- Resto de roles... -->
+                            {% if grupo.name == 'Marketing' %}
+                                <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
+                            {% endif %}
+                            {% if grupo.name == 'Certificados' %}
+                                <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 {% endwith %}
@@ -186,6 +198,7 @@
                 }
             });
 
+            // Obtener Notificaciones
             fetch('/api/notificaciones/')
                 .then(res => res.json())
                 .then(data => {
@@ -210,7 +223,7 @@
                         listNotif.innerHTML = `<div class="p-6 text-center text-xs text-gray-400 font-medium">Todo está al día.<br>No hay alertas pendientes.</div>`;
                     }
                 })
-                .catch(err => console.error("Error al cargar notificaciones:", err));
+                .catch(err => console.error("Error cargando notificaciones", err));
         });
     </script>
 </body>
