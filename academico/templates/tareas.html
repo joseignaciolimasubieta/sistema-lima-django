@@ -1,313 +1,182 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tablero de Tareas | Administración</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { 
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #F5F5F7; 
-            color: #1D1D1F;
-        }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col selection:bg-[#0071e3]/20 selection:text-[#0071e3]">
+{% extends 'base.html' %}
+{% block title %}Tablero de Tareas | Administración{% endblock %}
 
-    {% load static %}
-
-    <!-- EL MISMO HEADER INMERSIVO DEL PORTAL -->
-    <header class="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200 h-14 flex items-center justify-center shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
-        <nav class="w-full max-w-[1200px] px-6 flex items-center justify-between text-[11px] lg:text-xs font-normal relative">
-            
-            <div class="flex-1 flex justify-start">
-                <a href="{% url 'portal_inicio' %}" class="flex items-center gap-2.5 font-bold tracking-widest text-gray-500 hover:text-black transition-colors group whitespace-nowrap">
-                    <svg class="w-5 h-5 text-gray-500 group-hover:scale-110 transition-transform duration-300 hover:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a2 2 0 002 2h10a2 2 0 002-2V10"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 22V12h6v10"></path>
-                    </svg>
-                    <span>G. E. LIMA S.R.L.</span>
-                </a>
-            </div>
-            
-            <div class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center justify-center tracking-wide text-gray-500 font-medium whitespace-nowrap">
-                <span class="cursor-default select-none">ENTORNO OPERATIVO UNIFICADO</span>
-            </div>
-
-            <div class="flex-1 flex items-center justify-end gap-5">
-                {% if request.user.is_superuser %}
-                    <a href="{% url 'lista_tareas' %}" class="hidden sm:flex items-center text-[#0071e3] font-bold border-r border-gray-200 pr-5 whitespace-nowrap uppercase tracking-widest text-[10px]">
-                        Tablero de Tareas
-                    </a>
-                {% endif %}
-
-                <!-- Campanita -->
-                <div class="relative" id="notif-container">
-                    <button id="btn-notif" class="relative p-1 text-gray-400 hover:text-black transition-colors rounded-full hover:bg-gray-200 outline-none">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        <span id="notif-badge" class="hidden absolute top-0.5 right-0.5 flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500 shadow-sm border border-white"></span>
-                        </span>
-                    </button>
-                    <div id="notif-dropdown" class="hidden absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 transform origin-top-right transition-all">
-                        <div class="px-4 py-3 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                            <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Alertas del Día</h3>
-                            <span id="notif-count-text" class="text-[9px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full font-bold">0</span>
-                        </div>
-                        <div id="notif-list" class="max-h-80 overflow-y-auto hide-scrollbar p-2">
-                            <div class="p-4 text-center text-xs text-gray-400 font-medium">Cargando...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hidden sm:flex items-center gap-2 border-l border-gray-200 pl-5">
-                    <div class="w-5 h-5 rounded-full bg-[#0071e3] text-white flex items-center justify-center text-[9px] font-bold shadow-sm">
-                        {% if request.user.is_authenticated %}{{ request.user.username|make_list|first|upper }}{% else %}A{% endif %}
-                    </div>
-                    <span class="text-gray-500 font-bold uppercase tracking-widest text-[10px] pointer-events-none">
-                        {% if request.user.is_authenticated %}{{ request.user.username }}{% else %}ADMIN{% endif %}
-                    </span>
-                </div>
-                
-                <form action="{% url 'logout' %}" method="post" class="inline m-0 border-l border-gray-300 pl-5">
-                    {% if csrf_token %}{% csrf_token %}{% endif %}
-                    <button type="submit" class="flex items-center gap-1.5 text-gray-400 hover:text-red-500 transition-colors uppercase tracking-widest text-[10px] font-bold outline-none">
-                        Salir
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    </button>
-                </form>
-            </div>
-        </nav>
-    </header>
-
-    <!-- CUERPO PRINCIPAL DEL TABLERO -->
-    <main class="pt-[72px] flex-1 w-full flex flex-col items-center">
-        <div class="w-full max-w-[1200px] mx-auto p-4 md:p-8">
-            
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Tablero de Control</h1>
-                    <p class="text-sm font-medium text-slate-500 mt-1">Gestión de actividades del equipo operativo.</p>
-                </div>
-                <button onclick="document.getElementById('modalTarea').classList.remove('hidden')" class="bg-[#1e3a8a] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                    Asignar Nueva Tarea
-                </button>
-            </div>
-
-            <!-- Tablero Kanban -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                
-                <!-- Pendientes -->
-                <div class="bg-gray-100/50 rounded-[2rem] p-4 border border-gray-200/60">
-                    <div class="flex items-center justify-between mb-4 px-2">
-                        <h3 class="text-xs font-black text-gray-600 uppercase tracking-widest flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-rose-500"></span> Pendientes
-                        </h3>
-                        <span class="bg-white text-gray-500 text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200">{{ pendientes|length }}</span>
-                    </div>
-                    <div class="space-y-3">
-                        {% for tarea in pendientes %}
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative group">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md {% if tarea.prioridad == 'ALTA' %}bg-rose-50 text-rose-600{% elif tarea.prioridad == 'MEDIA' %}bg-amber-50 text-amber-600{% else %}bg-blue-50 text-blue-600{% endif %}">
-                                    {{ tarea.get_prioridad_display }}
-                                </span>
-                                <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </a>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm leading-tight mb-1">{{ tarea.titulo }}</h4>
-                            <p class="text-[11px] text-slate-500 line-clamp-2 mb-4">{{ tarea.descripcion }}</p>
-                            <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
-                                        {{ tarea.empleado.nombre_completo|make_list|first }}
-                                    </div>
-                                    <span class="text-[10px] font-bold text-slate-400">{{ tarea.fecha_limite|date:"d M" }}</span>
-                                </div>
-                                <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=EN_PROGRESO" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-blue-100">
-                                    Iniciar &rarr;
-                                </a>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <p class="text-xs text-center text-gray-400 py-6 font-medium">No hay tareas pendientes.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- En Progreso -->
-                <div class="bg-blue-50/50 rounded-[2rem] p-4 border border-blue-100/60">
-                    <div class="flex items-center justify-between mb-4 px-2">
-                        <h3 class="text-xs font-black text-blue-800 uppercase tracking-widest flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> En Curso
-                        </h3>
-                        <span class="bg-white text-blue-600 text-[10px] font-bold px-2 py-1 rounded-lg border border-blue-100">{{ en_progreso|length }}</span>
-                    </div>
-                    <div class="space-y-3">
-                        {% for tarea in en_progreso %}
-                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition-shadow relative group">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md {% if tarea.prioridad == 'ALTA' %}bg-rose-50 text-rose-600{% elif tarea.prioridad == 'MEDIA' %}bg-amber-50 text-amber-600{% else %}bg-blue-50 text-blue-600{% endif %}">
-                                    {{ tarea.get_prioridad_display }}
-                                </span>
-                                <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-blue-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                </a>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm leading-tight mb-1">{{ tarea.titulo }}</h4>
-                            <p class="text-[11px] text-slate-500 line-clamp-2 mb-4">{{ tarea.descripcion }}</p>
-                            <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[9px] font-bold text-blue-600">
-                                        {{ tarea.empleado.nombre_completo|make_list|first }}
-                                    </div>
-                                    <span class="text-[10px] font-bold text-slate-400">{{ tarea.fecha_limite|date:"d M" }}</span>
-                                </div>
-                                <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-emerald-100">
-                                    Finalizar ✓
-                                </a>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <p class="text-xs text-center text-blue-300 py-6 font-medium">Ninguna tarea en progreso.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Completadas -->
-                <div class="bg-emerald-50/30 rounded-[2rem] p-4 border border-emerald-100/50 opacity-80 hover:opacity-100 transition-opacity">
-                    <div class="flex items-center justify-between mb-4 px-2">
-                        <h3 class="text-xs font-black text-emerald-700 uppercase tracking-widest flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Completadas
-                        </h3>
-                    </div>
-                    <div class="space-y-3">
-                        {% for tarea in completadas %}
-                        <div class="bg-white p-4 rounded-2xl border border-emerald-100 flex items-start justify-between group">
-                            <div class="flex items-start gap-3">
-                                <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-700 text-xs line-through opacity-80">{{ tarea.titulo }}</h4>
-                                    <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ tarea.empleado.nombre_completo }}</p>
-                                </div>
-                            </div>
-                            <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </a>
-                        </div>
-                        {% empty %}
-                        <p class="text-xs text-center text-emerald-300 py-6 font-medium">Aún no hay tareas finalizadas.</p>
-                        {% endfor %}
-                    </div>
-                </div>
-
-            </div>
+{% block content %}
+<div class="w-full">
+    <!-- Encabezado -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Tablero de Control</h1>
+            <p class="text-sm font-medium text-slate-500 mt-1">Gestión de actividades del equipo operativo.</p>
         </div>
-    </main>
-
-    <!-- Modal Nueva Tarea -->
-    <div id="modalTarea" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-[slideUpFade_0.3s_ease-out]">
-            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-lg font-black text-slate-800">Nueva Tarea</h3>
-                <button onclick="document.getElementById('modalTarea').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            </div>
-            <form action="{% url 'crear_tarea' %}" method="POST" class="p-8 space-y-5">
-                {% csrf_token %}
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Título de la Tarea</label>
-                    <input type="text" name="titulo" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] transition-all font-medium">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Descripción (Opcional)</label>
-                    <textarea name="descripcion" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] transition-all resize-none"></textarea>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Asignar a</label>
-                        <select name="empleado_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
-                            {% for emp in empleados %}
-                            <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Prioridad</label>
-                        <select name="prioridad" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
-                            <option value="ALTA">Alta Urgencia</option>
-                            <option value="MEDIA" selected>Media</option>
-                            <option value="BAJA">Rutina / Baja</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Fecha Límite</label>
-                    <input type="date" name="fecha_limite" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
-                </div>
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-[#1e3a8a] text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-blue-900 transition-colors">Guardar y Asignar</button>
-                </div>
-            </form>
-        </div>
+        
+        <button onclick="document.getElementById('modalTarea').classList.remove('hidden')" class="bg-[#1e3a8a] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            Asignar Nueva Tarea
+        </button>
     </div>
 
-    <!-- Script de Notificaciones y Modal -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btnNotif = document.getElementById('btn-notif');
-            const dropdownNotif = document.getElementById('notif-dropdown');
-            const badgeNotif = document.getElementById('notif-badge');
-            const listNotif = document.getElementById('notif-list');
-            const countText = document.getElementById('notif-count-text');
+    <!-- Tablero Kanban -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        
+        <!-- Columna: Pendientes -->
+        <div class="bg-gray-100/50 rounded-[2rem] p-4 border border-gray-200/60">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-xs font-black text-gray-600 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Pendientes
+                </h3>
+                <span class="bg-white text-gray-500 text-[10px] font-bold px-2 py-1 rounded-lg border border-gray-200">{{ pendientes|length }}</span>
+            </div>
+            
+            <div class="space-y-3">
+                {% for tarea in pendientes %}
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative group">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md {% if tarea.prioridad == 'ALTA' %}bg-rose-50 text-rose-600{% elif tarea.prioridad == 'MEDIA' %}bg-amber-50 text-amber-600{% else %}bg-blue-50 text-blue-600{% endif %}">
+                            {{ tarea.get_prioridad_display }}
+                        </span>
+                        <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm leading-tight mb-1">{{ tarea.titulo }}</h4>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mb-4">{{ tarea.descripcion }}</p>
+                    
+                    <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
+                                {{ tarea.empleado.nombre_completo|make_list|first }}
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400">{{ tarea.fecha_limite|date:"d M" }}</span>
+                        </div>
+                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=EN_PROGRESO" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-blue-100">
+                            Iniciar &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-xs text-center text-gray-400 py-6 font-medium">No hay tareas pendientes.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-            if (btnNotif) {
-                btnNotif.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    dropdownNotif.classList.toggle('hidden');
-                });
-            }
+        <!-- Columna: En Progreso -->
+        <div class="bg-blue-50/50 rounded-[2rem] p-4 border border-blue-100/60">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-xs font-black text-blue-800 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> En Curso
+                </h3>
+                <span class="bg-white text-blue-600 text-[10px] font-bold px-2 py-1 rounded-lg border border-blue-100">{{ en_progreso|length }}</span>
+            </div>
+            
+            <div class="space-y-3">
+                {% for tarea in en_progreso %}
+                <!-- Misma tarjeta pero adaptada -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 hover:shadow-md transition-shadow relative group">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md {% if tarea.prioridad == 'ALTA' %}bg-rose-50 text-rose-600{% elif tarea.prioridad == 'MEDIA' %}bg-amber-50 text-amber-600{% else %}bg-blue-50 text-blue-600{% endif %}">
+                            {{ tarea.get_prioridad_display }}
+                        </span>
+                        <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-blue-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-sm leading-tight mb-1">{{ tarea.titulo }}</h4>
+                    <p class="text-[11px] text-slate-500 line-clamp-2 mb-4">{{ tarea.descripcion }}</p>
+                    
+                    <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-50">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[9px] font-bold text-blue-600">
+                                {{ tarea.empleado.nombre_completo|make_list|first }}
+                            </div>
+                            <span class="text-[10px] font-bold text-slate-400">{{ tarea.fecha_limite|date:"d M" }}</span>
+                        </div>
+                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-bold text-emerald-600 hover:bg-emerald-50 px-2 py-1 rounded-lg transition-colors border border-transparent hover:border-emerald-100">
+                            Finalizar ✓
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-xs text-center text-blue-300 py-6 font-medium">Ninguna tarea en progreso.</p>
+                {% endfor %}
+            </div>
+        </div>
 
-            document.addEventListener('click', function(e) {
-                if (dropdownNotif && !dropdownNotif.contains(e.target) && !btnNotif.contains(e.target)) {
-                    dropdownNotif.classList.add('hidden');
-                }
-            });
+        <!-- Columna: Completadas -->
+        <div class="bg-emerald-50/30 rounded-[2rem] p-4 border border-emerald-100/50 opacity-80 hover:opacity-100 transition-opacity">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-xs font-black text-emerald-700 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Completadas
+                </h3>
+            </div>
+            
+            <div class="space-y-3">
+                {% for tarea in completadas %}
+                <div class="bg-white p-4 rounded-2xl border border-emerald-100 flex items-start justify-between group">
+                    <div class="flex items-start gap-3">
+                        <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-700 text-xs line-through opacity-80">{{ tarea.titulo }}</h4>
+                            <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ tarea.empleado.nombre_completo }}</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity mt-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                </div>
+                {% empty %}
+                <p class="text-xs text-center text-emerald-300 py-6 font-medium">Aún no hay tareas finalizadas.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
-            fetch('/api/notificaciones/')
-                .then(res => res.json())
-                .then(data => {
-                    countText.textContent = data.cantidad;
-                    if (data.cantidad > 0) {
-                        badgeNotif.classList.remove('hidden');
-                        let html = '';
-                        data.notificaciones.forEach(n => {
-                            html += `
-                            <div class="flex items-start gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer mb-1 border border-transparent hover:border-gray-100">
-                                <div class="w-8 h-8 rounded-full ${n.bg} ${n.color} flex items-center justify-center shrink-0 shadow-inner">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">${n.icono}</svg>
-                                </div>
-                                <div>
-                                    <h4 class="text-xs font-bold text-gray-800">${n.titulo}</h4>
-                                    <p class="text-[11px] text-gray-500 mt-0.5 leading-snug">${n.mensaje}</p>
-                                </div>
-                            </div>`;
-                        });
-                        listNotif.innerHTML = html;
-                    } else {
-                        listNotif.innerHTML = `<div class="p-6 text-center text-xs text-gray-400 font-medium">Todo está al día.<br>No hay alertas pendientes para hoy.</div>`;
-                    }
-                })
-                .catch(err => console.error("Error al cargar notificaciones:", err));
-        });
-    </script>
-</body>
-</html>
+<!-- Modal Nueva Tarea -->
+<div id="modalTarea" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden animate-[slideUpFade_0.3s_ease-out]">
+        <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-lg font-black text-slate-800">Nueva Tarea</h3>
+            <button onclick="document.getElementById('modalTarea').classList.add('hidden')" class="text-slate-400 hover:text-slate-700"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+        </div>
+        <form action="{% url 'crear_tarea' %}" method="POST" class="p-8 space-y-5">
+            {% csrf_token %}
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Título de la Tarea</label>
+                <input type="text" name="titulo" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] transition-all font-medium">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Descripción (Opcional)</label>
+                <textarea name="descripcion" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 focus:border-[#1e3a8a] transition-all resize-none"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Asignar a</label>
+                    <select name="empleado_id" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
+                        {% for emp in empleados %}
+                        <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Prioridad</label>
+                    <select name="prioridad" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
+                        <option value="ALTA">Alta Urgencia</option>
+                        <option value="MEDIA" selected>Media</option>
+                        <option value="BAJA">Rutina / Baja</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Fecha Límite</label>
+                <input type="date" name="fecha_limite" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a8a]/20 transition-all font-medium">
+            </div>
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-[#1e3a8a] text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-blue-900 transition-colors">Guardar y Asignar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
