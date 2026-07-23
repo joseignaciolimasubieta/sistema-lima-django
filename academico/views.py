@@ -1650,24 +1650,9 @@ def editar_servicio(request, servicio_id):
 def portal_inicio(request):
     user = request.user
     
-    # 1. Pantalla de Portal (Ahora incluye las tareas integradas)
+    # 1. Pantalla de Portal Limpia
     if user.is_superuser:
-        from .models import Tarea, Empleado
-        from datetime import date, timedelta
-        
-        tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado')
-        tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado')
-        tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=date.today() - timedelta(days=7)).select_related('empleado')
-        
-        empleados = Empleado.objects.all().order_by('nombre_completo')
-        
-        contexto = {
-            'pendientes': tareas_pendientes,
-            'en_progreso': tareas_progreso,
-            'completadas': tareas_completadas,
-            'empleados': empleados
-        }
-        return render(request, 'portal.html', contexto)
+        return render(request, 'portal.html')
         
     # 2. Distribución inteligente para empleados
     if user.groups.filter(name='Ventas').exists():
@@ -3998,7 +3983,7 @@ def crear_tarea(request):
             prioridad=request.POST.get('prioridad')
         )
         messages.success(request, 'Tarea asignada exitosamente al equipo.')
-    return redirect('portal_inicio') # <-- Retorna al portal
+    return redirect('lista_tareas')
 
 @login_required
 @user_passes_test(es_administrador)
@@ -4009,7 +3994,7 @@ def cambiar_estado_tarea(request, tarea_id):
     if nuevo_estado in ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADA']:
         tarea.estado = nuevo_estado
         tarea.save()
-    return redirect('portal_inicio') # <-- Retorna al portal
+    return redirect('lista_tareas')
 
 @login_required
 @user_passes_test(es_administrador)
@@ -4018,4 +4003,4 @@ def eliminar_tarea(request, tarea_id):
     tarea = get_object_or_404(Tarea, id=tarea_id)
     tarea.delete()
     messages.success(request, 'La tarea fue eliminada del tablero.')
-    return redirect('portal_inicio') # <-- Retorna al portal
+    return redirect('lista_tareas')
