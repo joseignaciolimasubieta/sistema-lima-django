@@ -147,8 +147,9 @@
                                 {{ item.fecha_inscripcion|date:"d M y"|default:item.fecha_inscripcion }}
                             </td>
                             
-                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
-                                {{ item.participante }}
+                            <td class="px-2.5 py-3 leading-tight min-w-[180px] whitespace-nowrap">
+                                <div class="font-bold text-black group-hover:text-white transition-colors uppercase text-xs">{{ item.participante }}</div>
+                                <div class="text-[9px] font-black text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">C.I. {{ item.participante.ci|default:"-" }}</div>
                             </td>
                             
                             <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">

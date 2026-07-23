@@ -2609,7 +2609,22 @@ def registrar_pago_prestamo(request, prestamo_id):
     prestamo = get_object_or_404(Prestamo, id=prestamo_id)
     
     if request.method == 'POST':
-        monto_abono = Decimal(request.POST.get('monto', 0))
+        # --- CORRECCIÓN: Limpiador del formato de moneda visual ---
+        monto_raw = str(request.POST.get('monto', '0')).strip()
+        
+        if ',' in monto_raw and '.' in monto_raw:
+            # Si tiene ambos (ej. 1.000,50) -> Quitamos punto, cambiamos coma
+            monto_raw = monto_raw.replace('.', '').replace(',', '.')
+        elif ',' in monto_raw:
+            # Si solo tiene coma (ej. 50,50) -> Cambiamos coma por punto
+            monto_raw = monto_raw.replace(',', '.')
+            
+        try:
+            monto_abono = Decimal(monto_raw)
+        except Exception:
+            monto_abono = Decimal('0.00')
+        # ---------------------------------------------------------
+        
         cuenta_id = request.POST.get('cuenta_destino_id') # <-- NUEVO: Atrapamos la cuenta elegida
         
         # Validación de seguridad para evitar sobrepagos
