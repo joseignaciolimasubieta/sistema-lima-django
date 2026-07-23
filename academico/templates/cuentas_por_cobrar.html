@@ -133,7 +133,8 @@
                         
                         <td class="py-4 px-4 text-left group-hover:text-white">
                             <div class="font-bold text-black text-sm uppercase tracking-tight leading-tight group-hover:text-white">{{ c.participante.nombre_completo }}</div>
-                            <div class="text-[10px] text-gray-500 font-bold tracking-wider mt-1 uppercase group-hover:text-white">CEL: {{ c.participante.celular|default:"-" }}</div>
+                            <div class="text-[10px] text-gray-500 font-bold tracking-wider mt-1 uppercase group-hover:text-white">C.I. {{ c.participante.ci|default:"-" }}</div>
+                            <div class="text-[10px] text-gray-400 font-bold tracking-wider mt-0.5 uppercase group-hover:text-gray-200">CEL: {{ c.participante.celular|default:"-" }}</div>
                         </td>
                         
                         <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
