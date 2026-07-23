@@ -143,8 +143,9 @@
                         
                         {% if item.curso %}
                         <tr class="hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer">
-                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors font-medium text-[11px] whitespace-nowrap">
-                                {{ item.fecha_inscripcion|date:"d M y"|default:item.fecha_inscripcion }}
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">
+                                <div class="font-bold text-[11px] uppercase">{{ item.fecha_inscripcion|date:"l d" }}</div>
+                                <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_inscripcion|date:"F" }} DE {{ item.fecha_inscripcion|date:"Y" }}</div>
                             </td>
                             
                             <td class="px-2.5 py-3 leading-tight min-w-[180px] whitespace-nowrap">
@@ -202,8 +203,9 @@
 
                         {% elif item.tipo_servicio %}
                         <tr class="hover:bg-[#0071e3] transition-colors duration-200 bg-gray-50/30 group relative cursor-pointer">
-                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors font-medium text-[11px] whitespace-nowrap">
-                                {{ item.fecha_venta|date:"d M y"|default:item.fecha_venta }}
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">
+                                <div class="font-bold text-[11px] uppercase">{{ item.fecha_venta|date:"l d" }}</div>
+                                <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_venta|date:"F" }} DE {{ item.fecha_venta|date:"Y" }}</div>
                             </td>
                             
                             <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
