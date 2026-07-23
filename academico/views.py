@@ -36,7 +36,7 @@ from datetime import date, timedelta
 from django.core.mail import EmailMessage
 import threading
 from .tasks import enviar_certificado_individual_task
-from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado  # Importamos las tablas de la base de datos
+from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado, Tarea  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
 
 def es_administrador(user):
@@ -3900,3 +3900,101 @@ def imprimir_boleta_cita(request, cita_id):
     response['Content-Disposition'] = f'inline; filename="Boleta_Cita_{cita.id:04d}.pdf"'
     
     return response
+
+@login_required
+def api_notificaciones(request):
+    hoy = date.today()
+    notificaciones = []
+    
+    # 1. Alertas de Citas Consultora para HOY
+    citas_hoy = CitaConsultora.objects.filter(fecha=hoy, estado='PENDIENTE')
+    for cita in citas_hoy:
+        notificaciones.append({
+            'icono': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>',
+            'titulo': 'Cita Consultora',
+            'mensaje': f'A las {cita.hora} con {cita.nombre_cliente}',
+            'color': 'text-blue-500',
+            'bg': 'bg-blue-50'
+        })
+        
+    # 2. Alertas de Cursos que inician HOY
+    cursos_hoy = Curso.objects.filter(fecha_inicio=hoy)
+    for curso in cursos_hoy:
+        notificaciones.append({
+            'icono': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422A12.083 12.083 0 0112 21.5a12.083 12.083 0 01-6.16-10.922L12 14z"></path>',
+            'titulo': 'Inicio de Curso',
+            'mensaje': f'Hoy arranca: {curso.nombre}',
+            'color': 'text-emerald-500',
+            'bg': 'bg-emerald-50'
+        })
+        
+    # 3. Alertas de Marketing Pendiente (Cursos próximos sin publicidad confirmada)
+    limite_marketing = hoy + timedelta(days=14)
+    cursos_marketing = Curso.objects.filter(
+        fecha_inicio__lte=limite_marketing, 
+        fecha_inicio__gte=hoy,
+        publicado_en_redes=False
+    )
+    for curso in cursos_marketing:
+        notificaciones.append({
+            'icono': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>',
+            'titulo': 'Publicación Pendiente',
+            'mensaje': f'Revisar afiche de: {curso.nombre}',
+            'color': 'text-rose-500',
+            'bg': 'bg-rose-50'
+        })
+        
+    return JsonResponse({
+        'cantidad': len(notificaciones),
+        'notificaciones': notificaciones
+    })
+
+@login_required
+@user_passes_test(es_administrador)
+def lista_tareas(request):
+    # Optimizamos las consultas para carga instantánea
+    tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado')
+    tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado')
+    tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=date.today() - timedelta(days=7)).select_related('empleado')
+    
+    empleados = Empleado.objects.all().order_by('nombre_completo')
+    
+    contexto = {
+        'pendientes': tareas_pendientes,
+        'en_progreso': tareas_progreso,
+        'completadas': tareas_completadas,
+        'empleados': empleados
+    }
+    return render(request, 'tareas.html', contexto)
+
+@login_required
+@user_passes_test(es_administrador)
+def crear_tarea(request):
+    if request.method == 'POST':
+        Tarea.objects.create(
+            titulo=request.POST.get('titulo'),
+            descripcion=request.POST.get('descripcion'),
+            empleado_id=request.POST.get('empleado_id'),
+            fecha_limite=request.POST.get('fecha_limite'),
+            prioridad=request.POST.get('prioridad')
+        )
+        messages.success(request, 'Tarea asignada exitosamente al equipo.')
+    return redirect('lista_tareas')
+
+@login_required
+@user_passes_test(es_administrador)
+def cambiar_estado_tarea(request, tarea_id):
+    tarea = get_object_or_404(Tarea, id=tarea_id)
+    nuevo_estado = request.GET.get('estado')
+    if nuevo_estado in ['PENDIENTE', 'EN_PROGRESO', 'COMPLETADA']:
+        tarea.estado = nuevo_estado
+        tarea.save()
+    return redirect('lista_tareas')
+
+@login_required
+@user_passes_test(es_administrador)
+def eliminar_tarea(request, tarea_id):
+    tarea = get_object_or_404(Tarea, id=tarea_id)
+    tarea.delete()
+    messages.success(request, 'La tarea fue eliminada del tablero.')
+    return redirect('lista_tareas')

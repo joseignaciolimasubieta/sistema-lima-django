@@ -1014,3 +1014,31 @@ class AsistenciaEmpleado(models.Model):
 
     def __str__(self):
         return f"{self.empleado.nombre_completo} - {self.fecha} {self.hora} ({self.tipo})"
+
+class Tarea(models.Model):
+    ESTADOS = [
+        ('PENDIENTE', 'Pendiente'),
+        ('EN_PROGRESO', 'En Progreso'),
+        ('COMPLETADA', 'Completada'),
+    ]
+    PRIORIDADES = [
+        ('ALTA', 'Alta'),
+        ('MEDIA', 'Media'),
+        ('BAJA', 'Baja'),
+    ]
+    
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True, null=True)
+    empleado = models.ForeignKey('Empleado', on_delete=models.CASCADE, related_name='tareas')
+    fecha_limite = models.DateField(default=date.today)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='PENDIENTE')
+    prioridad = models.CharField(max_length=20, choices=PRIORIDADES, default='MEDIA')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Tarea"
+        verbose_name_plural = "Tareas"
+        ordering = ['fecha_limite', '-prioridad']
+
+    def __str__(self):
+        return f"{self.titulo} - {self.empleado.nombre_completo}"

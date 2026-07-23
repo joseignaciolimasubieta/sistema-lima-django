@@ -105,6 +105,15 @@ urlpatterns = [
     path('planillas/boleta/<int:pago_id>/', views.imprimir_boleta, name='imprimir_boleta'),     
     path('financiera/prestamos/recibo/<int:pago_id>/', views.imprimir_recibo_pago, name='imprimir_recibo_pago'), 
     path('consultora/eliminar-cliente/<int:cliente_id>/', views.eliminar_cliente, name='eliminar_cliente'), 
+
+    # --- API DE NOTIFICACIONES ---
+    path('api/notificaciones/', views.api_notificaciones, name='api_notificaciones'),
+    
+    # --- MÓDULO DE TAREAS KANBAN ---
+    path('administracion/tareas/', views.lista_tareas, name='lista_tareas'),
+    path('administracion/tareas/nueva/', views.crear_tarea, name='crear_tarea'),
+    path('administracion/tareas/estado/<int:tarea_id>/', views.cambiar_estado_tarea, name='cambiar_estado_tarea'),
+    path('administracion/tareas/eliminar/<int:tarea_id>/', views.eliminar_tarea, name='eliminar_tarea'),
 ]
 
 if settings.DEBUG:

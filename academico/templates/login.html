@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso - Sistema de Gestión | G.E. LIMA</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -18,13 +18,32 @@
             background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
         }
         
-        /* Oculta la barra de desplazamiento pero permite hacer scroll en pantallas pequeñas */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* Oculta la barra de desplazamiento pero permite hacer scroll */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ========================================================= */
+        /* ANIMACIÓN PREMIUM DE LOGOTIPOS (SIN JS)                   */
+        /* ========================================================= */
+        .slider-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            animation: fadeRotate 12s infinite ease-in-out;
+            will-change: opacity, transform;
         }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        
+        /* Desfase de tiempos para que aparezcan uno tras otro (4 segundos c/u) */
+        .slider-img:nth-child(1) { animation-delay: 0s; }
+        .slider-img:nth-child(2) { animation-delay: 4s; }
+        .slider-img:nth-child(3) { animation-delay: 8s; }
+
+        @keyframes fadeRotate {
+            0% { opacity: 0; transform: scale(0.95); }
+            10%, 25% { opacity: 1; transform: scale(1); } /* Visible y perfecto */
+            35%, 100% { opacity: 0; transform: scale(1.05); } /* Se difumina hacia adelante */
         }
     </style>
 </head>
@@ -35,26 +54,36 @@
     <div class="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] bg-slate-400/20 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- Contenedor Principal (Tarjeta Dividida) -->
-    <div class="w-full max-w-5xl bg-white rounded-[2rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row overflow-hidden relative z-10 border border-slate-100 min-h-[600px]">
+    <div class="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.08)] flex flex-col lg:flex-row overflow-hidden relative z-10 border border-slate-100 min-h-[600px]">
         
         <!-- ================================================== -->
-        <!-- COLUMNA IZQUIERDA: FORMULARIO DE ACCESO            -->
+        <!-- COLUMNA IZQUIERDA: FORMULARIO Y MARCA              -->
         <!-- ================================================== -->
         <div class="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex flex-col justify-center relative bg-white hide-scrollbar overflow-y-auto">
             
-            <!-- Logo versión Móvil (Oculto en escritorio) -->
-            <div class="lg:hidden flex justify-center mb-8">
-                <img src="{% static 'logo.jpg' %}" alt="Grupo Empresarial LIMA" class="h-16 w-auto object-contain rounded-xl shadow-sm border border-slate-100">
+            <!-- Carrusel de Logos versión Móvil (Oculto en escritorio) -->
+            <div class="lg:hidden flex justify-center mb-8 mt-4">
+                <div class="bg-white rounded-[2rem] shadow-xl border border-slate-100 w-40 h-40 relative overflow-hidden">
+                    <div class="relative w-full h-full rounded-[inherit] overflow-hidden">
+                        <img src="{% static 'logo.jpg' %}" class="slider-img object-contain p-4 bg-white" alt="G.E. LIMA">
+                        <img src="{% static 'luca_pacioli.jpg' %}" class="slider-img object-cover" alt="Luca Pacioli">
+                        <img src="{% static 'consultora_preview.jpg' %}" class="slider-img object-cover" alt="Consultora">
+                    </div>
+                </div>
             </div>
 
-            <!-- Títulos del Formulario -->
+            <!-- Título Corporativo Imponente -->
             <div class="mb-10 text-center lg:text-left">
-                <h1 class="text-3xl font-bold text-slate-900 tracking-tight mb-2">Iniciar Sesión</h1>
-                <p class="text-slate-500 text-sm font-medium">Bienvenido de nuevo. Por favor ingresa tus datos.</p>
+                <p class="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-3">Portal de Acceso</p>
+                <h1 class="text-3xl sm:text-4xl lg:text-[2.6rem] font-black text-slate-900 tracking-tight uppercase leading-[1.1]">
+                    Grupo Empresarial<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1e3a8a] to-blue-500">LIMA S.R.L.</span>
+                </h1>
+                <div class="h-1.5 w-16 bg-gradient-to-r from-[#d4af37] to-yellow-500 rounded-full mx-auto lg:mx-0 mt-6 shadow-sm"></div>
             </div>
 
-            <!-- Formulario -->
-            <form method="POST" class="space-y-6 w-full max-w-md mx-auto lg:mx-0">
+            <!-- Formulario de Acceso -->
+            <form method="POST" class="space-y-5 w-full max-w-md mx-auto lg:mx-0">
                 {% csrf_token %}
                 
                 <!-- Input: Usuario -->
@@ -66,7 +95,7 @@
                             </svg>
                         </div>
                         <input type="text" name="username" required placeholder="Nombre de usuario o correo"
-                            class="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1e3a8a]/10 focus:border-[#1e3a8a] transition-all duration-300 font-medium">
+                            class="w-full pl-12 pr-4 py-4 bg-slate-50/70 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1e3a8a]/10 focus:border-[#1e3a8a] transition-all duration-300 font-medium">
                     </div>
                 </div>
 
@@ -79,7 +108,7 @@
                             </svg>
                         </div>
                         <input type="password" name="password" id="password_field" required placeholder="Contraseña"
-                            class="w-full pl-12 pr-12 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1e3a8a]/10 focus:border-[#1e3a8a] transition-all duration-300 font-medium">
+                            class="w-full pl-12 pr-12 py-4 bg-slate-50/70 border border-slate-200 rounded-2xl text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#1e3a8a]/10 focus:border-[#1e3a8a] transition-all duration-300 font-medium">
                         
                         <!-- Botón Ojo -->
                         <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-[#1e3a8a] transition-colors focus:outline-none">
@@ -97,9 +126,10 @@
                 <!-- Botón Submit -->
                 <div class="pt-2">
                     <button type="submit" 
-                        class="w-full bg-[#1e3a8a] hover:bg-[#1e40af] text-white font-bold py-4 px-4 rounded-2xl shadow-[0_8px_20px_rgb(30,58,138,0.25)] hover:shadow-[0_10px_25px_rgb(30,58,138,0.35)] transform active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
-                        Iniciar Sesión
+                        class="w-full bg-[#1e3a8a] hover:bg-[#1e40af] text-white font-bold py-4 px-4 rounded-2xl shadow-[0_8px_20px_rgb(30,58,138,0.25)] hover:shadow-[0_10px_25px_rgb(30,58,138,0.35)] transform active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 relative overflow-hidden group">
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                        <span class="relative z-10 tracking-wider uppercase text-[13px]">Ingresar al Sistema</span>
+                        <svg class="w-4 h-4 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </div>
             </form>
@@ -119,44 +149,52 @@
         </div>
 
         <!-- ================================================== -->
-        <!-- COLUMNA DERECHA: MARCA Y MENSAJE CORPORATIVO       -->
+        <!-- COLUMNA DERECHA: CARRUSEL DE MARCAS Y ESTILO VIP   -->
         <!-- ================================================== -->
-        <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#172554] p-16 flex-col justify-between relative overflow-hidden bg-pattern">
+        <div class="hidden lg:flex w-1/2 bg-gradient-to-br from-[#0f172a] via-[#1e3a8a] to-[#172554] p-16 flex-col justify-center relative overflow-hidden bg-pattern">
             
             <!-- Brillo interno decorativo -->
             <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px]"></div>
             <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/20 rounded-full blur-[100px]"></div>
 
-            <!-- Contenedor del Logo (Flotante) -->
-            <div class="relative z-10 flex justify-end">
-                <div class="bg-white p-5 rounded-[2rem] shadow-2xl inline-block border border-white/20 transform hover:scale-105 transition-transform duration-500">
-                    <img src="{% static 'logo.jpg' %}" alt="Grupo Empresarial LIMA" class="h-24 w-auto object-contain">
+            <!-- Contenedor del Carrusel de Logos (Gigante y Flotante) -->
+            <div class="relative z-10 flex justify-center mb-10">
+                <div class="bg-white rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/20 transform hover:scale-105 transition-transform duration-500 w-64 h-64 relative overflow-hidden ring-8 ring-white/10">
+                    
+                    <!-- Lógica de Rotación CSS -->
+                    <div class="relative w-full h-full rounded-[inherit] overflow-hidden bg-white">
+                        <!-- 1. Logo G.E. LIMA (Fondo Blanco) -->
+                        <img src="{% static 'logo.jpg' %}" class="slider-img object-contain p-6" alt="G.E. LIMA">
+                        
+                        <!-- 2. Logo Luca Pacioli (Fondo Oscuro -> object-cover lo llena perfecto) -->
+                        <img src="{% static 'luca_pacioli.jpg' %}" class="slider-img object-cover" alt="Luca Pacioli">
+                        
+                        <!-- 3. Consultora Lima (Imagen Fotográfica) -->
+                        <img src="{% static 'consultora_preview.jpg' %}" class="slider-img object-cover" alt="Consultora Lima">
+                    </div>
+
                 </div>
             </div>
 
             <!-- Textos Inferiores Corporativos -->
-            <div class="relative z-10 mt-20">
-                <div class="w-12 h-1.5 bg-white/30 rounded-full mb-6"></div>
-                <h2 class="text-4xl font-bold text-white tracking-tight leading-tight mb-4 drop-shadow-md">
+            <div class="relative z-10 text-center">
+                <h2 class="text-3xl xl:text-4xl font-black text-white tracking-tight leading-tight mb-4 drop-shadow-md">
                     Conecta y gestiona <br>
                     <span class="text-blue-200">eficientemente</span>
                 </h2>
-                <p class="text-blue-100/80 text-lg font-light leading-relaxed max-w-md">
+                <p class="text-blue-100/80 text-base xl:text-lg font-light leading-relaxed max-w-md mx-auto">
                     Accede de forma segura a tu panel de administración, control académico y herramientas financieras centralizadas.
                 </p>
-                
-                <!-- Micro decoraciones -->
-                <div class="flex items-center gap-4 mt-12 opacity-50">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                    <span class="text-sm font-medium text-white tracking-widest uppercase">Portal Oficial Autorizado</span>
-                </div>
             </div>
 
         </div>
 
     </div>
 
-    <!-- Script de Visibilidad de Contraseña -->
+    <!-- Scripts Extra -->
+    <style>
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
+    </style>
     <script>
         function togglePassword() {
             const passwordField = document.getElementById('password_field');
