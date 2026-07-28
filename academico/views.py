@@ -3813,16 +3813,22 @@ def api_marcar_curso_enviado(request, curso_id):
 # ==============================================================
 
 def portal_buscar_certificado(request):
+    from datetime import date
+    from django.db.models import Q
+    
     inscripciones = None
     buscado = False
     
     if request.method == 'POST':
         ci_buscado = request.POST.get('ci', '').strip()
         if ci_buscado:
-            # Buscamos inscripciones que coincidan con el C.I. Y que el curso ya esté marcado como enviado
+            hoy = date.today()
+            # Buscamos inscripciones que coincidan con el C.I. 
+            # Y que el curso ya esté marcado como enviado O que su fecha de finalización sea hoy o en el pasado
             inscripciones = Inscripcion.objects.filter(
-                participante__ci=ci_buscado,
-                curso__certificados_enviados=True
+                participante__ci=ci_buscado
+            ).filter(
+                Q(curso__certificados_enviados=True) | Q(curso__fecha_finalizacion__lte=hoy)
             ).select_related('curso', 'curso__docente', 'participante')
         buscado = True
         
@@ -3832,8 +3838,23 @@ def portal_buscar_certificado(request):
     })
 
 def descargar_certificado_publico(request, inscripcion_id):
-    # Validamos que el curso realmente ya tenga los certificados habilitados
-    inscrito = get_object_or_404(Inscripcion, id=inscripcion_id, curso__certificados_enviados=True)
+    from datetime import date
+    from django.db.models import Q
+    from django.shortcuts import get_object_or_404
+    import os
+    from pathlib import Path
+    from django.template.loader import render_to_string
+    from django.http import HttpResponse
+    from weasyprint import HTML
+    
+    hoy = date.today()
+    
+    # Validamos que el curso realmente ya tenga los certificados habilitados (manual) o haya finalizado hoy/antes
+    inscrito = get_object_or_404(
+        Inscripcion, 
+        Q(curso__certificados_enviados=True) | Q(curso__fecha_finalizacion__lte=hoy),
+        id=inscripcion_id
+    )
     curso = inscrito.curso
     
     nombre_docente = curso.docente.nombre.lower()
