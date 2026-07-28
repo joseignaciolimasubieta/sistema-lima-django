@@ -162,7 +162,7 @@
                                     Emitido el: {{ ins.curso.fecha_finalizacion|date:"d M, Y" }}
                                 </div>
                             </div>
-                            <a href="{% url 'descargar_certificado_publico' ins.id %}" target="_blank" class="h-12 px-6 flex items-center justify-center gap-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-[#d4af37] hover:text-white hover:border-[#d4af37] transition-all shadow-sm hover:shadow-[0_8px_20px_rgba(212,175,55,0.3)] shrink-0 active:scale-95">
+                            <a href="{% url 'descargar_certificado_publico' ins.id %}" download class="h-12 px-6 flex items-center justify-center gap-2.5 bg-slate-50 border border-slate-200 text-slate-800 text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-[#d4af37] hover:text-white hover:border-[#d4af37] transition-all shadow-sm hover:shadow-[0_8px_20px_rgba(212,175,55,0.3)] shrink-0 active:scale-95">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                 Descargar PDF
                             </a>
