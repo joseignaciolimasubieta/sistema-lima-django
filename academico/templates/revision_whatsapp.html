@@ -129,21 +129,27 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
 
 <script>
-    flatpickr("#mes_buscar", { 
-        locale: "es", 
-        disableMobile: true,
-        defaultDate: "{{ mes_buscar }}", 
-        altInput: true,
-        altFormat: "F Y",
-        dateFormat: "Y-m",
-        altInputClass: "w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
-        plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], 
-        onReady: function(selectedDates, dateStr, instance) {
-            if (instance.altInput) {
-                instance.altInput.removeAttribute('readonly');
-                instance.altInput.setAttribute('inputmode', 'none');
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#mes_buscar", { 
+            locale: "es", 
+            disableMobile: true,
+            defaultDate: "{{ mes_buscar }}", 
+            plugins: [
+                new monthSelectPlugin({ 
+                    shorthand: false, 
+                    dateFormat: "Y-m", 
+                    altFormat: "F Y" 
+                })
+            ],
+            altInput: true,
+            altInputClass: "w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer", 
+            onReady: function(selectedDates, dateStr, instance) {
+                if (instance.altInput) {
+                    instance.altInput.removeAttribute('readonly');
+                    instance.altInput.setAttribute('inputmode', 'none');
+                }
             }
-        }
+        });
     });
 </script>
 {% endblock %}
