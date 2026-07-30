@@ -22,19 +22,14 @@ urlpatterns = [
     path('inscripciones/', views.inscripciones, name='inscripciones'), 
     path('inscripciones/nuevo/', views.crear_inscripcion, name='crear_inscripcion'), 
     path('marketing/', views.marketing, name='marketing'),
-    path('marketing/', views.marketing, name='marketing'),
-    path('marketing/eliminar-afiche/<int:curso_id>/', views.eliminar_afiche_marketing, name='eliminar_afiche_marketing'), # <-- NUEVA RUTA AÑADIDA
+    path('marketing/eliminar-afiche/<int:curso_id>/', views.eliminar_afiche_marketing, name='eliminar_afiche_marketing'), 
     path('marketing/confirmar/<int:curso_id>/', views.confirmar_publicacion, name='confirmar_publicacion'), 
-   # --- NUEVO MÓDULO DE CERTIFICADOS INDEPENDIENTE ---
+    
+    # --- NUEVO MÓDULO DE CERTIFICADOS INDEPENDIENTE ---
     path('certificados/', views.lista_cursos_certificados, name='lista_cursos_certificados'),
     path('certificados/<int:curso_id>/', views.detalle_curso_certificados, name='detalle_curso_certificados'),
-    # NUEVA RUTA PARA EL ENVÍO INDIVIDUAL
-    path('certificado/individual/enviar/<int:inscripcion_id>/', views.enviar_certificado_individual, name='enviar_certificado_individual'),
+    
     path('informacion-cursos/', views.informacion_cursos, name='informacion_cursos'),
-    # ... otras rutas ...
-    path('api/certificados/alumnos/<int:curso_id>/', views.api_obtener_alumnos_correo, name='api_obtener_alumnos_correo'),
-    path('api/certificados/enviar/<int:inscripcion_id>/', views.api_enviar_certificado_js, name='api_enviar_certificado_js'),
-    path('api/certificados/marcar/<int:curso_id>/', views.api_marcar_curso_enviado, name='api_marcar_curso_enviado'),
 
     # --- PORTAL PÚBLICO DE DESCARGAS ---
     path('mis-certificados/', views.portal_buscar_certificado, name='portal_buscar_certificado'),

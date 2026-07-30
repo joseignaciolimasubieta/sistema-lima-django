@@ -67,15 +67,13 @@
                     Volver
                 </a>
                 
-                
-                
                 <a href="{% url 'generar_certificados_curso' curso.id %}?modalidad={{ modalidad_actual }}" target="_blank" class="w-fit h-9 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-md">
                     <svg class="w-4 h-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Descargar Certificados
                 </a>
             </div>
 
-            <!-- NUEVO RECUADRO DE CONTADOR -->
+            <!-- RECUADRO DE CONTADOR -->
                 <div class="bg-white border border-gray-200 shadow-sm rounded-3xl px-6 py-2 flex flex-col justify-center min-w-[140px] text-center">
                     <span class="text-[12.5px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Total Participantes:</span>
                     <span class="text-3xl font-black text-black leading-none">{{ inscritos.count }}</span>
@@ -118,7 +116,6 @@
                         <div class="font-black text-black uppercase text-[13px]">{{ alumno.participante.nombre_completo }}</div>
                         <div class="flex items-center gap-3 mt-1">
                             <div class="text-[9px] font-bold text-gray-400 tracking-widest uppercase">CEL: {{ alumno.participante.celular|default:"S/N" }}</div>
-                            <!-- Mostramos si tiene correo registrado o no -->
                             {% if alumno.participante.correo %}
                             <div class="text-[9px] font-bold text-[#0071e3] tracking-widest lowercase">{{ alumno.participante.correo }}</div>
                             {% else %}
@@ -137,14 +134,6 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                 <span class="text-[9px] uppercase tracking-widest">Imprimir</span>
                             </a>
-
-                            <!-- NUEVO BOTÓN DE ENVÍO INDIVIDUAL -->
-                            {% if alumno.participante.correo %}
-                            <a href="{% url 'enviar_certificado_individual' alumno.id %}" class="h-8 px-3 rounded-full bg-blue-50 text-[#0071e3] hover:bg-blue-100 transition-colors flex items-center gap-1.5 font-bold shadow-sm" title="Enviar por Correo">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                                <span class="text-[9px] uppercase tracking-widest">Enviar</span>
-                            </a>
-                            {% endif %}
                         </div>
                     </td>
                 </tr>
