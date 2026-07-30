@@ -44,10 +44,11 @@
 
         <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
             <div class="relative w-full sm:w-48 h-8 flex items-center">
-                <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
+                <!-- Icono de Calendario -->
+                <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none z-10">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 </div>
-                <input type="text" id="mes_buscar" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
+                <input type="text" id="mes_buscar" name="mes" value="{{ mes_buscar }}" class="hidden" placeholder="PERIODO...">
             </div>
             <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-blue-600 text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
                 BUSCAR
@@ -131,7 +132,11 @@
     flatpickr("#mes_buscar", { 
         locale: "es", 
         disableMobile: true,
-        defaultDate: "{{ mes_buscar }}", // <-- Esto es lo que lo traduce a literal
+        defaultDate: "{{ mes_buscar }}", 
+        altInput: true,
+        altFormat: "F Y",
+        dateFormat: "Y-m",
+        altInputClass: "w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
         plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], 
         onReady: function(selectedDates, dateStr, instance) {
             if (instance.altInput) {
