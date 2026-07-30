@@ -56,6 +56,7 @@
                             <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>
                             <a href="{% url 'informacion_cursos' %}" class="apple-nav-link {% if 'informacion_cursos' in url_name %}apple-nav-link-active{% endif %}">Info Cursos</a>
                             <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                            <a href="{% url 'revision_whatsapp' %}" class="apple-nav-link {% if 'whatsapp' in url_name %}apple-nav-link-active{% endif %}">Control Grupos</a>
                             <a href="{% url 'marketing' %}" class="apple-nav-link {% if 'marketing' in url_name %}apple-nav-link-active{% endif %}">Marketing</a>
                             <a href="{% url 'inscripciones' %}" class="apple-nav-link {% if 'inscripcion' in url_name or 'venta' in url_name or 'participante' in url_name %}apple-nav-link-active{% endif %}">Inscripciones</a>
                             <a href="{% url 'honorarios' %}" class="apple-nav-link {% if 'honorario' in url_name %}apple-nav-link-active{% endif %}">Honorarios</a>
@@ -81,6 +82,7 @@
                             {% endif %}
                             {% if grupo.name == 'Certificados' %}
                                 <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                                <a href="{% url 'revision_whatsapp' %}" class="apple-nav-link {% if 'whatsapp' in url_name %}apple-nav-link-active{% endif %}">Control Grupos</a>
                             {% endif %}
                         {% endfor %}
                     {% endif %}
