@@ -1,5 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/80 backdrop-blur-xl text-gray-900 px-5 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <p class="text-sm font-semibold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 4000);
+    });
+</script>
+{% endif %}
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/style.css">
 
@@ -13,11 +44,20 @@
 
         <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
             <div class="relative w-full sm:w-48 h-8 flex items-center">
-                <input type="text" id="mes_buscar" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-6 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
+                <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <input type="text" id="mes_buscar" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
             </div>
             <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-blue-600 text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
-                FILTRAR
+                BUSCAR
             </button>
+            
+            {% if mes_buscar %}
+            <a href="{% url 'revision_whatsapp' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </a>
+            {% endif %}
         </form>
     </div>
 
@@ -91,6 +131,7 @@
     flatpickr("#mes_buscar", { 
         locale: "es", 
         disableMobile: true,
+        defaultDate: "{{ mes_buscar }}", // <-- Esto es lo que lo traduce a literal
         plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], 
         onReady: function(selectedDates, dateStr, instance) {
             if (instance.altInput) {

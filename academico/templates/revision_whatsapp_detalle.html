@@ -2,14 +2,18 @@
 {% block content %}
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
     
+    <!-- Botón Volver Rediseñado -->
+    <div class="mb-8">
+        <a href="{% url 'revision_whatsapp' %}" class="w-fit h-10 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[11px] font-black tracking-widest uppercase transition-all shadow-sm">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver
+        </a>
+    </div>
+
     <div class="mb-10 flex flex-col xl:flex-row xl:items-start justify-between gap-6 w-full">
         
-        <div class="flex flex-col gap-6 w-full xl:w-auto">
+        <div class="flex flex-col gap-5 w-full xl:w-auto">
             <div class="space-y-1">
-                <a href="{% url 'revision_whatsapp' %}" class="inline-flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-[#0071e3] transition-colors tracking-widest uppercase mb-2">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
-                    Volver a Cursos
-                </a>
                 <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tight leading-none uppercase">{{ curso.nombre }}</h1>
             </div>
 
@@ -37,17 +41,17 @@
                     </div>
                 </div>
             {% else %}
-                <form method="POST" class="w-full md:w-80">
+                <form method="POST" class="w-full sm:w-[22rem]">
                     {% csrf_token %}
-                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-2">Auditoría de Grupo de WhatsApp</label>
+                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-2.5">Auditoría de Grupo de WhatsApp</label>
                     <div class="flex gap-2">
-                        <select name="empleado_id" required class="flex-1 h-10 bg-gray-50 border border-gray-200 rounded-xl px-3 text-[11px] font-bold text-black outline-none focus:border-[#0071e3] transition-all uppercase">
+                        <select name="empleado_id" required class="flex-1 h-10 bg-white border-2 border-gray-200 rounded-xl px-3 text-[11px] font-bold text-black outline-none focus:border-[#0071e3] transition-all uppercase">
                             <option value="">¿QUIÉN REVISA?</option>
                             {% for emp in empleados %}
                             <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
                             {% endfor %}
                         </select>
-                        <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay números intrusos?');" class="h-10 px-5 bg-black hover:bg-gray-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                        <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay números intrusos?');" class="h-10 px-6 bg-black hover:bg-gray-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
                             Confirmar
                         </button>
                     </div>
