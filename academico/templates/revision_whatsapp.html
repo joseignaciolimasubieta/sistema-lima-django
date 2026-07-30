@@ -21,55 +21,65 @@
         </form>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {% for curso in cursos %}
-        <div class="bg-white p-6 rounded-[2rem] border {% if curso.whatsapp_revisado %}border-emerald-200 bg-emerald-50/20{% else %}border-gray-200{% endif %} shadow-sm flex flex-col justify-between">
-            <div>
-                <span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest">{{ curso.mes_curso }}</span>
-                <h3 class="text-lg font-black text-black mt-3 uppercase leading-tight">{{ curso.nombre }}</h3>
-                <p class="text-xs font-bold text-gray-400 mt-2 uppercase tracking-wide">Docente: {{ curso.docente.nombre }}</p>
-                <div class="mt-4 flex items-center gap-2">
-                    <span class="text-xs font-black text-black">{{ curso.inscripcion_set.count }}</span>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Alumnos (Bs {{ curso.inscripcion_set.count }}.00)</span>
-                </div>
-            </div>
-
-            <div class="mt-6 pt-4 border-t border-gray-100">
-                {% if curso.whatsapp_revisado %}
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Revisado por:</p>
-                            <p class="text-sm font-bold text-black uppercase">{{ curso.revisado_por_empleado.nombre_completo }}</p>
-                            <p class="text-[9px] font-bold text-gray-400 mt-0.5">El {{ curso.fecha_revision_whatsapp|date:"d M, Y" }}</p>
-                        </div>
-                    </div>
-                {% else %}
-                    <form method="POST" class="space-y-3">
-                        {% csrf_token %}
-                        <input type="hidden" name="curso_id" value="{{ curso.id }}">
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 border-b-2 border-slate-200">
+                    <tr>
+                        <th class="py-5 px-6 text-left text-[10px] font-black text-black uppercase tracking-widest">Curso</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Docente</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Alumnos</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Estado Auditoría</th>
+                        <th class="py-5 px-6 text-center text-[10px] font-black text-black uppercase tracking-widest">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs">
+                    {% for curso in cursos %}
+                    <tr class="hover:bg-slate-50 transition-colors duration-200 group">
                         
-                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">¿Quién revisó el grupo?</label>
-                        <div class="flex gap-2">
-                            <select name="empleado_id" required class="flex-1 h-10 bg-gray-50 border border-gray-200 rounded-xl px-3 text-xs font-bold text-black outline-none focus:border-[#0071e3] transition-all uppercase">
-                                <option value="">SELECCIONAR...</option>
-                                {% for emp in empleados %}
-                                <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
-                                {% endfor %}
-                            </select>
-                            <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay intrusos?');" class="h-10 px-4 bg-black hover:bg-gray-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
-                                Confirmar
-                            </button>
-                        </div>
-                    </form>
-                {% endif %}
-            </div>
+                        <td class="px-6 py-4 font-bold text-black uppercase text-[13px]">{{ curso.nombre }}</td>
+                        
+                        <td class="px-6 py-4 text-center font-bold text-gray-500 uppercase">{{ curso.docente.nombre }}</td>
+                        
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-sm font-black text-black">{{ curso.inscripcion_set.count }}</span>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Inscritos</span>
+                        </td>
+
+                        <td class="px-6 py-4 text-center">
+                            {% if curso.whatsapp_revisado %}
+                                <div class="flex flex-col items-center gap-1">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 text-[9px] font-black uppercase tracking-widest shadow-sm">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                        VERIFICADO
+                                    </span>
+                                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                                        Por: {{ curso.revisado_por_empleado.nombre_completo|truncatechars:15 }}
+                                    </span>
+                                </div>
+                            {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-600 border border-amber-200 text-[9px] font-black uppercase tracking-widest shadow-sm">
+                                    PENDIENTE
+                                </span>
+                            {% endif %}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{% url 'detalle_revision_whatsapp' curso.id %}" class="inline-flex h-8 px-4 justify-center items-center gap-1.5 rounded-full bg-[#0071e3] text-white hover:bg-blue-600 transition-all font-bold shadow-sm shrink-0">
+                                    <span class="text-[9px] font-black uppercase tracking-widest">Ver Alumnos</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                                </a>
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="py-24 text-center text-gray-400 font-bold uppercase">No hay cursos registrados en este mes.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-        {% empty %}
-        <div class="col-span-full py-20 text-center text-gray-400 font-bold uppercase">No hay cursos programados para este mes.</div>
-        {% endfor %}
     </div>
 </div>
 

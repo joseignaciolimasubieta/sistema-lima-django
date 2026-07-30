@@ -111,6 +111,7 @@ urlpatterns = [
     path('administracion/tareas/eliminar/<int:tarea_id>/', views.eliminar_tarea, name='eliminar_tarea'),
     # --- NUEVO MÓDULO DE REVISIÓN DE WHATSAPP ---
     path('administracion/whatsapp/', views.revision_whatsapp, name='revision_whatsapp'),
+    path('revision-whatsapp/<int:curso_id>/', views.detalle_revision_whatsapp, name='detalle_revision_whatsapp'),
 ]
 
 if settings.DEBUG:

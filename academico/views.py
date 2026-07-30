@@ -3844,3 +3844,56 @@ def revision_whatsapp(request):
         'mes_buscar': mes_buscar,
         'empleados': empleados
     })
+
+@login_required
+def revision_whatsapp(request):
+    hoy = date.today()
+    mes_buscar = request.GET.get('mes', '') 
+    
+    # Filtramos cursos
+    cursos_bd = Curso.objects.select_related('docente', 'revisado_por_empleado').exclude(fecha_inicio__isnull=True).order_by('-fecha_inicio')
+    
+    if mes_buscar:
+        try:
+            anio, mes = mes_buscar.split('-')
+            cursos_bd = cursos_bd.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+        except ValueError:
+            pass
+    else:
+        # Por defecto muestra el mes actual
+        cursos_bd = cursos_bd.filter(fecha_inicio__year=hoy.year, fecha_inicio__month=hoy.month)
+        mes_buscar = hoy.strftime('%Y-%m')
+        
+    return render(request, 'revision_whatsapp.html', {
+        'cursos': cursos_bd,
+        'mes_buscar': mes_buscar,
+    })
+
+@login_required
+def detalle_revision_whatsapp(request, curso_id):
+    hoy = date.today()
+    curso = get_object_or_404(Curso, id=curso_id)
+    
+    # Traemos a todos los alumnos inscritos en este curso
+    inscritos = Inscripcion.objects.filter(curso=curso).select_related('participante')
+    empleados = Empleado.objects.all().order_by('nombre_completo')
+    
+    # Lógica para guardar la auditoría
+    if request.method == 'POST':
+        empleado_id = request.POST.get('empleado_id')
+        if empleado_id:
+            empleado = get_object_or_404(Empleado, id=empleado_id)
+            
+            curso.whatsapp_revisado = True
+            curso.fecha_revision_whatsapp = hoy
+            curso.revisado_por_empleado = empleado
+            curso.save()
+            
+            messages.success(request, f'¡Excelente! El grupo de WhatsApp del curso "{curso.nombre}" fue auditado por {empleado.nombre_completo}.')
+        return redirect('revision_whatsapp')
+
+    return render(request, 'revision_whatsapp_detalle.html', {
+        'curso': curso,
+        'inscritos': inscritos,
+        'empleados': empleados
+    })
