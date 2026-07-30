@@ -2140,8 +2140,8 @@ def obtener_datos_empleado_pago(request, empleado_id):
         cursos_revisados = Curso.objects.filter(
             whatsapp_revisado=True, 
             revisado_por_empleado=empleado, 
-            fecha_revision_whatsapp__year=anio, 
-            fecha_revision_whatsapp__month=mes
+            fecha_inicio__year=anio,     # <-- CAMBIO AQUÍ
+            fecha_inicio__month=mes      # <-- CAMBIO AQUÍ
         )
         bono_wsp = 0.00
         for curso_rev in cursos_revisados:

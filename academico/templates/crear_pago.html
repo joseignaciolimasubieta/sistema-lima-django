@@ -185,7 +185,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 3. Calculadora de Totales ---
     function calcularTotales() {
         try {
-            const ingresos = getVal('salario_base') + getVal('bono_antiguedad') + getVal('bono_ventas') + getVal('comisiones_certificados') + getVal('bono_consultora') + getVal('otros_bonos');
+            // 👇 ESTA ES LA LÍNEA QUE DEBES REEMPLAZAR PARA QUE SUME EL BONO WHATSAPP:
+            const ingresos = getVal('salario_base') + getVal('bono_antiguedad') + getVal('bono_ventas') + getVal('bono_whatsapp') + getVal('bono_consultora') + getVal('otros_bonos');
             const descuentos = getVal('aportes_afp') + getVal('rc_iva') + getVal('anticipos') + getVal('prestamos') + getVal('multas') + getVal('rendicion_cuentas') + getVal('pasanaku');
             const total = ingresos - descuentos;
 
