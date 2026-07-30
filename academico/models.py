@@ -44,6 +44,10 @@ class Curso(models.Model):
     certificados_enviados = models.BooleanField(default=False)
     fecha_envio_certificados = models.DateField(null=True, blank=True)
 
+    whatsapp_revisado = models.BooleanField(default=False)
+    fecha_revision_whatsapp = models.DateField(null=True, blank=True)
+    revisado_por_empleado = models.ForeignKey('Empleado', on_delete=models.SET_NULL, null=True, blank=True, related_name='grupos_revisados')
+
     @property
     def estado(self):
         hoy = date.today()
@@ -396,7 +400,7 @@ class PagoSueldo(models.Model):
     salario_base = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_antiguedad = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_ventas = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    comisiones_certificados = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    bono_whatsapp = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_consultora = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     otros_bonos = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 

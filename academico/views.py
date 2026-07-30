@@ -35,7 +35,6 @@ from django.db.models.functions import TruncMonth, TruncYear
 from datetime import date, timedelta
 from django.core.mail import EmailMessage
 import threading
-from .tasks import enviar_certificado_individual_task
 from .models import Participante, Docente, Curso, Inscripcion, MovimientoCaja, CuentaCaja, Cliente, ServicioConsultora, Honorario, Empleado, PagoSueldo, VentaServicio, Asistencia, DatosEmpresa, Prestamo, PagoPrestamo, ArqueoCaja, CitaConsultora, ArchivoDigital, AnticipoEmpleado, AsistenciaEmpleado, Tarea  # Importamos las tablas de la base de datos
 from .forms import ParticipanteForm, DocenteForm, CursoForm, InscripcionForm, MovimientoCajaForm, ClienteForm, ServicioConsultoraForm, HonorarioForm, EmpleadoForm, PagoSueldoForm  # Importamos los formularios para crear entidades
 
@@ -910,21 +909,13 @@ def planillas(request):
     pagos = PagoSueldo.objects.select_related('empleado').all().order_by('-fecha_pago')
     
     mes_buscar = request.GET.get('mes_buscar', '')
-    buscar = request.GET.get('buscar', '').strip() # <-- NUEVO: Atrapa el texto a buscar
+    buscar = request.GET.get('buscar', '').strip() 
     mes_literal_buscar = "" 
     
-    # --- 1. FILTRO DE TEXTO (Nombre o C.I.) ---
     if buscar:
-        pagos = pagos.filter(
-            Q(empleado__nombre_completo__icontains=buscar) |
-            Q(empleado__ci__icontains=buscar)
-        )
-
-    # --- 2. FILTRO DE MES ---
+        pagos = pagos.filter(Q(empleado__nombre_completo__icontains=buscar) | Q(empleado__ci__icontains=buscar))
     if mes_buscar:
         pagos = pagos.filter(mes_correspondiente=mes_buscar)
-        
-        # Traductor para el encabezado de la página cuando se filtra
         meses_dict = {
             '01': 'ENERO', '02': 'FEBRERO', '03': 'MARZO', '04': 'ABRIL', 
             '05': 'MAYO', '06': 'JUNIO', '07': 'JULIO', '08': 'AGOSTO', 
@@ -937,25 +928,18 @@ def planillas(request):
             mes_literal_buscar = str(mes_buscar).upper()
         
     totales = pagos.aggregate(
-        t_salario_base=Sum('salario_base'),
-        t_bono_antiguedad=Sum('bono_antiguedad'),
-        t_bono_ventas=Sum('bono_ventas'),
-        t_comisiones_certificados=Sum('comisiones_certificados'),
-        t_bono_consultora=Sum('bono_consultora'),
-        t_otros_bonos=Sum('otros_bonos'),
-        t_aportes_afp=Sum('aportes_afp'),
-        t_rc_iva=Sum('rc_iva'),
-        t_anticipos=Sum('anticipos'),
-        t_prestamos=Sum('prestamos'),
-        t_multas=Sum('multas'),
-        t_rendicion_cuentas=Sum('rendicion_cuentas'),
-        t_pasanaku=Sum('pasanaku')
+        t_salario_base=Sum('salario_base'), t_bono_antiguedad=Sum('bono_antiguedad'),
+        t_bono_ventas=Sum('bono_ventas'), t_bono_whatsapp=Sum('bono_whatsapp'), # <-- CAMBIADO
+        t_bono_consultora=Sum('bono_consultora'), t_otros_bonos=Sum('otros_bonos'),
+        t_aportes_afp=Sum('aportes_afp'), t_rc_iva=Sum('rc_iva'),
+        t_anticipos=Sum('anticipos'), t_prestamos=Sum('prestamos'),
+        t_multas=Sum('multas'), t_rendicion_cuentas=Sum('rendicion_cuentas'), t_pasanaku=Sum('pasanaku')
     )
     
     t_salario_base = totales['t_salario_base'] or Decimal('0.00')
     t_bono_antiguedad = totales['t_bono_antiguedad'] or Decimal('0.00')
     t_bono_ventas = totales['t_bono_ventas'] or Decimal('0.00')
-    t_comisiones_certificados = totales['t_comisiones_certificados'] or Decimal('0.00')
+    t_bono_whatsapp = totales['t_bono_whatsapp'] or Decimal('0.00') # <-- CAMBIADO
     t_bono_consultora = totales['t_bono_consultora'] or Decimal('0.00')
     t_otros_bonos = totales['t_otros_bonos'] or Decimal('0.00')
     t_aportes_afp = totales['t_aportes_afp'] or Decimal('0.00')
@@ -966,7 +950,7 @@ def planillas(request):
     t_rendicion_cuentas = totales['t_rendicion_cuentas'] or Decimal('0.00')
     t_pasanaku = totales['t_pasanaku'] or Decimal('0.00')
     
-    t_otros_bonos_combinados = t_comisiones_certificados + t_bono_consultora + t_otros_bonos
+    t_otros_bonos_combinados = t_bono_whatsapp + t_bono_consultora + t_otros_bonos # <-- CAMBIADO
     t_total_ganado = t_salario_base + t_bono_antiguedad + t_bono_ventas + t_otros_bonos_combinados
     
     t_otros_descuentos_combinados = t_anticipos + t_prestamos + t_multas + t_rendicion_cuentas + t_pasanaku
@@ -974,24 +958,15 @@ def planillas(request):
     t_liquido_pagable = t_total_ganado - t_total_descuentos
     
     contexto = {
-        'pagos': pagos,
-        'empresa': empresa,
-        'mes_buscar': mes_buscar,
-        'buscar': buscar, # <-- Enviamos la variable de búsqueda al HTML
-        'mes_literal_buscar': mes_literal_buscar, 
-        't_salario_base': t_salario_base,
-        't_bono_antiguedad': t_bono_antiguedad,
-        't_bono_ventas': t_bono_ventas,
-        't_otros_bonos_combinados': t_otros_bonos_combinados,
-        't_total_ganado': t_total_ganado,
-        't_aportes_afp': t_aportes_afp,
-        't_rc_iva': t_rc_iva,
+        'pagos': pagos, 'empresa': empresa, 'mes_buscar': mes_buscar, 'buscar': buscar, 
+        'mes_literal_buscar': mes_literal_buscar, 't_salario_base': t_salario_base,
+        't_bono_antiguedad': t_bono_antiguedad, 't_bono_ventas': t_bono_ventas,
+        't_otros_bonos_combinados': t_otros_bonos_combinados, 't_total_ganado': t_total_ganado,
+        't_aportes_afp': t_aportes_afp, 't_rc_iva': t_rc_iva,
         't_otros_descuentos_combinados': t_otros_descuentos_combinados,
-        't_total_descuentos': t_total_descuentos,
-        't_liquido_pagable': t_liquido_pagable,
+        't_total_descuentos': t_total_descuentos, 't_liquido_pagable': t_liquido_pagable,
     }
     return render(request, 'planillas.html', contexto)
-
 @login_required
 @user_passes_test(es_administrador)
 def descargar_pdf_planilla(request):
@@ -1102,41 +1077,22 @@ def descargar_pdf_planilla(request):
 @user_passes_test(es_administrador)
 def crear_pago(request):
     if request.method == 'POST':
-        from decimal import Decimal
-        from django.urls import reverse 
-        from datetime import date
-        
-        # Función blindada contra errores de texto o vacíos
         def a_decimal(valor):
-            if not valor or str(valor).strip() == 'None' or str(valor).strip() == '':
-                return Decimal('0.00')
-            try:
-                return Decimal(str(valor).strip())
-            except:
-                return Decimal('0.00')
+            try: return Decimal(str(valor).strip())
+            except: return Decimal('0.00')
 
-        # Protección para la cuenta de origen
-        cuenta_origen_id = request.POST.get('cuenta_origen')
-        if not cuenta_origen_id or str(cuenta_origen_id).strip() == '':
-            cuenta_origen_id = None
-
-        # Protección para la fecha
-        fecha_recibida = request.POST.get('fecha_pago')
-        if not fecha_recibida or str(fecha_recibida).strip() == '':
-            fecha_recibida = date.today().strftime('%Y-%m-%d')
+        cuenta_origen_id = request.POST.get('cuenta_origen') or None
+        fecha_recibida = request.POST.get('fecha_pago') or date.today().strftime('%Y-%m-%d')
 
         pago = PagoSueldo(
             empleado_id=request.POST.get('empleado_id'),
-            fecha_pago=fecha_recibida,
-            mes_correspondiente=request.POST.get('mes_correspondiente'),
-            
+            fecha_pago=fecha_recibida, mes_correspondiente=request.POST.get('mes_correspondiente'),
             salario_base=a_decimal(request.POST.get('salario_base')),
             bono_antiguedad=a_decimal(request.POST.get('bono_antiguedad')),
             bono_ventas=a_decimal(request.POST.get('bono_ventas')),
-            comisiones_certificados=a_decimal(request.POST.get('comisiones_certificados')),
+            bono_whatsapp=a_decimal(request.POST.get('bono_whatsapp')), # <-- CAMBIADO
             bono_consultora=a_decimal(request.POST.get('bono_consultora')),
             otros_bonos=a_decimal(request.POST.get('otros_bonos')),
-            
             aportes_afp=a_decimal(request.POST.get('aportes_afp')),
             rc_iva=a_decimal(request.POST.get('rc_iva')),
             anticipos=a_decimal(request.POST.get('anticipos')),
@@ -1144,15 +1100,11 @@ def crear_pago(request):
             multas=a_decimal(request.POST.get('multas')),
             rendicion_cuentas=a_decimal(request.POST.get('rendicion_cuentas')),
             pasanaku=a_decimal(request.POST.get('pasanaku')),
-            
             cuenta_origen_id=cuenta_origen_id
         )
         pago.save()
-        
-        messages.success(request, 'El registro de planilla fue creado y los descuentos se aplicaron correctamente.')
-        
-        url_destino = reverse('planillas') + f'?imprimir={pago.id}'
-        return redirect(url_destino)
+        messages.success(request, 'El registro de planilla fue creado exitosamente.')
+        return redirect('planillas')
         
     empleados = Empleado.objects.all().order_by('nombre_completo')
     cuentas = CuentaCaja.objects.all().order_by('codigo')
@@ -2153,13 +2105,9 @@ def obtener_datos_empleado_pago(request, empleado_id):
     
     datos = {
         'salario_base': float(empleado.salario_base),
-        'bono_antiguedad': 0.00,
-        'bono_ventas': 0.00,
-        'comisiones_certificados': 0.00,
-        'bono_consultora': 0.00,
-        'descuento_prestamo': 0.00,
-        'descuento_anticipo': 0.00,
-        'multas': 0.00  
+        'bono_antiguedad': 0.00, 'bono_ventas': 0.00,
+        'bono_whatsapp': 0.00, 'bono_consultora': 0.00, # <-- CAMBIADO
+        'descuento_prestamo': 0.00, 'descuento_anticipo': 0.00, 'multas': 0.00  
     }
 
     if not mes_str:
@@ -2177,41 +2125,30 @@ def obtener_datos_empleado_pago(request, empleado_id):
             if dias_antiguedad >= 730: 
                 datos['bono_antiguedad'] = 165.00 
 
-        # =========================================================
-        # 2. BONO DE VENTAS (Cursos + Grabaciones + Sistemas + Otros)
-        # =========================================================
-        # A) Sumamos las inscripciones normales a cursos
+        # 2. BONO DE VENTAS (Ahora incluye Certificados vendidos individualmente)
         inscripciones_mes = Inscripcion.objects.filter(fecha_inscripcion__year=anio, fecha_inscripcion__month=mes)
         total_insc = sum(insc.importe for insc in inscripciones_mes if insc.vendedor and insc.vendedor.lower() in nombre_completo_emp)
         
-        # B) Sumamos las ventas de Grabaciones, Sistemas y Otros
         ventas_extra = VentaServicio.objects.filter(
-            fecha_venta__year=anio, 
-            fecha_venta__month=mes,
-            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO']
+            fecha_venta__year=anio, fecha_venta__month=mes,
+            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO', 'CERTIFICADO'] # <-- Añadimos CERTIFICADO aquí
         )
         total_extra = sum(venta.importe for venta in ventas_extra if venta.vendedor and venta.vendedor.lower() in nombre_completo_emp)
-        
-        # C) Calculamos el 10% del total combinado
         datos['bono_ventas'] = float((Decimal(total_insc) + Decimal(total_extra)) * Decimal('0.10')) 
 
-        # =========================================================
-        # 3. Comisiones por Certificados (Ventas Individuales)
-        # =========================================================
-        ventas_certificados = VentaServicio.objects.filter(tipo_servicio='CERTIFICADO', fecha_venta__year=anio, fecha_venta__month=mes)
-        total_cert = sum(venta.importe for venta in ventas_certificados if venta.vendedor and venta.vendedor.lower() in nombre_completo_emp)
-        comision_individual = float(Decimal(total_cert) * Decimal('0.10'))
-        
-        # Bono por envío masivo de certificados de cursos (Ej. para Patricia)
-        bono_envio_lotes = 0.00
-        if 'patricia' in nombre_completo_emp:
-            cursos_enviados = Curso.objects.filter(certificados_enviados=True, fecha_envio_certificados__year=anio, fecha_envio_certificados__month=mes)
-            for curso_env in cursos_enviados:
-                total_alumnos_curso = Inscripcion.objects.filter(curso=curso_env).count()
-                bono_envio_lotes += (total_alumnos_curso * 1.00)
-                
-        datos['comisiones_certificados'] = comision_individual + float(bono_envio_lotes)
-        
+        # 3. BONO WHATSAPP (Automático)
+        cursos_revisados = Curso.objects.filter(
+            whatsapp_revisado=True, 
+            revisado_por_empleado=empleado, 
+            fecha_revision_whatsapp__year=anio, 
+            fecha_revision_whatsapp__month=mes
+        )
+        bono_wsp = 0.00
+        for curso_rev in cursos_revisados:
+            total_alumnos_curso = Inscripcion.objects.filter(curso=curso_rev).count()
+            bono_wsp += float(total_alumnos_curso * 1.00) # 1 Bs por alumno del grupo verificado
+        datos['bono_whatsapp'] = bono_wsp
+
         # 4. Bono Consultora
         servicios_consultora = ServicioConsultora.objects.filter(fecha__year=anio, fecha__month=mes)
         total_consultora = Decimal('0.00')
@@ -2224,53 +2161,24 @@ def obtener_datos_empleado_pago(request, empleado_id):
                     total_consultora += servicio.comision
         datos['bono_consultora'] = float(total_consultora)
 
-        # 5. ESCANEO Y DESCUENTO AUTOMÁTICO DE PRÉSTAMOS
+        # 5 y 6. Préstamos, Anticipos y Multas
         prestamos_activos = Prestamo.objects.filter(empleado=empleado, estado='ACTIVO')
         total_descuento = Decimal('0.00')
         for prestamo in prestamos_activos:
-            cuota_sugerida = prestamo.total_deuda / Decimal(prestamo.nro_cuotas)
-            cuota_a_cobrar = min(cuota_sugerida, prestamo.saldo_restante)
+            cuota_a_cobrar = min(prestamo.total_deuda / Decimal(prestamo.nro_cuotas), prestamo.saldo_restante)
             total_descuento += cuota_a_cobrar
-            
         datos['descuento_prestamo'] = float(total_descuento)
 
-        # 6. ESCANEO Y DESCUENTO AUTOMÁTICO DE ANTICIPOS (A prueba de errores)
-        meses_dict = {
-            1: 'ENERO', 2: 'FEBRERO', 3: 'MARZO', 4: 'ABRIL',
-            5: 'MAYO', 6: 'JUNIO', 7: 'JULIO', 8: 'AGOSTO',
-            9: 'SEPTIEMBRE', 10: 'OCTUBRE', 11: 'NOVIEMBRE', 12: 'DICIEMBRE'
-        }
-        mes_literal = f"{meses_dict.get(mes, '')} {anio}" # Crea "JULIO 2026"
+        mes_literal = f"{['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'][mes-1]} {anio}" 
+        anticipos_activos = AnticipoEmpleado.objects.filter(empleado=empleado, estado='PENDIENTE').filter(Q(mes_descuento__icontains=mes_str) | Q(mes_descuento__icontains=mes_literal))
+        datos['descuento_anticipo'] = float(sum(ant.monto for ant in anticipos_activos))
         
-        from django.db.models import Q
-        anticipos_activos = AnticipoEmpleado.objects.filter(
-            empleado=empleado, 
-            estado='PENDIENTE'
-        ).filter(
-            Q(mes_descuento__icontains=mes_str) | Q(mes_descuento__icontains=mes_literal)
-        )
-        
-        total_anticipos = sum(ant.monto for ant in anticipos_activos)
-        datos['descuento_anticipo'] = float(total_anticipos)
-        # =========================================================
-        # 7. CÁLCULO DE MULTAS POR RETRASOS (ASISTENCIA)
-        # =========================================================
-        asistencias_mes = AsistenciaEmpleado.objects.filter(
-            empleado=empleado,
-            fecha__year=anio,
-            fecha__month=mes
-        ).aggregate(total_retraso=Sum('minutos_retraso'))
-        
-        minutos_totales = asistencias_mes['total_retraso'] or 0
-        
-        # Asumimos Bs. 1 por cada minuto de retraso. (Ajusta este 1.00 si cobras distinto)
-        datos['multas'] = float(Decimal(minutos_totales) * Decimal('1.00'))
+        asistencias_mes = AsistenciaEmpleado.objects.filter(empleado=empleado, fecha__year=anio, fecha__month=mes).aggregate(total_retraso=Sum('minutos_retraso'))
+        datos['multas'] = float(Decimal(asistencias_mes['total_retraso'] or 0) * Decimal('1.00'))
 
     except Exception as e:
-        print(f"Error en automatización de sueldos y préstamos: {e}")
-
+        print(f"Error en automatización: {e}")
     return JsonResponse(datos)
-
 @login_required
 @user_passes_test(es_administrador)
 def eliminar_pago(request, pago_id):
@@ -2284,26 +2192,18 @@ def eliminar_pago(request, pago_id):
 @user_passes_test(es_administrador)
 def editar_pago(request, pago_id):
     pago = get_object_or_404(PagoSueldo, id=pago_id)
-    
     if request.method == 'POST':
-        from decimal import Decimal
-        
-        # Función blindada
         def a_decimal(valor):
-            if not valor or str(valor).strip() == 'None' or str(valor).strip() == '':
-                return Decimal('0.00')
-            try:
-                return Decimal(str(valor).strip())
-            except:
-                return Decimal('0.00')
+            try: return Decimal(str(valor).strip())
+            except: return Decimal('0.00')
 
         pago.salario_base = a_decimal(request.POST.get('salario_base'))
         pago.bono_antiguedad = a_decimal(request.POST.get('bono_antiguedad'))
         pago.bono_ventas = a_decimal(request.POST.get('bono_ventas'))
-        pago.comisiones_certificados = a_decimal(request.POST.get('comisiones_certificados'))
+        pago.bono_whatsapp = a_decimal(request.POST.get('bono_whatsapp')) # <-- CAMBIADO
         pago.bono_consultora = a_decimal(request.POST.get('bono_consultora'))
         pago.otros_bonos = a_decimal(request.POST.get('otros_bonos'))
-        
+        #... el resto queda igual
         pago.aportes_afp = a_decimal(request.POST.get('aportes_afp'))
         pago.rc_iva = a_decimal(request.POST.get('rc_iva'))
         pago.anticipos = a_decimal(request.POST.get('anticipos'))
@@ -2311,31 +2211,11 @@ def editar_pago(request, pago_id):
         pago.multas = a_decimal(request.POST.get('multas'))
         pago.rendicion_cuentas = a_decimal(request.POST.get('rendicion_cuentas'))
         pago.pasanaku = a_decimal(request.POST.get('pasanaku'))
-        
-        fecha_recibida = request.POST.get('fecha_pago')
-        if fecha_recibida and str(fecha_recibida).strip() != '':
-            pago.fecha_pago = fecha_recibida
-            
-        pago.mes_correspondiente = request.POST.get('mes_correspondiente')
-        
-        cuenta_origen_id = request.POST.get('cuenta_origen')
-        if cuenta_origen_id and str(cuenta_origen_id).strip() != '':
-            pago.cuenta_origen_id = cuenta_origen_id
-        else:
-            pago.cuenta_origen_id = None
-            
         pago.save()
-        messages.success(request, 'El registro de planilla fue actualizado correctamente.')
+        messages.success(request, 'La planilla fue actualizada.')
         return redirect('planillas')
         
-    empleados = Empleado.objects.all().order_by('nombre_completo')
-    cuentas = CuentaCaja.objects.all().order_by('codigo')
-    return render(request, 'crear_pago.html', {
-        'pago': pago, 
-        'empleados': empleados, 
-        'cuentas': cuentas,
-        'editando': True
-    })
+    return render(request, 'crear_pago.html', {'pago': pago, 'empleados': Empleado.objects.all(), 'cuentas': CuentaCaja.objects.all(), 'editando': True})
 @login_required
 @user_passes_test(es_contabilidad) # <-- Cambiar a es_contabilidad
 def crear_cliente(request):
@@ -3308,9 +3188,18 @@ def generar_certificado_individual(request, inscripcion_id):
 @login_required
 @user_passes_test(es_certificados)
 def lista_cursos_certificados(request):
-    # Ordenamiento inteligente: primero los pendientes (False), al final los enviados (True),
-    # y dentro de cada grupo se mantiene el orden por fecha de finalización más reciente.
-    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').order_by('certificados_enviados', 'fecha_finalizacion')
+    hoy = date.today()
+    
+    # Ordenamiento automático inteligente:
+    # Grupo 1: Cursos que terminan hoy o en el futuro (se muestran arriba, del más próximo a terminar en adelante).
+    # Grupo 2: Cursos que ya finalizaron (se empujan al fondo automáticamente).
+    cursos = Curso.objects.filter(subcursos__isnull=True).select_related('docente').annotate(
+        orden_estado=Case(
+            When(fecha_finalizacion__gte=hoy, then=Value(1)),
+            default=Value(2),
+            output_field=IntegerField(),
+        )
+    ).order_by('orden_estado', 'fecha_finalizacion')
     
     buscar = request.GET.get('buscar', '')
     mes_busqueda = request.GET.get('mes', '') 
@@ -3912,3 +3801,46 @@ def eliminar_tarea(request, tarea_id):
     tarea.delete()
     messages.success(request, 'La tarea fue eliminada del tablero.')
     return redirect('lista_tareas')
+
+@login_required
+def revision_whatsapp(request):
+    hoy = date.today()
+    mes_buscar = request.GET.get('mes', '') 
+    
+    # Filtramos cursos
+    cursos_bd = Curso.objects.select_related('docente', 'revisado_por_empleado').exclude(fecha_inicio__isnull=True).order_by('-fecha_inicio')
+    
+    if mes_buscar:
+        try:
+            anio, mes = mes_buscar.split('-')
+            cursos_bd = cursos_bd.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+        except ValueError:
+            pass
+    else:
+        # Por defecto muestra el mes actual
+        cursos_bd = cursos_bd.filter(fecha_inicio__year=hoy.year, fecha_inicio__month=hoy.month)
+        mes_buscar = hoy.strftime('%Y-%m')
+        
+    empleados = Empleado.objects.all().order_by('nombre_completo')
+        
+    if request.method == 'POST':
+        curso_id = request.POST.get('curso_id')
+        empleado_id = request.POST.get('empleado_id')
+        
+        if curso_id and empleado_id:
+            curso = get_object_or_404(Curso, id=curso_id)
+            empleado = get_object_or_404(Empleado, id=empleado_id)
+            
+            curso.whatsapp_revisado = True
+            curso.fecha_revision_whatsapp = hoy
+            curso.revisado_por_empleado = empleado
+            curso.save()
+            
+            messages.success(request, f'¡Excelente! El grupo de WhatsApp del curso "{curso.nombre}" fue auditado por {empleado.nombre_completo}.')
+        return redirect('revision_whatsapp')
+        
+    return render(request, 'revision_whatsapp.html', {
+        'cursos': cursos_bd,
+        'mes_buscar': mes_buscar,
+        'empleados': empleados
+    })

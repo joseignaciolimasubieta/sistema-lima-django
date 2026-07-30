@@ -68,7 +68,10 @@
                     <div class="space-y-2"><label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Sueldo Base</label><input type="number" step="0.01" id="salario_base" name="salario_base" value="{{ pago.salario_base|default:'0.00' }}" class="w-full h-12 bg-gray-50 border-2 border-gray-100 rounded-xl px-4 text-sm font-bold text-black outline-none focus:border-emerald-400 focus:bg-white transition-all text-right"></div>
                     <div class="space-y-2"><label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Bono Antigüedad</label><input type="number" step="0.01" id="bono_antiguedad" name="bono_antiguedad" value="{{ pago.bono_antiguedad|default:'0.00' }}" class="w-full h-12 bg-emerald-50 border-2 border-emerald-100 rounded-xl px-4 text-sm font-bold text-emerald-600 outline-none focus:border-emerald-400 focus:bg-white transition-all text-right"></div>
                     <div class="space-y-2"><label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Bono Ventas</label><input type="number" step="0.01" id="bono_ventas" name="bono_ventas" value="{{ pago.bono_ventas|default:'0.00' }}" class="w-full h-12 bg-emerald-50 border-2 border-emerald-100 rounded-xl px-4 text-sm font-bold text-emerald-600 outline-none focus:border-emerald-400 focus:bg-white transition-all text-right"></div>
-                    <div class="space-y-2"><label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Comisión Certificados</label><input type="number" step="0.01" id="comisiones_certificados" name="comisiones_certificados" value="{{ pago.comisiones_certificados|default:'0.00' }}" class="w-full h-12 bg-emerald-50 border-2 border-emerald-100 rounded-xl px-4 text-sm font-bold text-emerald-600 outline-none focus:border-emerald-400 focus:bg-white transition-all text-right"></div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Bono WhatsApp</label>
+                        <input type="number" step="0.01" id="bono_whatsapp" name="bono_whatsapp" value="{{ pago.bono_whatsapp|default:'0.00' }}" class="w-full h-12 bg-emerald-50 border-2 border-emerald-100 rounded-xl px-4 text-sm font-bold text-emerald-600 outline-none focus:border-emerald-400 focus:bg-white transition-all text-right">
+                    </div>
                     <div class="space-y-2"><label class="block text-[10px] font-black text-emerald-500 uppercase tracking-widest">Bono Consultora</label><input type="number" step="0.01" id="bono_consultora" name="bono_consultora" value="{{ pago.bono_consultora|default:'0.00' }}" class="w-full h-12 bg-emerald-50 border-2 border-emerald-100 rounded-xl px-4 text-sm font-bold text-emerald-600 outline-none focus:border-emerald-400 focus:bg-white transition-all text-right"></div>
                     <div class="space-y-2"><label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Otros Bonos</label><input type="number" step="0.01" id="otros_bonos" name="otros_bonos" value="{{ pago.otros_bonos|default:'0.00' }}" class="w-full h-12 bg-gray-5０ border-2 border-gray-1００ rounded-xl px-4 text-sm font-bold text-black outline-none focus:border-emerald-4００ focus:bg-white transition-all text-right"></div>
                 </div>
@@ -234,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     inyectar('salario_base', data.salario_base);
                     inyectar('bono_antiguedad', data.bono_antiguedad);
                     inyectar('bono_ventas', data.bono_ventas);
-                    inyectar('comisiones_certificados', data.comisiones_certificados);
+                    inyectar('bono_whatsapp', data.bono_whatsapp);
                     inyectar('bono_consultora', data.bono_consultora);
                     inyectar('prestamos', data.descuento_prestamo);
                     inyectar('anticipos', data.descuento_anticipo, true);

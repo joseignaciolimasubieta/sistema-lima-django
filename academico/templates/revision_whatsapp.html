@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/style.css">
+
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        <div class="space-y-3 shrink-0">
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Auditoría.</h1>
+            <p class="text-xs font-bold text-gray-500 tracking-widest uppercase">Revisión de Grupos de WhatsApp</p>
+        </div>
+
+        <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
+            <div class="relative w-full sm:w-48 h-8 flex items-center">
+                <input type="text" id="mes_buscar" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-6 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
+            </div>
+            <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-blue-600 text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
+                FILTRAR
+            </button>
+        </form>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for curso in cursos %}
+        <div class="bg-white p-6 rounded-[2rem] border {% if curso.whatsapp_revisado %}border-emerald-200 bg-emerald-50/20{% else %}border-gray-200{% endif %} shadow-sm flex flex-col justify-between">
+            <div>
+                <span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-full uppercase tracking-widest">{{ curso.mes_curso }}</span>
+                <h3 class="text-lg font-black text-black mt-3 uppercase leading-tight">{{ curso.nombre }}</h3>
+                <p class="text-xs font-bold text-gray-400 mt-2 uppercase tracking-wide">Docente: {{ curso.docente.nombre }}</p>
+                <div class="mt-4 flex items-center gap-2">
+                    <span class="text-xs font-black text-black">{{ curso.inscripcion_set.count }}</span>
+                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Alumnos (Bs {{ curso.inscripcion_set.count }}.00)</span>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-gray-100">
+                {% if curso.whatsapp_revisado %}
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Revisado por:</p>
+                            <p class="text-sm font-bold text-black uppercase">{{ curso.revisado_por_empleado.nombre_completo }}</p>
+                            <p class="text-[9px] font-bold text-gray-400 mt-0.5">El {{ curso.fecha_revision_whatsapp|date:"d M, Y" }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <form method="POST" class="space-y-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="curso_id" value="{{ curso.id }}">
+                        
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">¿Quién revisó el grupo?</label>
+                        <div class="flex gap-2">
+                            <select name="empleado_id" required class="flex-1 h-10 bg-gray-50 border border-gray-200 rounded-xl px-3 text-xs font-bold text-black outline-none focus:border-[#0071e3] transition-all uppercase">
+                                <option value="">SELECCIONAR...</option>
+                                {% for emp in empleados %}
+                                <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay intrusos?');" class="h-10 px-4 bg-black hover:bg-gray-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                                Confirmar
+                            </button>
+                        </div>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-20 text-center text-gray-400 font-bold uppercase">No hay cursos programados para este mes.</div>
+        {% endfor %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@latest/dist/plugins/monthSelect/index.js"></script>
+
+<script>
+    flatpickr("#mes_buscar", { 
+        locale: "es", 
+        disableMobile: true,
+        plugins: [new monthSelectPlugin({ shorthand: false, dateFormat: "Y-m", altFormat: "F Y" })], 
+        onReady: function(selectedDates, dateStr, instance) {
+            if (instance.altInput) {
+                instance.altInput.removeAttribute('readonly');
+                instance.altInput.setAttribute('inputmode', 'none');
+            }
+        }
+    });
+</script>
+{% endblock %}

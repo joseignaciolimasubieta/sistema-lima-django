@@ -109,6 +109,8 @@ urlpatterns = [
     path('administracion/tareas/nueva/', views.crear_tarea, name='crear_tarea'),
     path('administracion/tareas/estado/<int:tarea_id>/', views.cambiar_estado_tarea, name='cambiar_estado_tarea'),
     path('administracion/tareas/eliminar/<int:tarea_id>/', views.eliminar_tarea, name='eliminar_tarea'),
+    # --- NUEVO MÓDULO DE REVISIÓN DE WHATSAPP ---
+    path('administracion/whatsapp/', views.revision_whatsapp, name='revision_whatsapp'),
 ]
 
 if settings.DEBUG:
