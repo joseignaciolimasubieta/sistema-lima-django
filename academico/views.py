@@ -2106,7 +2106,7 @@ def obtener_datos_empleado_pago(request, empleado_id):
     datos = {
         'salario_base': float(empleado.salario_base),
         'bono_antiguedad': 0.00, 'bono_ventas': 0.00,
-        'bono_whatsapp': 0.00, 'bono_consultora': 0.00, # <-- CAMBIADO
+        'bono_whatsapp': 0.00, 'bono_consultora': 0.00, 
         'descuento_prestamo': 0.00, 'descuento_anticipo': 0.00, 'multas': 0.00  
     }
 
@@ -2125,28 +2125,35 @@ def obtener_datos_empleado_pago(request, empleado_id):
             if dias_antiguedad >= 730: 
                 datos['bono_antiguedad'] = 165.00 
 
-        # 2. BONO DE VENTAS (Ahora incluye Certificados vendidos individualmente)
+        # 2. Bono de Ventas
         inscripciones_mes = Inscripcion.objects.filter(fecha_inscripcion__year=anio, fecha_inscripcion__month=mes)
         total_insc = sum(insc.importe for insc in inscripciones_mes if insc.vendedor and insc.vendedor.lower() in nombre_completo_emp)
         
         ventas_extra = VentaServicio.objects.filter(
             fecha_venta__year=anio, fecha_venta__month=mes,
-            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO', 'CERTIFICADO'] # <-- Añadimos CERTIFICADO aquí
+            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO', 'CERTIFICADO']
         )
         total_extra = sum(venta.importe for venta in ventas_extra if venta.vendedor and venta.vendedor.lower() in nombre_completo_emp)
         datos['bono_ventas'] = float((Decimal(total_insc) + Decimal(total_extra)) * Decimal('0.10')) 
 
-        # 3. BONO WHATSAPP (Automático)
+        # =========================================================
+        # 3. BONO WHATSAPP (Basado en la Fecha de Finalización)
+        # =========================================================
+        # Buscamos los cursos que finalizaron en este mes y que fueron revisados por este empleado 
+        # (O por Patricia por defecto, ya que es la encargada del área)
         cursos_revisados = Curso.objects.filter(
             whatsapp_revisado=True, 
-            revisado_por_empleado=empleado, 
-            fecha_inicio__year=anio,     # <-- CAMBIO AQUÍ
-            fecha_inicio__month=mes      # <-- CAMBIO AQUÍ
+            fecha_finalizacion__year=anio, 
+            fecha_finalizacion__month=mes
+        ).filter(
+            Q(revisado_por_empleado=empleado) | Q(revisado_por_empleado__nombre_completo__icontains='PATRICIA')
         )
+        
         bono_wsp = 0.00
         for curso_rev in cursos_revisados:
             total_alumnos_curso = Inscripcion.objects.filter(curso=curso_rev).count()
-            bono_wsp += float(total_alumnos_curso * 1.00) # 1 Bs por alumno del grupo verificado
+            bono_wsp += float(total_alumnos_curso * 1.00) # 1 Bs por alumno del curso finalizado
+            
         datos['bono_whatsapp'] = bono_wsp
 
         # 4. Bono Consultora
@@ -2178,6 +2185,7 @@ def obtener_datos_empleado_pago(request, empleado_id):
 
     except Exception as e:
         print(f"Error en automatización: {e}")
+        
     return JsonResponse(datos)
 @login_required
 @user_passes_test(es_administrador)
