@@ -3662,7 +3662,7 @@ def asistencia_empleados(request):
 @csrf_exempt
 @login_required
 def editar_asistencia_empleado(request):
-    """ Este endpoint recibe los datos del panel deslizable y actualiza o crea el registro """
+    """ Este endpoint recibe los datos del panel deslizable y actualiza, crea o elimina el registro """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -3672,6 +3672,12 @@ def editar_asistencia_empleado(request):
             
             empleado = get_object_or_404(Empleado, id=empleado_id)
             fecha_obj = datetime.datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            
+            # --- NUEVA LÓGICA: ELIMINAR REGISTRO COMPLETAMENTE ---
+            if nuevo_estado == 'ELIMINAR':
+                # Borramos todos los marcajes de ese empleado en ese día específico
+                AsistenciaEmpleado.objects.filter(empleado=empleado, fecha=fecha_obj).delete()
+                return JsonResponse({'status': 'ok', 'nuevo_estado': 'ELIMINADO'})
             
             # Buscamos si ya hay un registro base (INGRESO)
             asistencia = AsistenciaEmpleado.objects.filter(
