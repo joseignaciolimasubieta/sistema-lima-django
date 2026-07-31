@@ -3551,6 +3551,7 @@ def registrar_asistencia_rfid(request):
             return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
     
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
+
 @login_required
 @user_passes_test(es_administrador)
 def asistencia_empleados(request):
@@ -3567,7 +3568,7 @@ def asistencia_empleados(request):
     num_dias = calendar.monthrange(anio, mes)[1]
     dias_del_mes = list(range(1, num_dias + 1))
 
-    # 2. Filtrar Empleados (Si escribió algo en el buscador)
+    # 2. Filtrar Empleados
     empleados = Empleado.objects.all().order_by('nombre_completo')
     if buscar:
         empleados = empleados.filter(
@@ -3575,37 +3576,57 @@ def asistencia_empleados(request):
             Q(ci__icontains=buscar)
         )
 
-    # 3. Traer solo las asistencias del mes
-    asistencias = AsistenciaEmpleado.objects.filter(
-        fecha__year=anio, 
-        fecha__month=mes,
-        tipo='INGRESO'
-    )
+    # 3. Asistencias de TODO EL MES (Para la matriz y previsualizaciones)
+    asistencias_mes = AsistenciaEmpleado.objects.filter(fecha__year=anio, fecha__month=mes)
+    
+    mapa_asistencias = {}
+    for a in asistencias_mes:
+        clave = (a.empleado_id, a.fecha.day)
+        if clave not in mapa_asistencias:
+            mapa_asistencias[clave] = {'estado': None, 'in': None, 'out': None}
+            
+        if a.tipo == 'INGRESO':
+            mapa_asistencias[clave]['estado'] = a.estado
+            mapa_asistencias[clave]['in'] = a.hora.strftime('%H:%M')
+        elif a.tipo == 'SALIDA':
+            mapa_asistencias[clave]['out'] = a.hora.strftime('%H:%M')
 
-    # 4. Mapear en RAM (Clave: ID Empleado y Día)
-    mapa_asistencias = {(a.empleado_id, a.fecha.day): a for a in asistencias}
+    # 4. Asistencias ESTRICTAS DE HOY (Para las nuevas columnas en vivo)
+    hoy = date.today()
+    asistencias_hoy = AsistenciaEmpleado.objects.filter(fecha=hoy)
+    mapa_hoy = {}
+    for a in asistencias_hoy:
+        if a.empleado_id not in mapa_hoy:
+            mapa_hoy[a.empleado_id] = {'in': None, 'out': None}
+        if a.tipo == 'INGRESO':
+            mapa_hoy[a.empleado_id]['in'] = a.hora
+        elif a.tipo == 'SALIDA':
+            mapa_hoy[a.empleado_id]['out'] = a.hora
 
-    # 5. Construir la Matriz
+    # 5. Construir Matriz
     matriz = []
     for emp in empleados:
         fila = {
             'empleado': emp,
             'dias': [],
-            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0}
+            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0},
+            'hoy_in': mapa_hoy.get(emp.id, {}).get('in'),
+            'hoy_out': mapa_hoy.get(emp.id, {}).get('out'),
         }
         
         for dia in dias_del_mes:
-            asistencia_dia = mapa_asistencias.get((emp.id, dia))
+            datos_dia = mapa_asistencias.get((emp.id, dia))
             
-            if asistencia_dia:
-                estado = asistencia_dia.estado
+            if datos_dia and datos_dia['estado']:
+                estado = datos_dia['estado']
                 if estado == 'PUNTUAL': fila['totales']['A'] += 1
                 elif estado == 'RETRASO': fila['totales']['R'] += 1
                 elif estado == 'FALTA': fila['totales']['F'] += 1
                 elif estado == 'PERMISO': fila['totales']['P'] += 1
                 elif estado == 'VACACIONES': fila['totales']['V'] += 1
                 
-                fila['dias'].append(estado)
+                # Agregamos todo el diccionario para tener 'in' y 'out' en el HTML
+                fila['dias'].append(datos_dia) 
             else:
                 fila['dias'].append(None)
                 
@@ -3615,7 +3636,8 @@ def asistencia_empleados(request):
         'matriz': matriz,
         'dias_del_mes': dias_del_mes,
         'mes_buscar': mes_buscar,
-        'buscar': buscar
+        'buscar': buscar,
+        'fecha_hoy': hoy
     })
 @login_required
 @user_passes_test(es_administrador)
