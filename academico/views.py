@@ -2140,21 +2140,21 @@ def obtener_datos_empleado_pago(request, empleado_id):
         # =========================================================
         # 3. BONO WHATSAPP (Basado en la Fecha de Finalización)
         # =========================================================
-        # Buscamos los cursos que finalizaron en este mes y que fueron revisados por este empleado 
-        # (O por Patricia por defecto, ya que es la encargada del área)
-        cursos_revisados = Curso.objects.filter(
-            whatsapp_revisado=True, 
-            fecha_finalizacion__year=anio, 
-            fecha_finalizacion__month=mes
-        ).filter(
-            Q(revisado_por_empleado=empleado) | Q(revisado_por_empleado__nombre_completo__icontains='PATRICIA')
-        )
-        
         bono_wsp = 0.00
-        for curso_rev in cursos_revisados:
-            total_alumnos_curso = Inscripcion.objects.filter(curso=curso_rev).count()
-            bono_wsp += float(total_alumnos_curso * 1.00) # 1 Bs por alumno del curso finalizado
+        
+        # Validamos que el empleado actual sea PATRICIA antes de calcular el bono
+        if 'patricia' in nombre_completo_emp:
+            cursos_revisados = Curso.objects.filter(
+                whatsapp_revisado=True, 
+                fecha_finalizacion__year=anio, 
+                fecha_finalizacion__month=mes,
+                revisado_por_empleado=empleado
+            )
             
+            for curso_rev in cursos_revisados:
+                total_alumnos_curso = Inscripcion.objects.filter(curso=curso_rev).count()
+                bono_wsp += float(total_alumnos_curso * 1.00) # 1 Bs por alumno del curso finalizado
+                
         datos['bono_whatsapp'] = bono_wsp
 
         # 4. Bono Consultora
