@@ -29,6 +29,7 @@ from decimal import Decimal
 import openpyxl
 from itertools import chain
 import datetime
+import calendar
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 from django.db.models.functions import TruncMonth, TruncYear
@@ -3550,14 +3551,72 @@ def registrar_asistencia_rfid(request):
             return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=500)
     
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
-
 @login_required
 @user_passes_test(es_administrador)
 def asistencia_empleados(request):
-    # Traemos todo el historial de marcados, ordenado por el más reciente primero
-    asistencias = AsistenciaEmpleado.objects.all().order_by('-fecha', '-hora')
-    return render(request, 'asistencia_empleados.html', {'asistencias': asistencias})
+    # 1. Capturar los filtros del HTML
+    mes_buscar = request.GET.get('mes_buscar', date.today().strftime('%Y-%m'))
+    buscar = request.GET.get('buscar', '').strip()
+    
+    try:
+        anio, mes = map(int, mes_buscar.split('-'))
+    except ValueError:
+        anio, mes = date.today().year, date.today().month
+        mes_buscar = f"{anio}-{mes:02d}"
 
+    num_dias = calendar.monthrange(anio, mes)[1]
+    dias_del_mes = list(range(1, num_dias + 1))
+
+    # 2. Filtrar Empleados (Si escribió algo en el buscador)
+    empleados = Empleado.objects.all().order_by('nombre_completo')
+    if buscar:
+        empleados = empleados.filter(
+            Q(nombre_completo__icontains=buscar) | 
+            Q(ci__icontains=buscar)
+        )
+
+    # 3. Traer solo las asistencias del mes
+    asistencias = AsistenciaEmpleado.objects.filter(
+        fecha__year=anio, 
+        fecha__month=mes,
+        tipo='INGRESO'
+    )
+
+    # 4. Mapear en RAM (Clave: ID Empleado y Día)
+    mapa_asistencias = {(a.empleado_id, a.fecha.day): a for a in asistencias}
+
+    # 5. Construir la Matriz
+    matriz = []
+    for emp in empleados:
+        fila = {
+            'empleado': emp,
+            'dias': [],
+            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0}
+        }
+        
+        for dia in dias_del_mes:
+            asistencia_dia = mapa_asistencias.get((emp.id, dia))
+            
+            if asistencia_dia:
+                estado = asistencia_dia.estado
+                if estado == 'PUNTUAL': fila['totales']['A'] += 1
+                elif estado == 'RETRASO': fila['totales']['R'] += 1
+                elif estado == 'FALTA': fila['totales']['F'] += 1
+                elif estado == 'PERMISO': fila['totales']['P'] += 1
+                elif estado == 'VACACIONES': fila['totales']['V'] += 1
+                
+                fila['dias'].append(estado)
+            else:
+                fila['dias'].append(None)
+                
+        matriz.append(fila)
+
+    return render(request, 'asistencia_empleados.html', {
+        'matriz': matriz,
+        'dias_del_mes': dias_del_mes,
+        'mes_buscar': mes_buscar,
+        'buscar': buscar
+    })
 @login_required
 @user_passes_test(es_administrador)
 def configuracion_empleados(request):
