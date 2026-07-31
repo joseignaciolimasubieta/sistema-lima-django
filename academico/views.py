@@ -1010,7 +1010,7 @@ def descargar_pdf_planilla(request):
         t_salario_base=Sum('salario_base'),
         t_bono_antiguedad=Sum('bono_antiguedad'),
         t_bono_ventas=Sum('bono_ventas'),
-        t_comisiones_certificados=Sum('comisiones_certificados'),
+        t_bono_whatsapp=Sum('bono_whatsapp'),
         t_bono_consultora=Sum('bono_consultora'),
         t_otros_bonos=Sum('otros_bonos'),
         t_aportes_afp=Sum('aportes_afp'),
@@ -1025,7 +1025,7 @@ def descargar_pdf_planilla(request):
     t_salario_base = totales['t_salario_base'] or Decimal('0.00')
     t_bono_antiguedad = totales['t_bono_antiguedad'] or Decimal('0.00')
     t_bono_ventas = totales['t_bono_ventas'] or Decimal('0.00')
-    t_comisiones_certificados = totales['t_comisiones_certificados'] or Decimal('0.00')
+    t_bono_whatsapp = totales['t_bono_whatsapp'] or Decimal('0.00')
     t_bono_consultora = totales['t_bono_consultora'] or Decimal('0.00')
     t_otros_bonos = totales['t_otros_bonos'] or Decimal('0.00')
     t_aportes_afp = totales['t_aportes_afp'] or Decimal('0.00')

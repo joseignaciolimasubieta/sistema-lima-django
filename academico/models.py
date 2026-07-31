@@ -416,7 +416,8 @@ class PagoSueldo(models.Model):
     # --- MATEMÁTICA ---
     @property
     def total_otros_bonos(self):
-        return self.comisiones_certificados + self.bono_consultora + self.otros_bonos
+        # Cambiamos self.comisiones_certificados por self.bono_whatsapp
+        return self.bono_whatsapp + self.bono_consultora + self.otros_bonos
 
     @property
     def total_ganado(self):
