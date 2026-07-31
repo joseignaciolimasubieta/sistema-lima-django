@@ -931,6 +931,7 @@ def planillas(request):
     totales = pagos.aggregate(
         t_salario_base=Sum('salario_base'), t_bono_antiguedad=Sum('bono_antiguedad'),
         t_bono_ventas=Sum('bono_ventas'), t_bono_whatsapp=Sum('bono_whatsapp'), # <-- CAMBIADO
+        t_comision_certificados=Sum('comision_certificados'),
         t_bono_consultora=Sum('bono_consultora'), t_otros_bonos=Sum('otros_bonos'),
         t_aportes_afp=Sum('aportes_afp'), t_rc_iva=Sum('rc_iva'),
         t_anticipos=Sum('anticipos'), t_prestamos=Sum('prestamos'),
@@ -941,6 +942,7 @@ def planillas(request):
     t_bono_antiguedad = totales['t_bono_antiguedad'] or Decimal('0.00')
     t_bono_ventas = totales['t_bono_ventas'] or Decimal('0.00')
     t_bono_whatsapp = totales['t_bono_whatsapp'] or Decimal('0.00') # <-- CAMBIADO
+    t_comision_certificados = totales['t_comision_certificados'] or Decimal('0.00')
     t_bono_consultora = totales['t_bono_consultora'] or Decimal('0.00')
     t_otros_bonos = totales['t_otros_bonos'] or Decimal('0.00')
     t_aportes_afp = totales['t_aportes_afp'] or Decimal('0.00')
@@ -951,7 +953,7 @@ def planillas(request):
     t_rendicion_cuentas = totales['t_rendicion_cuentas'] or Decimal('0.00')
     t_pasanaku = totales['t_pasanaku'] or Decimal('0.00')
     
-    t_otros_bonos_combinados = t_bono_whatsapp + t_bono_consultora + t_otros_bonos # <-- CAMBIADO
+    t_otros_bonos_combinados = t_bono_whatsapp + t_comision_certificados + t_bono_consultora + t_otros_bonos # <-- CAMBIADO
     t_total_ganado = t_salario_base + t_bono_antiguedad + t_bono_ventas + t_otros_bonos_combinados
     
     t_otros_descuentos_combinados = t_anticipos + t_prestamos + t_multas + t_rendicion_cuentas + t_pasanaku
@@ -1011,6 +1013,7 @@ def descargar_pdf_planilla(request):
         t_bono_antiguedad=Sum('bono_antiguedad'),
         t_bono_ventas=Sum('bono_ventas'),
         t_bono_whatsapp=Sum('bono_whatsapp'),
+        t_comision_certificados=Sum('comision_certificados'),
         t_bono_consultora=Sum('bono_consultora'),
         t_otros_bonos=Sum('otros_bonos'),
         t_aportes_afp=Sum('aportes_afp'),
@@ -1026,6 +1029,7 @@ def descargar_pdf_planilla(request):
     t_bono_antiguedad = totales['t_bono_antiguedad'] or Decimal('0.00')
     t_bono_ventas = totales['t_bono_ventas'] or Decimal('0.00')
     t_bono_whatsapp = totales['t_bono_whatsapp'] or Decimal('0.00')
+    t_comision_certificados = totales['t_comision_certificados'] or Decimal('0.00')
     t_bono_consultora = totales['t_bono_consultora'] or Decimal('0.00')
     t_otros_bonos = totales['t_otros_bonos'] or Decimal('0.00')
     t_aportes_afp = totales['t_aportes_afp'] or Decimal('0.00')
@@ -1036,7 +1040,7 @@ def descargar_pdf_planilla(request):
     t_rendicion_cuentas = totales['t_rendicion_cuentas'] or Decimal('0.00')
     t_pasanaku = totales['t_pasanaku'] or Decimal('0.00')
     
-    t_otros_bonos_combinados = t_comisiones_certificados + t_bono_consultora + t_otros_bonos
+    t_otros_bonos_combinados = t_bono_whatsapp + t_comision_certificados + t_bono_consultora + t_otros_bonos
     t_total_ganado = t_salario_base + t_bono_antiguedad + t_bono_ventas + t_otros_bonos_combinados
     
     t_otros_descuentos_combinados = t_anticipos + t_prestamos + t_multas + t_rendicion_cuentas + t_pasanaku
@@ -1092,6 +1096,7 @@ def crear_pago(request):
             bono_antiguedad=a_decimal(request.POST.get('bono_antiguedad')),
             bono_ventas=a_decimal(request.POST.get('bono_ventas')),
             bono_whatsapp=a_decimal(request.POST.get('bono_whatsapp')), # <-- CAMBIADO
+            comision_certificados=a_decimal(request.POST.get('comision_certificados')),
             bono_consultora=a_decimal(request.POST.get('bono_consultora')),
             otros_bonos=a_decimal(request.POST.get('otros_bonos')),
             aportes_afp=a_decimal(request.POST.get('aportes_afp')),
@@ -2126,17 +2131,26 @@ def obtener_datos_empleado_pago(request, empleado_id):
             if dias_antiguedad >= 730: 
                 datos['bono_antiguedad'] = 165.00 
 
-        # 2. Bono de Ventas
+        # 2. Bono de Ventas (Sacamos 'CERTIFICADO' de la lista de 10%)
         inscripciones_mes = Inscripcion.objects.filter(fecha_inscripcion__year=anio, fecha_inscripcion__month=mes)
         total_insc = sum(insc.importe for insc in inscripciones_mes if insc.vendedor and insc.vendedor.lower() in nombre_completo_emp)
         
         ventas_extra = VentaServicio.objects.filter(
             fecha_venta__year=anio, fecha_venta__month=mes,
-            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO', 'CERTIFICADO']
+            tipo_servicio__in=['GRABACIÓN', 'SISTEMA', 'OTRO'] # CERTIFICADO YA NO ESTÁ AQUÍ
         )
         total_extra = sum(venta.importe for venta in ventas_extra if venta.vendedor and venta.vendedor.lower() in nombre_completo_emp)
         datos['bono_ventas'] = float((Decimal(total_insc) + Decimal(total_extra)) * Decimal('0.10')) 
 
+        # =========================================================
+        # NUEVO: COMISIÓN POR CERTIFICADOS (Bs 2 por cada uno)
+        # =========================================================
+        certificados_vendidos = VentaServicio.objects.filter(
+            fecha_venta__year=anio, fecha_venta__month=mes,
+            tipo_servicio='CERTIFICADO'
+        )
+        cantidad_certificados = sum(1 for cert in certificados_vendidos if cert.vendedor and cert.vendedor.lower() in nombre_completo_emp)
+        datos['comision_certificados'] = float(cantidad_certificados * 2.00)
         # =========================================================
         # 3. BONO WHATSAPP (Basado en la Fecha de Finalización)
         # =========================================================
@@ -2210,6 +2224,7 @@ def editar_pago(request, pago_id):
         pago.bono_antiguedad = a_decimal(request.POST.get('bono_antiguedad'))
         pago.bono_ventas = a_decimal(request.POST.get('bono_ventas'))
         pago.bono_whatsapp = a_decimal(request.POST.get('bono_whatsapp')) # <-- CAMBIADO
+        pago.comision_certificados = a_decimal(request.POST.get('comision_certificados'))
         pago.bono_consultora = a_decimal(request.POST.get('bono_consultora'))
         pago.otros_bonos = a_decimal(request.POST.get('otros_bonos'))
         #... el resto queda igual

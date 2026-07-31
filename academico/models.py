@@ -401,6 +401,7 @@ class PagoSueldo(models.Model):
     bono_antiguedad = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_ventas = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_whatsapp = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    comision_certificados = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     bono_consultora = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     otros_bonos = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
@@ -417,7 +418,7 @@ class PagoSueldo(models.Model):
     @property
     def total_otros_bonos(self):
         # Cambiamos self.comisiones_certificados por self.bono_whatsapp
-        return self.bono_whatsapp + self.bono_consultora + self.otros_bonos
+        return self.bono_whatsapp + self.comision_certificados + self.bono_consultora + self.otros_bonos
 
     @property
     def total_ganado(self):
