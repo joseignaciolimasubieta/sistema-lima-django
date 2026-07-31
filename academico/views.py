@@ -3555,7 +3555,6 @@ def registrar_asistencia_rfid(request):
 @login_required
 @user_passes_test(es_administrador)
 def asistencia_empleados(request):
-    # 1. Capturar los filtros del HTML
     mes_buscar = request.GET.get('mes_buscar', date.today().strftime('%Y-%m'))
     buscar = request.GET.get('buscar', '').strip()
     
@@ -3568,15 +3567,10 @@ def asistencia_empleados(request):
     num_dias = calendar.monthrange(anio, mes)[1]
     dias_del_mes = list(range(1, num_dias + 1))
 
-    # 2. Filtrar Empleados
     empleados = Empleado.objects.all().order_by('nombre_completo')
     if buscar:
-        empleados = empleados.filter(
-            Q(nombre_completo__icontains=buscar) | 
-            Q(ci__icontains=buscar)
-        )
+        empleados = empleados.filter(Q(nombre_completo__icontains=buscar) | Q(ci__icontains=buscar))
 
-    # 3. Asistencias de TODO EL MES (Para la matriz y previsualizaciones)
     asistencias_mes = AsistenciaEmpleado.objects.filter(fecha__year=anio, fecha__month=mes)
     
     mapa_asistencias = {}
@@ -3591,7 +3585,6 @@ def asistencia_empleados(request):
         elif a.tipo == 'SALIDA':
             mapa_asistencias[clave]['out'] = a.hora.strftime('%H:%M')
 
-    # 4. Asistencias ESTRICTAS DE HOY (Para las columnas fijas)
     hoy = date.today()
     asistencias_hoy = AsistenciaEmpleado.objects.filter(fecha=hoy)
     mapa_hoy = {}
@@ -3603,38 +3596,56 @@ def asistencia_empleados(request):
         elif a.tipo == 'SALIDA':
             mapa_hoy[a.empleado_id]['out'] = a.hora
 
-    # =========================================================
-    # 5. NUEVO: FEED EN VIVO PARA LOS DOS RECUADROS (HISTORIAL)
-    # =========================================================
     historial_hoy = AsistenciaEmpleado.objects.filter(fecha=hoy).select_related('empleado').order_by('-hora')
-    ultimas_entradas = [a for a in historial_hoy if a.tipo == 'INGRESO'][:10] # Últimos 10 ingresos
-    ultimas_salidas = [a for a in historial_hoy if a.tipo == 'SALIDA'][:10]   # Últimas 10 salidas
+    ultimas_entradas = [a for a in historial_hoy if a.tipo == 'INGRESO'][:10]
+    ultimas_salidas = [a for a in historial_hoy if a.tipo == 'SALIDA'][:10]
 
-    # 6. Construir Matriz
+    # --- MOTOR DE MATRIZ Y CÁLCULO DE FALTAS AUTOMÁTICAS ---
     matriz = []
     for emp in empleados:
         fila = {
             'empleado': emp,
             'dias': [],
-            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0},
+            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0, 'E': 0},
             'hoy_in': mapa_hoy.get(emp.id, {}).get('in'),
             'hoy_out': mapa_hoy.get(emp.id, {}).get('out'),
         }
         
         for dia in dias_del_mes:
+            fecha_celda = date(anio, mes, dia)
+            es_pasado = fecha_celda < hoy
+            
             datos_dia = mapa_asistencias.get((emp.id, dia))
+            
+            celda = {
+                'dia': dia,
+                'fecha_full': fecha_celda.strftime('%Y-%m-%d'),
+                'estado': None,
+                'in': None,
+                'out': None,
+                'virtual': False # Sirve para saber si la falta la calculó el sistema
+            }
             
             if datos_dia and datos_dia['estado']:
                 estado = datos_dia['estado']
+                celda['estado'] = estado
+                celda['in'] = datos_dia['in']
+                celda['out'] = datos_dia['out']
+                
                 if estado == 'PUNTUAL': fila['totales']['A'] += 1
                 elif estado == 'RETRASO': fila['totales']['R'] += 1
                 elif estado == 'FALTA': fila['totales']['F'] += 1
                 elif estado == 'PERMISO': fila['totales']['P'] += 1
                 elif estado == 'VACACIONES': fila['totales']['V'] += 1
+                elif estado == 'FERIADO': fila['totales']['E'] += 1
                 
-                fila['dias'].append(datos_dia) 
-            else:
-                fila['dias'].append(None)
+            elif es_pasado:
+                # ¡MAGIA!: El día ya pasó y no hay registro. Es una falta automática.
+                celda['estado'] = 'FALTA'
+                celda['virtual'] = True 
+                fila['totales']['F'] += 1
+                
+            fila['dias'].append(celda)
                 
         matriz.append(fila)
 
@@ -3644,9 +3655,47 @@ def asistencia_empleados(request):
         'mes_buscar': mes_buscar,
         'buscar': buscar,
         'fecha_hoy': hoy,
-        'ultimas_entradas': ultimas_entradas, # <--- Enviamos Entradas
-        'ultimas_salidas': ultimas_salidas    # <--- Enviamos Salidas
+        'ultimas_entradas': ultimas_entradas,
+        'ultimas_salidas': ultimas_salidas
     })
+
+@csrf_exempt
+@login_required
+def editar_asistencia_empleado(request):
+    """ Este endpoint recibe los datos del panel deslizable y actualiza o crea el registro """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            empleado_id = data.get('empleado_id')
+            fecha_str = data.get('fecha')
+            nuevo_estado = data.get('estado')
+            
+            empleado = get_object_or_404(Empleado, id=empleado_id)
+            fecha_obj = datetime.datetime.strptime(fecha_str, '%Y-%m-%d').date()
+            
+            # Buscamos si ya hay un registro base (INGRESO)
+            asistencia = AsistenciaEmpleado.objects.filter(
+                empleado=empleado, fecha=fecha_obj, tipo='INGRESO'
+            ).first()
+            
+            if asistencia:
+                asistencia.estado = nuevo_estado
+                asistencia.save()
+            else:
+                # Si no existía (ej. falta automática), creamos un registro manual con hora base
+                from datetime import time
+                AsistenciaEmpleado.objects.create(
+                    empleado=empleado,
+                    fecha=fecha_obj,
+                    hora=time(0, 0), 
+                    tipo='INGRESO', 
+                    estado=nuevo_estado
+                )
+            
+            return JsonResponse({'status': 'ok', 'nuevo_estado': nuevo_estado})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'mensaje': str(e)}, status=400)
+    return JsonResponse({'status': 'error'}, status=405)
 @login_required
 @user_passes_test(es_administrador)
 def configuracion_empleados(request):

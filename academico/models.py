@@ -1000,6 +1000,7 @@ class AsistenciaEmpleado(models.Model):
         ('COMISION', 'Comisión'),     # C
         ('VACACIONES', 'Vacaciones'), # V
         ('CESANTIA', 'Cesantía'),     # S
+        ('FERIADO', 'Feriado'),       # E (Evento/Feriado)
     ]
     TIPO_MARCADO = [
         ('INGRESO', 'Ingreso'),
