@@ -6,7 +6,7 @@
     <div class="mb-8">
         <a href="{% url 'revision_whatsapp' %}" class="w-fit h-10 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-slate-800 border-2 border-gray-200 text-[11px] font-black tracking-widest uppercase transition-all shadow-sm">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 12H5M5 12l7-7M5 12l7 7"></path></svg>
-            Volver
+            Volver a Cursos
         </a>
     </div>
 
@@ -41,23 +41,25 @@
                     </div>
                 </div>
             {% else %}
-                <form method="POST" class="w-full sm:w-[24rem]">
+                <form method="POST" class="w-full sm:w-[26rem]">
                     {% csrf_token %}
-                    <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-3">Auditoría de Grupo de WhatsApp</label>
-                    <div class="flex items-center gap-2">
+                    <!-- Etiqueta Azul Idéntica al Diseño -->
+                    <label class="block text-[11px] font-black text-[#0071e3] uppercase tracking-[0.15em] mb-2.5">Auditoría de Grupo de WhatsApp</label>
+                    <div class="flex items-center gap-2.5">
                         <div class="relative flex-1">
-                            <select name="empleado_id" required class="w-full h-11 bg-white border-2 border-gray-200 hover:border-gray-300 rounded-full pl-5 pr-10 text-[11px] font-bold text-black outline-none focus:border-[#0071e3] transition-all uppercase appearance-none cursor-pointer">
+                            <select name="empleado_id" required class="w-full h-[46px] bg-white border-2 border-gray-200 hover:border-gray-300 rounded-full pl-5 pr-12 text-xs font-black text-black outline-none focus:border-[#0071e3] transition-all uppercase appearance-none cursor-pointer">
                                 <option value="">¿QUIÉN REVISA?</option>
+                                <!-- Aquí el backend ahora sólo envía a Patricia -->
                                 {% for emp in empleados %}
                                 <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
                                 {% endfor %}
                             </select>
-                            <!-- Flecha Personalizada -->
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                            <!-- Flecha Personalizada Más Gruesa -->
+                            <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-black">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                             </div>
                         </div>
-                        <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay números intrusos?');" class="h-11 px-7 bg-black hover:bg-gray-800 text-white rounded-full text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                        <button type="submit" onclick="return confirm('¿Confirmas que verificaste el grupo de WhatsApp y que no hay números intrusos?');" class="h-[46px] px-8 bg-black hover:bg-gray-800 text-white rounded-full text-[11px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
                             Confirmar
                         </button>
                     </div>

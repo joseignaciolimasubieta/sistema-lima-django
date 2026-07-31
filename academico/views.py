@@ -3802,66 +3802,27 @@ def eliminar_tarea(request, tarea_id):
     messages.success(request, 'La tarea fue eliminada del tablero.')
     return redirect('lista_tareas')
 
-@login_required
-def revision_whatsapp(request):
-    hoy = date.today()
-    mes_buscar = request.GET.get('mes', '') 
-    
-    # Filtramos cursos
-    cursos_bd = Curso.objects.select_related('docente', 'revisado_por_empleado').exclude(fecha_inicio__isnull=True).order_by('-fecha_inicio')
-    
-    if mes_buscar:
-        try:
-            anio, mes = mes_buscar.split('-')
-            cursos_bd = cursos_bd.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
-        except ValueError:
-            pass
-    else:
-        # Por defecto muestra el mes actual
-        cursos_bd = cursos_bd.filter(fecha_inicio__year=hoy.year, fecha_inicio__month=hoy.month)
-        mes_buscar = hoy.strftime('%Y-%m')
-        
-    empleados = Empleado.objects.all().order_by('nombre_completo')
-        
-    if request.method == 'POST':
-        curso_id = request.POST.get('curso_id')
-        empleado_id = request.POST.get('empleado_id')
-        
-        if curso_id and empleado_id:
-            curso = get_object_or_404(Curso, id=curso_id)
-            empleado = get_object_or_404(Empleado, id=empleado_id)
-            
-            curso.whatsapp_revisado = True
-            curso.fecha_revision_whatsapp = hoy
-            curso.revisado_por_empleado = empleado
-            curso.save()
-            
-            messages.success(request, f'¡Excelente! El grupo de WhatsApp del curso "{curso.nombre}" fue auditado por {empleado.nombre_completo}.')
-        return redirect('revision_whatsapp')
-        
-    return render(request, 'revision_whatsapp.html', {
-        'cursos': cursos_bd,
-        'mes_buscar': mes_buscar,
-        'empleados': empleados
-    })
+# ==============================================================
+# --- MÓDULO DE REVISIÓN DE WHATSAPP ---
+# ==============================================================
 
 @login_required
 def revision_whatsapp(request):
     hoy = date.today()
     mes_buscar = request.GET.get('mes', '') 
     
-    # Filtramos cursos
-    cursos_bd = Curso.objects.select_related('docente', 'revisado_por_empleado').exclude(fecha_inicio__isnull=True).order_by('-fecha_inicio')
+    # 1. CAMBIO: Ahora filtramos estrictamente por FECHA DE FINALIZACIÓN
+    cursos_bd = Curso.objects.select_related('docente', 'revisado_por_empleado').exclude(fecha_finalizacion__isnull=True).order_by('-fecha_finalizacion')
     
     if mes_buscar:
         try:
             anio, mes = mes_buscar.split('-')
-            cursos_bd = cursos_bd.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+            cursos_bd = cursos_bd.filter(fecha_finalizacion__year=anio, fecha_finalizacion__month=mes)
         except ValueError:
             pass
     else:
-        # Por defecto muestra el mes actual
-        cursos_bd = cursos_bd.filter(fecha_inicio__year=hoy.year, fecha_inicio__month=hoy.month)
+        # Por defecto muestra los que finalizan en el mes actual
+        cursos_bd = cursos_bd.filter(fecha_finalizacion__year=hoy.year, fecha_finalizacion__month=hoy.month)
         mes_buscar = hoy.strftime('%Y-%m')
         
     return render(request, 'revision_whatsapp.html', {
@@ -3876,7 +3837,9 @@ def detalle_revision_whatsapp(request, curso_id):
     
     # Traemos a todos los alumnos inscritos en este curso
     inscritos = Inscripcion.objects.filter(curso=curso).select_related('participante')
-    empleados = Empleado.objects.all().order_by('nombre_completo')
+    
+    # 2. CAMBIO: Filtramos la base de datos para que SOLO aparezca Patricia
+    empleados = Empleado.objects.filter(nombre_completo__icontains='PATRICIA').order_by('nombre_completo')
     
     # Lógica para guardar la auditoría
     if request.method == 'POST':
