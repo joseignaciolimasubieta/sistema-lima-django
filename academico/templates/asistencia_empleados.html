@@ -76,6 +76,75 @@
         </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- NUEVO: DOS RECUADROS DE HISTORIAL EN VIVO (ENTRADAS / SALIDAS) -->
+    <!-- ============================================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <!-- RECUADRO 1: ÚLTIMAS ENTRADAS -->
+        <div class="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
+            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Últimas Entradas (Hoy)
+            </h3>
+            
+            <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-delgada pr-2">
+                {% for a in ultimas_entradas %}
+                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-gray-100">
+                    <div class="flex flex-col">
+                        <span class="text-[11px] font-bold text-gray-900 uppercase">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-xs font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-gray-400">{{ a.get_estado_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex items-center justify-center h-20 opacity-50">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- RECUADRO 2: ÚLTIMAS SALIDAS -->
+        <div class="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
+            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+                </span>
+                Últimas Salidas (Hoy)
+            </h3>
+            
+            <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-delgada pr-2">
+                {% for a in ultimas_salidas %}
+                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-gray-100">
+                    <div class="flex flex-col">
+                        <span class="text-[11px] font-bold text-gray-900 uppercase">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-xs font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-gray-400">Salida Registrada</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex items-center justify-center h-20 opacity-50">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+    </div>
+
     <!-- TABLA MATRIZ TIPO EXCEL -->
 <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm mb-10">
     <!-- Selector de Mes (Agrega esto junto a tu buscador) -->

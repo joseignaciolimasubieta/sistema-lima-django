@@ -3591,7 +3591,7 @@ def asistencia_empleados(request):
         elif a.tipo == 'SALIDA':
             mapa_asistencias[clave]['out'] = a.hora.strftime('%H:%M')
 
-    # 4. Asistencias ESTRICTAS DE HOY (Para las nuevas columnas en vivo)
+    # 4. Asistencias ESTRICTAS DE HOY (Para las columnas fijas)
     hoy = date.today()
     asistencias_hoy = AsistenciaEmpleado.objects.filter(fecha=hoy)
     mapa_hoy = {}
@@ -3603,7 +3603,14 @@ def asistencia_empleados(request):
         elif a.tipo == 'SALIDA':
             mapa_hoy[a.empleado_id]['out'] = a.hora
 
-    # 5. Construir Matriz
+    # =========================================================
+    # 5. NUEVO: FEED EN VIVO PARA LOS DOS RECUADROS (HISTORIAL)
+    # =========================================================
+    historial_hoy = AsistenciaEmpleado.objects.filter(fecha=hoy).select_related('empleado').order_by('-hora')
+    ultimas_entradas = [a for a in historial_hoy if a.tipo == 'INGRESO'][:10] # Últimos 10 ingresos
+    ultimas_salidas = [a for a in historial_hoy if a.tipo == 'SALIDA'][:10]   # Últimas 10 salidas
+
+    # 6. Construir Matriz
     matriz = []
     for emp in empleados:
         fila = {
@@ -3625,7 +3632,6 @@ def asistencia_empleados(request):
                 elif estado == 'PERMISO': fila['totales']['P'] += 1
                 elif estado == 'VACACIONES': fila['totales']['V'] += 1
                 
-                # Agregamos todo el diccionario para tener 'in' y 'out' en el HTML
                 fila['dias'].append(datos_dia) 
             else:
                 fila['dias'].append(None)
@@ -3637,7 +3643,9 @@ def asistencia_empleados(request):
         'dias_del_mes': dias_del_mes,
         'mes_buscar': mes_buscar,
         'buscar': buscar,
-        'fecha_hoy': hoy
+        'fecha_hoy': hoy,
+        'ultimas_entradas': ultimas_entradas, # <--- Enviamos Entradas
+        'ultimas_salidas': ultimas_salidas    # <--- Enviamos Salidas
     })
 @login_required
 @user_passes_test(es_administrador)
