@@ -2143,14 +2143,18 @@ def obtener_datos_empleado_pago(request, empleado_id):
         datos['bono_ventas'] = float((Decimal(total_insc) + Decimal(total_extra)) * Decimal('0.10')) 
 
         # =========================================================
-        # NUEVO: COMISIÓN POR CERTIFICADOS (Bs 2 por cada uno)
+        # NUEVO: COMISIÓN POR CERTIFICADOS (10% de la venta)
         # =========================================================
         certificados_vendidos = VentaServicio.objects.filter(
             fecha_venta__year=anio, fecha_venta__month=mes,
             tipo_servicio='CERTIFICADO'
         )
-        cantidad_certificados = sum(1 for cert in certificados_vendidos if cert.vendedor and cert.vendedor.lower() in nombre_completo_emp)
-        datos['comision_certificados'] = float(cantidad_certificados * 2.00)
+        
+        # 1. Sumamos el dinero total de los certificados vendidos por este empleado
+        total_certificados = sum(cert.importe for cert in certificados_vendidos if cert.vendedor and cert.vendedor.lower() in nombre_completo_emp)
+        
+        # 2. Le sacamos el 10% a ese total
+        datos['comision_certificados'] = float(Decimal(total_certificados) * Decimal('0.10'))
         # =========================================================
         # 3. BONO WHATSAPP (Basado en la Fecha de Finalización)
         # =========================================================
