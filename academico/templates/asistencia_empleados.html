@@ -1,27 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
+<div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-8 animate-fade-in relative z-10 font-sans">
     
-    <div class="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
-        <div class="space-y-3 shrink-0">
-            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Control Asistencia.</h1>
-            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-2">Monitoreo de Personal en Tiempo Real</p>
+    <!-- CABECERA PRINCIPAL -->
+    <div class="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+        <div class="space-y-2 shrink-0">
+            <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tight leading-tight">Control Asistencia.</h1>
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Monitoreo de Personal en Tiempo Real</p>
         </div>
         
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
             <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
-                <a href="{% url 'configuracion_empleados' %}" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
+                
+                <!-- Botón Configuración Mejorado -->
+                <a href="{% url 'configuracion_empleados' %}" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
                     <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Configuración
                 </a>
 
-                <button type="button" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Descargar Matriz
-                </button>
-
-                <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] transition-all">
+                <!-- Buscador Modernizado -->
+                <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all">
                     <div class="relative w-full h-8 flex items-center">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -34,95 +33,96 @@
         </div>
     </div>
 
-    <!-- NOMENCLATURA -->
-    <div class="grid grid-cols-5 md:grid-cols-9 gap-2 mb-8">
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-emerald-200">A</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Asistencia</p>
+    <!-- NOMENCLATURA ELEGANTE (En formato de píldoras) -->
+    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-8">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[8px] border border-emerald-200">A</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Asistencia</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-amber-200">R</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Retraso</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[8px] border border-amber-200">R</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Retraso</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-rose-200">F</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Falta</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[8px] border border-rose-200">F</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Falta</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-blue-200">P</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Permiso</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[8px] border border-blue-200">P</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Permiso</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-gray-200">D</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Descanso</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[8px] border border-gray-200">D</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Descanso</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-purple-200">C</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Comisión</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[8px] border border-purple-200">C</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Comisión</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-teal-200">V</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Vacaciones</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[8px] border border-teal-200">V</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Vacaciones</span>
         </div>
-        <div class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center">
-            <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-orange-200">S</span>
-            <p class="text-[8px] font-black text-gray-500 uppercase tracking-widest">Cesantía</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[8px] border border-orange-200">S</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Cesantía</span>
         </div>
-        <!-- NUEVO ESTADO: FERIADO -->
-        <div class="bg-white border border-indigo-200 rounded-xl p-3 shadow-sm flex flex-col items-center justify-center text-center bg-indigo-50/30">
-            <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[11px] mb-1.5 shadow-sm border border-indigo-200">E</span>
-            <p class="text-[8px] font-black text-indigo-500 uppercase tracking-widest">Feriado</p>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50/50 border border-indigo-100 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[8px] border border-indigo-200">E</span>
+            <span class="text-[9px] font-black text-indigo-600 uppercase tracking-widest pr-1">Feriado</span>
         </div>
     </div>
 
-    <!-- RECUADROS EN VIVO -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div class="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500"></div>
-            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
+    <!-- RECUADROS EN VIVO MODERNIZADOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600"></div>
+            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white"></span></span>
                 Últimas Entradas (Hoy)
             </h3>
-            <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-delgada pr-2">
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
                 {% for a in ultimas_entradas %}
-                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-gray-100">
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors border border-gray-100 hover:border-emerald-100">
                     <div class="flex flex-col">
-                        <span class="text-[11px] font-bold text-gray-900 uppercase">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">{{ a.empleado.cargo }}</span>
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
                     </div>
                     <div class="flex flex-col items-end">
-                        <span class="text-xs font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-gray-400">{{ a.get_estado_display }}</span>
+                        <span class="text-sm font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">{{ a.get_estado_display }}</span>
                     </div>
                 </div>
                 {% empty %}
-                <div class="flex items-center justify-center h-20 opacity-50">
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
                 </div>
                 {% endfor %}
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl border border-gray-200 p-5 shadow-sm relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1 h-full bg-orange-500"></div>
-            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span></span>
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-orange-600"></div>
+            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-sm border border-white"></span></span>
                 Últimas Salidas (Hoy)
             </h3>
-            <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-delgada pr-2">
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
                 {% for a in ultimas_salidas %}
-                <div class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-gray-100">
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-orange-50/50 transition-colors border border-gray-100 hover:border-orange-100">
                     <div class="flex flex-col">
-                        <span class="text-[11px] font-bold text-gray-900 uppercase">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase">{{ a.empleado.cargo }}</span>
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
                     </div>
                     <div class="flex flex-col items-end">
-                        <span class="text-xs font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-gray-400">Salida Registrada</span>
+                        <span class="text-sm font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">Salida Registrada</span>
                     </div>
                 </div>
                 {% empty %}
-                <div class="flex items-center justify-center h-20 opacity-50">
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
                 </div>
                 {% endfor %}
@@ -130,90 +130,90 @@
         </div>
     </div>
 
-    <!-- TABLA MATRIZ CON EDICIÓN INTEGRADDA -->
-    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm mb-10">
-        <div class="p-4 border-b border-gray-100 bg-slate-50 flex justify-end">
+    <!-- MATRIZ DE ASISTENCIA REFINADA -->
+    <div class="bg-white rounded-[2rem] border border-gray-200 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-10">
+        
+        <div class="p-5 border-b border-gray-100 bg-white flex justify-end items-center relative z-30">
             <form method="GET" class="flex gap-2">
-                <input type="month" name="mes_buscar" value="{{ mes_buscar }}" class="h-9 px-3 text-xs font-bold text-gray-700 border border-gray-200 rounded-lg outline-none focus:border-[#0071e3] transition-colors shadow-sm">
-                <button type="submit" class="h-9 px-5 bg-slate-900 hover:bg-[#0071e3] transition-colors text-white text-[10px] font-black rounded-lg uppercase tracking-widest shadow-sm">Filtrar</button>
+                <input type="month" name="mes_buscar" value="{{ mes_buscar }}" class="h-10 px-4 text-xs font-bold text-gray-700 bg-slate-50 border border-gray-200 rounded-full outline-none focus:bg-white focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                <button type="submit" class="h-10 px-6 bg-slate-900 hover:bg-[#0071e3] transition-colors text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm">Filtrar Mes</button>
             </form>
         </div>
 
         <div class="overflow-x-auto max-h-[650px] scrollbar-delgada relative">
             <table class="w-full text-sm text-left border-collapse">
-                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                <thead class="bg-white/95 backdrop-blur-xl border-b-2 border-slate-100 sticky top-0 z-20 shadow-sm">
                     <tr>
-                        <th class="py-3 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap sticky left-0 bg-slate-50 z-30 shadow-[1px_0_0_0_#e2e8f0]">Empleado</th>
+                        <th class="py-4 px-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap sticky left-0 bg-white/95 backdrop-blur-xl z-30 shadow-[1px_0_0_0_#f1f5f9]">Empleado</th>
                         
-                        <th class="py-3 px-3 text-center text-[10px] font-black text-emerald-700 bg-emerald-50 border-l border-emerald-200 border-r border-gray-200 leading-tight">
-                            Ingreso<br><span class="text-[8px] text-emerald-500">HOY</span>
+                        <th class="py-4 px-4 text-center text-[10px] font-black text-emerald-600 bg-emerald-50/50 border-l border-emerald-100 border-r border-gray-100 leading-tight">
+                            Ingreso<br><span class="text-[8px] text-emerald-400">HOY</span>
                         </th>
-                        <th class="py-3 px-3 text-center text-[10px] font-black text-orange-700 bg-orange-50 border-r border-gray-200 leading-tight">
-                            Salida<br><span class="text-[8px] text-orange-500">HOY</span>
+                        <th class="py-4 px-4 text-center text-[10px] font-black text-orange-600 bg-orange-50/50 border-r border-gray-100 leading-tight">
+                            Salida<br><span class="text-[8px] text-orange-400">HOY</span>
                         </th>
 
                         <!-- Días Numéricos -->
                         {% for dia in dias_del_mes %}
-                            <th class="py-3 px-1 text-center text-[10px] font-black text-gray-500 min-w-[32px] border-l border-gray-200">{{ dia }}</th>
+                            <th class="py-4 px-1 text-center text-[10px] font-bold text-gray-400 min-w-[34px] border-l border-gray-100">{{ dia }}</th>
                         {% endfor %}
                         
                         <!-- KPIs -->
-                        <th class="py-3 px-2 text-center text-[10px] font-black text-emerald-600 bg-emerald-50 border-l border-emerald-200">A</th>
-                        <th class="py-3 px-2 text-center text-[10px] font-black text-amber-600 bg-amber-50">R</th>
-                        <th class="py-3 px-2 text-center text-[10px] font-black text-rose-600 bg-rose-50">F</th>
+                        <th class="py-4 px-3 text-center text-[10px] font-black text-emerald-600 bg-emerald-50/50 border-l border-emerald-100">A</th>
+                        <th class="py-4 px-3 text-center text-[10px] font-black text-amber-600 bg-amber-50/50">R</th>
+                        <th class="py-4 px-3 text-center text-[10px] font-black text-rose-600 bg-rose-50/50">F</th>
                     </tr>
                 </thead>
                 
                 <tbody class="divide-y divide-gray-100 text-xs bg-white">
                     {% for fila in matriz %}
-                    <tr class="hover:bg-slate-50/50 transition-colors duration-200 group/row">
-                        <td class="px-4 py-2 whitespace-nowrap sticky left-0 bg-white group-hover/row:bg-slate-50/50 z-10 shadow-[1px_0_0_0_#e2e8f0]">
-                            <div class="font-bold text-[#0071e3] text-[11px] uppercase">{{ fila.empleado.nombre_completo }}</div>
-                            <div class="text-[9px] font-bold text-gray-400 uppercase">{{ fila.empleado.cargo }}</div>
+                    <tr class="hover:bg-slate-50 transition-colors duration-200 group/row">
+                        <td class="px-6 py-3 whitespace-nowrap sticky left-0 bg-white group-hover/row:bg-slate-50 z-10 shadow-[1px_0_0_0_#f1f5f9]">
+                            <div class="font-black text-slate-900 text-xs uppercase tracking-tight">{{ fila.empleado.nombre_completo }}</div>
+                            <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{{ fila.empleado.cargo }}</div>
                         </td>
 
-                        <td class="px-3 py-2 text-center bg-emerald-50/30 border-l border-emerald-100 border-r border-gray-100 whitespace-nowrap">
+                        <td class="px-4 py-3 text-center bg-emerald-50/20 border-l border-emerald-50 border-r border-gray-50 whitespace-nowrap">
                             {% if fila.hoy_in %}
-                                <span class="font-black text-emerald-600 text-[11px] bg-white border border-emerald-200 px-2 py-0.5 rounded shadow-sm">{{ fila.hoy_in|time:"H:i" }}</span>
+                                <span class="font-black text-emerald-600 text-[11px] bg-white border border-emerald-100 px-2.5 py-1 rounded-md shadow-sm">{{ fila.hoy_in|time:"H:i" }}</span>
                             {% else %}
                                 <span class="text-gray-300 font-black text-xs">--:--</span>
                             {% endif %}
                         </td>
                         
-                        <td class="px-3 py-2 text-center bg-orange-50/30 border-r border-gray-200 whitespace-nowrap">
+                        <td class="px-4 py-3 text-center bg-orange-50/20 border-r border-gray-50 whitespace-nowrap">
                             {% if fila.hoy_out %}
-                                <span class="font-black text-orange-600 text-[11px] bg-white border border-orange-200 px-2 py-0.5 rounded shadow-sm">{{ fila.hoy_out|time:"H:i" }}</span>
+                                <span class="font-black text-orange-600 text-[11px] bg-white border border-orange-100 px-2.5 py-1 rounded-md shadow-sm">{{ fila.hoy_out|time:"H:i" }}</span>
                             {% else %}
                                 <span class="text-gray-300 font-black text-xs">--:--</span>
                             {% endif %}
                         </td>
                         
-                        <!-- Celdas Editables -->
+                        <!-- Celdas Editables Soft -->
                         {% for celda in fila.dias %}
-                            <td class="px-0 py-1 text-center border-l border-gray-100">
+                            <td class="px-0 py-1.5 text-center border-l border-gray-50">
                                 <div onclick="abrirEditor('{{ fila.empleado.id }}', '{{ fila.empleado.nombre_completo }}', '{{ celda.fecha_full }}', '{{ celda.estado|default:'' }}')" 
-                                     class="w-full h-8 flex items-center justify-center cursor-pointer hover:bg-slate-200/50 transition-all rounded m-0.5 relative group/cell"
-                                     title="Haz clic para editar asistencia. {% if celda.in %}Entrada: {{ celda.in }} | Salida: {{ celda.out|default:'--' }}{% endif %}">
+                                     class="w-full h-8 flex items-center justify-center cursor-pointer hover:bg-slate-200/50 transition-all rounded-lg m-0.5 relative group/cell"
+                                     title="Haz clic para editar. {% if celda.in %}Entrada: {{ celda.in }} | Salida: {{ celda.out|default:'--' }}{% endif %}">
                                     
                                     {% if celda.estado == 'PUNTUAL' %}
-                                        <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-emerald-200 group-hover/cell:scale-110 transition-transform">A</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-emerald-200 group-hover/cell:scale-110 transition-transform">A</span>
                                     {% elif celda.estado == 'RETRASO' %}
-                                        <span class="w-6 h-6 rounded bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-amber-200 group-hover/cell:scale-110 transition-transform">R</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-amber-200 group-hover/cell:scale-110 transition-transform">R</span>
                                     {% elif celda.estado == 'FALTA' %}
-                                        <!-- Si es virtual (calculada automática), le damos transparencia -->
-                                        <span class="w-6 h-6 rounded bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-rose-200 group-hover/cell:scale-110 transition-transform {% if celda.virtual %}opacity-50 ring-2 ring-rose-100 ring-offset-1{% endif %}">F</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-rose-200 group-hover/cell:scale-110 transition-transform {% if celda.virtual %}opacity-50 ring-2 ring-rose-50 ring-offset-1{% endif %}">F</span>
                                     {% elif celda.estado == 'PERMISO' %}
-                                        <span class="w-6 h-6 rounded bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-blue-200 group-hover/cell:scale-110 transition-transform">P</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-blue-200 group-hover/cell:scale-110 transition-transform">P</span>
                                     {% elif celda.estado == 'DESCANSO' %}
-                                        <span class="w-6 h-6 rounded bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[10px] shadow-sm border border-gray-200 group-hover/cell:scale-110 transition-transform">D</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[9px] shadow-sm border border-gray-200 group-hover/cell:scale-110 transition-transform">D</span>
                                     {% elif celda.estado == 'COMISION' %}
-                                        <span class="w-6 h-6 rounded bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-purple-200 group-hover/cell:scale-110 transition-transform">C</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-purple-200 group-hover/cell:scale-110 transition-transform">C</span>
                                     {% elif celda.estado == 'VACACIONES' %}
-                                        <span class="w-6 h-6 rounded bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-teal-200 group-hover/cell:scale-110 transition-transform">V</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-teal-200 group-hover/cell:scale-110 transition-transform">V</span>
                                     {% elif celda.estado == 'CESANTIA' %}
-                                        <span class="w-6 h-6 rounded bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-orange-200 group-hover/cell:scale-110 transition-transform">S</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-orange-200 group-hover/cell:scale-110 transition-transform">S</span>
                                     {% elif celda.estado == 'FERIADO' %}
-                                        <span class="w-6 h-6 rounded bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[10px] shadow-sm border border-indigo-200 group-hover/cell:scale-110 transition-transform">E</span>
+                                        <span class="w-[22px] h-[22px] rounded-md bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[9px] shadow-sm border border-indigo-200 group-hover/cell:scale-110 transition-transform">E</span>
                                     {% else %}
                                         <!-- Días futuros -->
                                         <span class="w-1.5 h-1.5 rounded-full bg-gray-200 group-hover/cell:bg-[#0071e3] transition-colors"></span>
@@ -223,9 +223,9 @@
                         {% endfor %}
                         
                         <!-- Totales -->
-                        <td class="px-2 py-2 text-center font-black text-emerald-700 bg-emerald-50 border-l border-emerald-100">{{ fila.totales.A }}</td>
-                        <td class="px-2 py-2 text-center font-black text-amber-700 bg-amber-50">{{ fila.totales.R }}</td>
-                        <td class="px-2 py-2 text-center font-black text-rose-700 bg-rose-50">{{ fila.totales.F }}</td>
+                        <td class="px-3 py-3 text-center font-black text-emerald-700 bg-emerald-50/50 border-l border-emerald-50">{{ fila.totales.A }}</td>
+                        <td class="px-3 py-3 text-center font-black text-amber-700 bg-amber-50/50">{{ fila.totales.R }}</td>
+                        <td class="px-3 py-3 text-center font-black text-rose-700 bg-rose-50/50">{{ fila.totales.F }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -239,28 +239,26 @@
 <!-- ============================================================== -->
 <div id="slideOverEditor" class="fixed inset-0 z-50 overflow-hidden hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
     <div class="absolute inset-0 overflow-hidden">
-        <!-- Fondo Oscuro -->
-        <div id="slideOverBackdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity opacity-0" onclick="cerrarEditor()"></div>
+        <div id="slideOverBackdrop" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0" onclick="cerrarEditor()"></div>
         
         <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-sm pl-10">
-            <!-- Panel Lateral -->
             <div id="slideOverPanel" class="pointer-events-auto w-screen max-w-sm transform transition ease-in-out duration-300 translate-x-full">
-                <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-2xl rounded-l-[2.5rem] border-l border-gray-100">
+                <div class="flex h-full flex-col overflow-y-scroll bg-white shadow-2xl rounded-l-[2rem] border-l border-gray-100">
                     
                     <div class="px-8 py-6 bg-slate-50 border-b border-gray-100 flex items-center justify-between">
                         <div>
                             <h2 class="text-xl font-black text-slate-900 tracking-tight">Editar Asistencia</h2>
-                            <p class="text-xs font-bold text-[#0071e3] tracking-widest mt-1 uppercase" id="slideOverFecha"></p>
+                            <p class="text-[10px] font-bold text-[#0071e3] tracking-widest mt-1 uppercase" id="slideOverFecha"></p>
                         </div>
                         <button onclick="cerrarEditor()" class="p-2 bg-white rounded-full hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-sm border border-gray-200">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
                     
                     <div class="p-8 flex-1">
                         <div class="mb-8">
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Empleado Seleccionado</label>
-                            <div class="bg-blue-50/50 text-[#0071e3] px-5 py-4 rounded-2xl font-bold text-sm border border-blue-100 shadow-inner" id="slideOverEmpNombre"></div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2.5">Empleado Seleccionado</label>
+                            <div class="bg-blue-50/50 text-[#0071e3] px-5 py-3.5 rounded-xl font-black text-xs uppercase tracking-tight border border-blue-100 shadow-inner" id="slideOverEmpNombre"></div>
                         </div>
 
                         <div class="mb-6">
@@ -271,13 +269,12 @@
                         </div>
                         
                         <div class="mt-10 space-y-3">
-                            <button onclick="guardarAsistencia()" id="btnGuardar" class="w-full bg-slate-900 text-white font-black text-xs uppercase tracking-widest py-4 rounded-2xl hover:bg-[#0071e3] hover:-translate-y-1 transition-all shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[#0071e3]/30 flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <button onclick="guardarAsistencia()" id="btnGuardar" class="w-full bg-[#0071e3] text-white font-black text-[11px] uppercase tracking-widest py-4 rounded-xl hover:bg-blue-600 transition-all shadow-[0_8px_20px_-6px_rgba(0,113,227,0.5)] active:scale-95 flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                                 Guardar Modificación
                             </button>
                             
-                            <!-- NUEVO BOTÓN PARA ELIMINAR -->
-                            <button onclick="eliminarAsistencia()" id="btnEliminar" class="w-full bg-white text-rose-500 border border-rose-100 font-black text-xs uppercase tracking-widest py-3.5 rounded-2xl hover:bg-rose-50 transition-colors flex items-center justify-center gap-2">
+                            <button onclick="eliminarAsistencia()" id="btnEliminar" class="w-full bg-white text-rose-500 border border-rose-200 font-black text-[11px] uppercase tracking-widest py-3.5 rounded-xl hover:bg-rose-50 transition-colors flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 Eliminar Registro
                             </button>
@@ -310,19 +307,16 @@
     function abrirEditor(empId, nombre, fecha, estadoActual) {
         currentEmpId = empId;
         currentFecha = fecha;
-        // Si el estado viene vacío (es un día en el futuro), asumimos falta por defecto en el menú
         currentEstado = estadoActual || 'FALTA'; 
 
         document.getElementById('slideOverEmpNombre').innerText = nombre;
         
-        // Formatear fecha bonita
         const dateParts = fecha.split('-');
         const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         document.getElementById('slideOverFecha').innerText = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
         renderOpciones();
 
-        // Animar Entrada
         document.getElementById('slideOverEditor').classList.remove('hidden');
         setTimeout(() => {
             document.getElementById('slideOverBackdrop').classList.remove('opacity-0');
@@ -337,15 +331,14 @@
         container.innerHTML = '';
         estados.forEach(est => {
             const isSelected = currentEstado === est.id;
-            // Clases dinámicas dependiendo de si está seleccionado o no
             const extraClasses = isSelected 
-                ? `ring-2 ring-offset-2 ring-${est.border} ${est.bg} border-transparent shadow-md transform scale-[1.02]` 
+                ? `ring-2 ring-offset-2 ring-${est.border} ${est.bg} border-transparent shadow-sm transform scale-[1.02]` 
                 : 'bg-white border-gray-200 hover:bg-slate-50 opacity-60 hover:opacity-100';
             
             container.innerHTML += `
-                <div onclick="seleccionarEstado('${est.id}')" class="cursor-pointer border rounded-2xl p-3 flex items-center gap-3 transition-all ${extraClasses}">
-                    <span class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shadow-sm border border-white/50 ${est.bg} ${est.text}">${est.icon}</span>
-                    <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wide">${est.label}</span>
+                <div onclick="seleccionarEstado('${est.id}')" class="cursor-pointer border rounded-xl p-2.5 flex items-center gap-3 transition-all ${extraClasses}">
+                    <span class="w-7 h-7 rounded-lg flex items-center justify-center font-black text-[10px] shadow-sm border border-white/50 ${est.bg} ${est.text}">${est.icon}</span>
+                    <span class="text-[10px] font-bold text-slate-700 uppercase tracking-widest">${est.label}</span>
                 </div>
             `;
         });
@@ -357,7 +350,6 @@
     }
 
     function cerrarEditor() {
-        // Animar Salida
         document.getElementById('slideOverBackdrop').classList.remove('opacity-100');
         document.getElementById('slideOverBackdrop').classList.add('opacity-0');
         document.getElementById('slideOverPanel').classList.remove('translate-x-0');
@@ -370,7 +362,7 @@
     function guardarAsistencia() {
         const btn = document.getElementById('btnGuardar');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Guardando...';
+        btn.innerHTML = '<svg class="animate-spin h-4 w-4 mr-2 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Guardando...';
         
         fetch("{% url 'editar_asistencia_empleado' %}", {
             method: 'POST',
@@ -394,6 +386,7 @@
             }
         });
     }
+    
     function eliminarAsistencia() {
         if(!confirm('¿Estás seguro de que deseas limpiar y eliminar el registro de este día?')) return;
         
@@ -416,7 +409,7 @@
         .then(response => response.json())
         .then(data => {
             if(data.status === 'ok') {
-                window.location.reload(); // Recarga la tabla para reflejar la eliminación
+                window.location.reload();
             } else {
                 alert('Error al eliminar: ' + data.mensaje);
                 btn.innerHTML = originalText;
@@ -428,10 +421,10 @@
 <style>
     .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar { width: 6px; height: 6px; }
     .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
-    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; border: 2px solid white; }
-    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 
 {% endblock %}
