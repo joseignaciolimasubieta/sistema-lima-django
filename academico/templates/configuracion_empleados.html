@@ -7,10 +7,10 @@
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-8 animate-fade-in relative z-10 font-sans">
     
     <!-- CABECERA PRINCIPAL -->
-    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+    <div class="mb-8 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
         <div class="space-y-2 shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold text-black tracking-tight leading-tight">Configuración.</h1>
-            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Horarios y Parámetros por Empleado</p>
+            <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Ajustes de Horario y Asistencia</p>
         </div>
         
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
@@ -21,82 +21,204 @@
         </div>
     </div>
 
-    <!-- TABLA DE CONFIGURACIÓN -->
-    <div class="bg-white rounded-[2rem] border border-gray-200 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-10">
-        <div class="overflow-x-auto max-h-[650px] scrollbar-delgada relative">
-            <table class="w-full text-sm text-left border-collapse">
-                <thead class="bg-white/95 backdrop-blur-xl border-b-2 border-slate-100 sticky top-0 z-20 shadow-sm">
-                    <tr>
-                        <th class="py-4 px-6 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap sticky left-0 bg-white/95 backdrop-blur-xl z-30 shadow-[1px_0_0_0_#f1f5f9]">Empleado</th>
-                        <th class="py-4 px-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Hora Ingreso</th>
-                        <th class="py-4 px-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Hora Salida</th>
-                        <th class="py-4 px-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Tolerancia</th>
-                        <th class="py-4 px-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Días Laborales</th>
-                        <th class="py-4 px-6 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">Acción</th>
-                    </tr>
-                </thead>
+    <!-- ARQUITECTURA MAESTRO-DETALLE -->
+    <div class="flex flex-col lg:flex-row gap-6 lg:h-[650px]">
+        
+        <!-- PANEL IZQUIERDO: LISTA DE EMPLEADOS -->
+        <div class="w-full lg:w-1/3 bg-white rounded-[2rem] border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col overflow-hidden">
+            <!-- Buscador en tiempo real -->
+            <div class="p-5 border-b border-gray-100 bg-slate-50/50">
+                <div class="relative flex items-center w-full h-11 rounded-xl bg-white border border-gray-200 shadow-sm focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all overflow-hidden group">
+                    <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="buscadorEmpleados" onkeyup="filtrarEmpleados()" placeholder="Buscar colaborador..." class="w-full h-full pl-10 pr-4 bg-transparent outline-none text-xs font-bold text-slate-800 placeholder-gray-400">
+                </div>
+            </div>
+
+            <!-- Lista Scrolleable -->
+            <div class="flex-1 overflow-y-auto scrollbar-delgada p-3 space-y-1" id="listaEmpleados">
+                {% for emp in empleados %}
+                <div class="emp-card cursor-pointer p-3 rounded-2xl border border-transparent hover:bg-slate-50 transition-all flex items-center gap-4 group"
+                     data-nombre="{{ emp.nombre_completo|lower }}"
+                     onclick="seleccionarEmpleado('{{ emp.id }}', '{{ emp.nombre_completo|escapejs }}', '{{ emp.cargo|escapejs }}', '{{ emp.hora_ingreso|time:'H:i' }}', '{{ emp.hora_salida|time:'H:i' }}', '{{ emp.tolerancia_minutos }}', '{{ emp.dias_laborales|escapejs }}', this)">
+                    
+                    <div class="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-500 font-black text-lg shrink-0 shadow-sm transition-colors group-hover:bg-blue-50 group-hover:text-[#0071e3] group-hover:border-blue-100 avatar-circulo">
+                        {{ emp.nombre_completo|first }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-black text-[11px] text-slate-900 uppercase truncate">{{ emp.nombre_completo }}</h3>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 truncate">{{ emp.cargo }}</p>
+                    </div>
+                    <div class="text-gray-300 group-hover:text-[#0071e3] transition-colors pr-2 hidden md:block">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-full opacity-40 p-8 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">No hay empleados registrados</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- PANEL DERECHO: DETALLE Y CONFIGURACIÓN -->
+        <div class="w-full lg:w-2/3 bg-white rounded-[2rem] border border-gray-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden flex flex-col">
+            
+            <!-- ESTADO VACÍO (Antes de seleccionar) -->
+            <div id="estadoVacio" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-50/50 backdrop-blur-sm transition-opacity duration-300">
+                <div class="w-24 h-24 bg-white rounded-3xl shadow-sm border border-gray-200 flex items-center justify-center mb-6 transform -rotate-6">
+                    <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                </div>
+                <h3 class="text-xl font-black text-slate-800 tracking-tight">Panel de Configuración</h3>
+                <p class="text-xs font-bold text-gray-400 mt-2 uppercase tracking-widest text-center px-8">Selecciona un colaborador de la lista lateral <br> para gestionar sus parámetros de asistencia.</p>
+            </div>
+
+            <!-- ESTADO FORMULARIO (Oculto inicialmente) -->
+            <div id="estadoFormulario" class="flex flex-col h-full opacity-0 pointer-events-none transition-opacity duration-300">
                 
-                <tbody class="divide-y divide-gray-100 text-xs bg-white">
-                    {% for emp in empleados %}
-                    <tr class="hover:bg-slate-50 transition-colors duration-200 group/row">
+                <!-- Decoración Superior -->
+                <div class="h-32 bg-gradient-to-r from-slate-900 to-[#0071e3] relative">
+                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                </div>
+
+                <!-- Cabecera del Empleado -->
+                <div class="px-8 pb-6 relative flex-none">
+                    <div class="absolute -top-12 left-8 w-24 h-24 bg-white rounded-[1.5rem] shadow-xl border-4 border-white flex items-center justify-center text-4xl font-black text-[#0071e3] overflow-hidden" id="formAvatar">
+                        X
+                    </div>
+                    <div class="ml-32 pt-3">
+                        <h2 class="text-2xl font-black text-slate-900 uppercase tracking-tight" id="formNombre">Nombre Empleado</h2>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1" id="formCargo">Cargo</p>
+                    </div>
+                </div>
+
+                <!-- Formulario -->
+                <div class="flex-1 overflow-y-auto p-8 pt-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
-                        <!-- Columna Empleado con Avatar -->
-                        <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-white group-hover/row:bg-slate-50 z-10 shadow-[1px_0_0_0_#f1f5f9]">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[#0071e3] font-black text-sm shrink-0 shadow-sm">
-                                    {{ emp.nombre_completo|first }}
+                        <!-- Bloque 1: Horarios -->
+                        <div class="space-y-6">
+                            <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest border-b border-gray-100 pb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Ventana de Trabajo
+                            </h3>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Hora de Ingreso</label>
+                                    <input type="time" id="inputIngreso" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
                                 </div>
                                 <div>
-                                    <div class="font-black text-slate-900 text-xs uppercase tracking-tight">{{ emp.nombre_completo }}</div>
-                                    <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{{ emp.cargo }}</div>
+                                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Hora de Salida</label>
+                                    <input type="time" id="inputSalida" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
                                 </div>
                             </div>
-                        </td>
-                        
-                        <!-- Inputs Modernizados -->
-                        <td class="px-4 py-4 text-center">
-                            <input type="time" id="ingreso-{{ emp.id }}" value="{{ emp.hora_ingreso|time:'H:i' }}" class="h-10 w-28 text-center bg-slate-50 border border-gray-200 rounded-xl text-xs font-black text-slate-700 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
-                        </td>
-                        
-                        <td class="px-4 py-4 text-center">
-                            <input type="time" id="salida-{{ emp.id }}" value="{{ emp.hora_salida|time:'H:i' }}" class="h-10 w-28 text-center bg-slate-50 border border-gray-200 rounded-xl text-xs font-black text-slate-700 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
-                        </td>
-                        
-                        <td class="px-4 py-4 text-center">
-                            <div class="relative inline-block w-28">
-                                <input type="number" id="tolerancia-{{ emp.id }}" value="{{ emp.tolerancia_minutos }}" min="0" class="h-10 w-full text-center bg-slate-50 border border-gray-200 rounded-xl text-xs font-black text-slate-700 pr-7 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
-                                <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-[9px] font-black text-gray-400">min</span>
+                        </div>
+
+                        <!-- Bloque 2: Parámetros -->
+                        <div class="space-y-6">
+                            <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest border-b border-gray-100 pb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                                Reglas de Asistencia
+                            </h3>
+                            
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Minutos de Tolerancia</label>
+                                <div class="relative">
+                                    <input type="number" id="inputTolerancia" min="0" class="w-full h-12 pl-4 pr-12 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400 uppercase tracking-widest">MIN</span>
+                                </div>
                             </div>
-                        </td>
-                        
-                        <td class="px-4 py-4 text-center">
-                            <input type="text" id="dias-{{ emp.id }}" value="{{ emp.dias_laborales }}" placeholder="L,M,X,J,V" class="h-10 w-36 text-center bg-slate-50 border border-gray-200 rounded-xl text-xs font-black text-slate-700 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
-                        </td>
-            
-                        <td class="px-6 py-4 text-right">
-                            <button onclick="guardarConfiguracion({{ emp.id }}, this)" class="h-10 px-5 bg-slate-900 hover:bg-[#0071e3] text-white text-[10px] font-black rounded-xl transition-colors tracking-widest uppercase shadow-sm whitespace-nowrap active:scale-95 inline-flex items-center justify-center gap-2 group/btn">
-                                <svg class="w-4 h-4 text-white/70 group-hover/btn:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                                Guardar
-                            </button>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="6" class="px-6 py-24 text-center">
-                            <div class="flex flex-col items-center justify-center opacity-40">
-                                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">No hay empleados registrados</p>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Días Laborales Autorizados</label>
+                                <input type="text" id="inputDias" placeholder="Ej: L,M,X,J,V" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                                <p class="text-[9px] font-bold text-gray-400 mt-2 tracking-wide">Utiliza las iniciales separadas por comas. (L=Lunes, X=Miércoles).</p>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Footer / Acciones -->
+                <div class="p-6 bg-slate-50 border-t border-gray-100 flex items-center justify-between flex-none">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest hidden md:inline-block" id="txtIdEmpleado"></span>
+                    <button onclick="guardarConfiguracion()" id="btnGuardar" class="w-full md:w-auto h-12 px-8 bg-slate-900 hover:bg-[#0071e3] text-white text-[11px] font-black rounded-xl transition-all shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[#0071e3]/40 active:scale-95 tracking-widest uppercase flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        Guardar Cambios
+                    </button>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+    // Variables Globales
+    let currentEmpId = null;
+
+    // 1. Lógica del Buscador en tiempo real
+    function filtrarEmpleados() {
+        const input = document.getElementById('buscadorEmpleados').value.toLowerCase();
+        const tarjetas = document.querySelectorAll('.emp-card');
+        
+        tarjetas.forEach(tarjeta => {
+            const nombre = tarjeta.getAttribute('data-nombre');
+            if(nombre.includes(input)) {
+                tarjeta.classList.remove('hidden');
+            } else {
+                tarjeta.classList.add('hidden');
+            }
+        });
+    }
+
+    // 2. Lógica para seleccionar un empleado y pintar el panel derecho
+    function seleccionarEmpleado(id, nombre, cargo, hIngreso, hSalida, tol, dias, elementoCard) {
+        currentEmpId = id;
+        
+        // Transición de vistas (Ocultar Vacio, Mostrar Formulario)
+        document.getElementById('estadoVacio').classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('estadoFormulario').classList.remove('opacity-0', 'pointer-events-none');
+        
+        // Pintar Datos
+        document.getElementById('formNombre').innerText = nombre;
+        document.getElementById('formCargo').innerText = cargo;
+        document.getElementById('formAvatar').innerText = nombre.charAt(0);
+        document.getElementById('txtIdEmpleado').innerText = "ID de Registro: " + id;
+        
+        // Pintar Inputs
+        document.getElementById('inputIngreso').value = hIngreso;
+        document.getElementById('inputSalida').value = hSalida;
+        document.getElementById('inputTolerancia').value = tol;
+        document.getElementById('inputDias').value = dias;
+        
+        // Remarcar la tarjeta activa
+        const todasLasCards = document.querySelectorAll('.emp-card');
+        todasLasCards.forEach(card => {
+            card.classList.remove('bg-blue-50', 'border-blue-100', 'shadow-sm');
+            card.classList.add('border-transparent', 'hover:bg-slate-50');
+            // Resetear Avatar interno
+            const av = card.querySelector('.avatar-circulo');
+            if(av){
+                av.classList.remove('bg-blue-500', 'text-white', 'border-blue-600');
+                av.classList.add('bg-slate-100', 'text-slate-500', 'border-slate-200');
+            }
+        });
+        
+        // Activar la actual
+        elementoCard.classList.remove('border-transparent', 'hover:bg-slate-50');
+        elementoCard.classList.add('bg-blue-50', 'border-blue-100', 'shadow-sm');
+        const avActivo = elementoCard.querySelector('.avatar-circulo');
+        if(avActivo){
+            avActivo.classList.remove('bg-slate-100', 'text-slate-500', 'border-slate-200');
+            avActivo.classList.add('bg-blue-500', 'text-white', 'border-blue-600');
+        }
+    }
+
+    // 3. Funciones de guardado y notificaciones (Reutilizando tu lógica)
     function obtenerCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -137,16 +259,19 @@
         }, 3000);
     }
 
-    function guardarConfiguracion(emp_id, btn) {
-        const ingreso = document.getElementById(`ingreso-${emp_id}`).value;
-        const salida = document.getElementById(`salida-${emp_id}`).value;
-        const tolerancia = document.getElementById(`tolerancia-${emp_id}`).value;
-        const dias = document.getElementById(`dias-${emp_id}`).value;
+    function guardarConfiguracion() {
+        if(!currentEmpId) return;
+
+        const ingreso = document.getElementById('inputIngreso').value;
+        const salida = document.getElementById('inputSalida').value;
+        const tolerancia = document.getElementById('inputTolerancia').value;
+        const dias = document.getElementById('inputDias').value;
+        const btn = document.getElementById('btnGuardar');
 
         const textoOriginal = btn.innerHTML;
-        btn.innerHTML = `<svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span class="animate-pulse">Guardando</span>`;
+        btn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Guardando...`;
         btn.disabled = true;
-        btn.classList.add('opacity-70', 'cursor-not-allowed');
+        btn.classList.add('opacity-80', 'cursor-not-allowed');
 
         fetch("{% url 'configuracion_empleados' %}", {
             method: 'POST',
@@ -155,7 +280,7 @@
                 'X-CSRFToken': obtenerCookie('csrftoken')
             },
             body: JSON.stringify({
-                empleado_id: emp_id,
+                empleado_id: currentEmpId,
                 hora_ingreso: ingreso,
                 hora_salida: salida,
                 tolerancia_minutos: tolerancia,
@@ -166,6 +291,12 @@
         .then(data => {
             if (data.status === 'ok') {
                 mostrarToastNotificacion(data.mensaje);
+                
+                // Actualizar los atributos de la tarjeta en la lista para reflejar los cambios sin recargar
+                const activeCard = document.querySelector('.emp-card.bg-blue-50');
+                if(activeCard) {
+                    activeCard.setAttribute('onclick', `seleccionarEmpleado('${currentEmpId}', '${document.getElementById('formNombre').innerText}', '${document.getElementById('formCargo').innerText}', '${ingreso}', '${salida}', '${tolerancia}', '${dias}', this)`);
+                }
             } else {
                 alert("Error al guardar: " + data.mensaje);
             }
@@ -177,7 +308,7 @@
         .finally(() => {
             btn.innerHTML = textoOriginal;
             btn.disabled = false;
-            btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            btn.classList.remove('opacity-80', 'cursor-not-allowed');
         });
     }
 </script>
@@ -190,7 +321,7 @@
     .scrollbar-delgada::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
-    /* Centrar texto en los inputs tipo time y limpiar su apariencia */
+    /* Limpiar apariencia de inputs */
     input[type="time"]::-webkit-calendar-picker-indicator {
         cursor: pointer;
         opacity: 0.4;
@@ -199,8 +330,6 @@
     input[type="time"]::-webkit-calendar-picker-indicator:hover {
         opacity: 0.8;
     }
-    
-    /* Ocultar flechas numéricas por defecto en algunos navegadores */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
         opacity: 0.5;
