@@ -5,7 +5,7 @@
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-8 animate-fade-in relative z-10 font-sans">
     
     <!-- Encabezado Principal y Pestañas -->
-    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 w-full mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 w-full mb-10">
         <div class="space-y-2 shrink-0">
             <h1 class="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight leading-tight">Tablero de Control.</h1>
             <p class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Gestión de actividades del equipo operativo</p>
@@ -32,46 +32,43 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
         
         <!-- COLUMNA 1: PENDIENTES -->
-        <div class="bg-slate-50/70 rounded-[2.5rem] p-5 border border-slate-100 relative min-h-[500px]" id="col-pendientes">
-            <div class="flex items-center justify-between mb-6 px-2">
+        <div class="bg-slate-50/70 rounded-[2rem] p-5 border border-slate-100 relative min-h-[500px]" id="col-pendientes">
+            <div class="flex items-center justify-between mb-5 px-1">
                 <h3 class="text-[11px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-sm"></span> Pendientes
                 </h3>
+                <span class="bg-white text-slate-600 text-[10px] font-black px-2.5 py-1 rounded-lg border border-gray-200 shadow-sm">{{ pendientes|length }}</span>
             </div>
             
             <div class="space-y-4">
                 {% for tarea in pendientes %}
-                <div class="tarea-card flex-col bg-white p-5 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:border-slate-300 transition-all duration-300 hover:-translate-y-1 relative group" data-rango="{{ tarea.rango }}">
+                <div class="tarea-card flex-col bg-white p-5 rounded-[1.5rem] shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100 hover:border-gray-300 transition-all duration-300 hover:-translate-y-1 relative group flex flex-col" data-rango="{{ tarea.rango }}">
                     
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex gap-2">
-                            <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md 
-                                {% if tarea.rango == 'atrasada' %}bg-rose-100 text-rose-700 border border-rose-200
-                                {% elif tarea.rango == 'semana' %}bg-amber-100 text-amber-700 border border-amber-200
-                                {% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
-                                {{ tarea.rango_label }}
-                            </span>
-                            <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-white border border-gray-200 shadow-sm {% if tarea.prioridad == 'ALTA' %}text-rose-600{% elif tarea.prioridad == 'MEDIA' %}text-amber-600{% else %}text-blue-600{% endif %}">
-                                P. {{ tarea.get_prioridad_display }}
-                            </span>
-                        </div>
+                    <div class="flex justify-between items-start mb-3.5">
+                        {% if tarea.prioridad == 'ALTA' %}
+                            <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-rose-50 text-rose-600 border border-rose-100">Alta</span>
+                        {% elif tarea.prioridad == 'MEDIA' %}
+                            <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-100">Media</span>
+                        {% else %}
+                            <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">Baja</span>
+                        {% endif %}
                         
                         <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-rose-50 rounded-full p-1 -mr-1 -mt-1 shadow-sm border border-gray-100" title="Eliminar tarea">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </a>
                     </div>
 
-                    <h4 class="font-black text-slate-800 text-[14px] leading-snug mb-2 tracking-tight">{{ tarea.titulo }}</h4>
-                    <p class="text-[10px] font-medium text-slate-500 mb-6 line-clamp-3 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
+                    <h4 class="font-black text-slate-800 text-[13px] leading-snug mb-1.5 uppercase tracking-tight">{{ tarea.titulo }}</h4>
+                    <p class="text-[10px] font-medium text-slate-500 mb-5 line-clamp-2 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
                     
                     <div class="flex items-end justify-between mt-auto pt-4 border-t border-gray-50">
                         <div class="flex flex-col gap-1.5 w-2/3">
-                            <span class="text-[10px] font-black text-slate-700 uppercase truncate">
+                            <span class="text-[10px] font-black text-slate-700 uppercase truncate" title="{{ tarea.empleado.nombre_completo }}">
                                 <svg class="w-3.5 h-3.5 inline-block mr-0.5 text-slate-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 {{ tarea.empleado.nombre_completo }}
                             </span>
-                            <span class="text-[9px] font-bold {% if tarea.rango == 'atrasada' %}text-rose-500{% else %}text-gray-400{% endif %} uppercase flex items-center gap-1">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 {{ tarea.fecha_limite|date:"d M Y" }}
                             </span>
                         </div>
@@ -80,18 +77,18 @@
                         </a>
                     </div>
                 </div>
-                {% endfor %}
-
-                <div class="empty-state flex-col items-center justify-center pt-24 pb-10 opacity-40 {% if pendientes %}hidden{% else %}flex{% endif %}">
-                    <svg class="w-16 h-16 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center px-4">No hay tareas<br>en esta ventana</p>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center pt-20 opacity-40">
+                    <svg class="w-12 h-12 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sin tareas pendientes</p>
                 </div>
+                {% endfor %}
             </div>
         </div>
 
         <!-- COLUMNA 2: EN CURSO -->
-        <div class="bg-blue-50/40 rounded-[2.5rem] p-5 border border-blue-100/50 relative min-h-[500px]" id="col-progreso">
-            <div class="flex items-center justify-between mb-6 px-2">
+        <div class="bg-blue-50/40 rounded-[2rem] p-5 border border-blue-100/50 relative min-h-[500px]" id="col-progreso">
+            <div class="flex items-center justify-between mb-5 px-1">
                 <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest flex items-center gap-2.5">
                     <span class="relative flex h-2.5 w-2.5">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -99,14 +96,14 @@
                     </span>
                     En Curso
                 </h3>
+                <span class="bg-white text-[#0071e3] text-[10px] font-black px-2.5 py-1 rounded-lg border border-blue-100 shadow-sm">{{ en_progreso|length }}</span>
             </div>
             
             <div class="space-y-4">
                 {% for tarea in en_progreso %}
-                <div class="tarea-card flex-col bg-white p-5 rounded-[2rem] shadow-[0_12px_40px_rgb(0,113,227,0.08)] border border-blue-100 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 relative group" data-rango="{{ tarea.rango }}">
+                <div class="tarea-card flex-col bg-white p-5 rounded-[1.5rem] shadow-[0_8px_30px_rgb(0,113,227,0.06)] border border-blue-100 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 relative group flex flex-col" data-rango="{{ tarea.rango }}">
                     
-                    <!-- Fila Superior: Badge y Borrar AHORA CON PRIORIDAD -->
-                    <div class="flex justify-between items-start mb-4">
+                    <div class="flex justify-between items-start mb-3.5">
                         <div class="flex gap-2">
                             <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md 
                                 {% if tarea.rango == 'atrasada' %}bg-rose-100 text-rose-700 border border-rose-200
@@ -114,7 +111,6 @@
                                 {% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
                                 {{ tarea.rango_label }}
                             </span>
-                            <!-- ETIQUETA DE PRIORIDAD EN "EN CURSO" AÑADIDA -->
                             <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-white border border-gray-200 shadow-sm {% if tarea.prioridad == 'ALTA' %}text-rose-600{% elif tarea.prioridad == 'MEDIA' %}text-amber-600{% else %}text-blue-600{% endif %}">
                                 P. {{ tarea.get_prioridad_display }}
                             </span>
@@ -125,12 +121,12 @@
                         </a>
                     </div>
 
-                    <h4 class="font-black text-[#0071e3] text-[14px] leading-snug mb-2 tracking-tight">{{ tarea.titulo }}</h4>
-                    <p class="text-[10px] font-medium text-slate-500 mb-6 line-clamp-3 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
+                    <h4 class="font-black text-[#0071e3] text-[13px] leading-snug mb-1.5 uppercase tracking-tight">{{ tarea.titulo }}</h4>
+                    <p class="text-[10px] font-medium text-slate-500 mb-5 line-clamp-2 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
                     
                     <div class="flex items-end justify-between mt-auto pt-4 border-t border-blue-50">
                         <div class="flex flex-col gap-1.5 w-2/3">
-                            <span class="text-[10px] font-black text-[#0071e3] uppercase truncate">
+                            <span class="text-[10px] font-black text-[#0071e3] uppercase truncate" title="{{ tarea.empleado.nombre_completo }}">
                                 <svg class="w-3.5 h-3.5 inline-block mr-0.5 text-blue-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 {{ tarea.empleado.nombre_completo }}
                             </span>
@@ -139,17 +135,17 @@
                                 {{ tarea.fecha_limite|date:"d M Y" }}
                             </span>
                         </div>
-                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-colors uppercase tracking-widest flex items-center gap-1 border border-emerald-100 shrink-0">
+                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest flex items-center gap-1 border border-emerald-100 shrink-0">
                             Finalizar <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                         </a>
                     </div>
                 </div>
-                {% endfor %}
-
-                <div class="empty-state flex-col items-center justify-center pt-24 pb-10 opacity-50 {% if en_progreso %}hidden{% else %}flex{% endif %}">
-                    <svg class="w-16 h-16 text-[#0071e3]/40 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="text-[10px] font-bold text-[#0071e3]/60 uppercase tracking-widest text-center px-4">Ninguna tarea<br>en proceso</p>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center pt-20 opacity-50">
+                    <svg class="w-12 h-12 text-[#0071e3]/40 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-[10px] font-bold text-[#0071e3]/60 uppercase tracking-widest">Ninguna tarea en progreso</p>
                 </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -212,7 +208,7 @@
 
         <!-- Formulario (Scrolleable si la pantalla es chica) -->
         <div class="overflow-y-auto scrollbar-delgada flex-1">
-            <form action="{% url 'crear_tarea' %}" method="POST" class="p-10 space-y-7">
+            <form action="{% url 'crear_tarea' %}" method="POST" class="p-10 space-y-7 relative">
                 {% csrf_token %}
                 
                 <div>
@@ -228,7 +224,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Asignar a</label>
-                        <select name="empleado_id" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                        <select name="empleado_id" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer select-custom">
                             <option value="" disabled selected>Seleccione Colaborador</option>
                             {% for emp in empleados %}
                             <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
@@ -237,7 +233,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Nivel de Prioridad</label>
-                        <select name="prioridad" class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                        <select name="prioridad" class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer select-custom">
                             <option value="ALTA">Urgentísimo (Alta)</option>
                             <option value="MEDIA" selected>Normal (Media)</option>
                             <option value="BAJA">Rutina (Baja)</option>
@@ -245,23 +241,64 @@
                     </div>
                 </div>
                 
-                <!-- NUEVO: SELECCIÓN RÁPIDA DE PLAZO -->
+                <!-- SELECCIÓN RÁPIDA Y DATE PICKER PERSONALIZADO -->
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Plazo de Ejecución</label>
                     </div>
                     
-                    <div class="flex gap-3 mb-4">
-                        <button type="button" onclick="setPlazo('semana', this)" class="plazo-btn flex-1 py-3 rounded-xl border border-blue-200 bg-blue-50 text-[#0071e3] text-[10px] font-black uppercase tracking-widest transition-all">Esta Semana</button>
-                        <button type="button" onclick="setPlazo('mes', this)" class="plazo-btn flex-1 py-3 rounded-xl border border-gray-200 bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-100">Este Mes</button>
+                    <div class="flex gap-3 mb-5">
+                        <button type="button" onclick="setPlazo('semana', this)" class="plazo-btn flex-1 py-3.5 rounded-xl border border-blue-200 bg-blue-50 text-[#0071e3] text-[10px] font-black uppercase tracking-widest transition-all">Esta Semana</button>
+                        <button type="button" onclick="setPlazo('mes', this)" class="plazo-btn flex-1 py-3.5 rounded-xl border border-gray-200 bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-100">Este Mes</button>
                     </div>
 
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fecha Límite (Deadline) Exacta</label>
-                    <input type="date" name="fecha_limite" id="inputFechaLimite" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm cursor-pointer uppercase tracking-widest">
+                    
+                    <!-- CALENDARIO CUSTOM -->
+                    <div class="relative">
+                        <div id="displayFechaLimite" onclick="toggleDatePicker()" class="w-full h-14 px-5 flex items-center justify-between bg-slate-50 border border-gray-200 rounded-2xl text-[13px] font-black text-slate-800 cursor-pointer hover:border-[#0071e3] hover:shadow-[0_4px_12px_rgba(0,113,227,0.1)] transition-all shadow-sm uppercase tracking-widest">
+                            Seleccionar Fecha
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        </div>
+                        
+                        <!-- Input real oculto -->
+                        <input type="hidden" name="fecha_limite" id="inputFechaLimite" value="{{ hoy|date:'Y-m-d' }}" required>
+                        
+                        <!-- Popover Flotante -->
+                        <div id="popoverDatePicker" class="hidden absolute bottom-[115%] left-0 w-[21rem] bg-white rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-gray-100 z-[120] p-6 mb-2 origin-bottom transition-all">
+                            
+                            <!-- Navegación de Meses -->
+                            <div class="flex items-center justify-between mb-5 px-1">
+                                <button type="button" onclick="cambiarMesPicker(-1)" class="p-2 text-gray-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <div class="text-sm font-black text-slate-800 uppercase tracking-widest" id="mesAnioPicker">Mes 2026</div>
+                                <button type="button" onclick="cambiarMesPicker(1)" class="p-2 text-gray-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                            
+                            <!-- Días de la semana -->
+                            <div class="grid grid-cols-7 gap-1 mb-2">
+                                <div class="text-center text-[10px] font-black text-gray-400 uppercase">Lu</div>
+                                <div class="text-center text-[10px] font-black text-gray-400 uppercase">Ma</div>
+                                <div class="text-center text-[10px] font-black text-gray-400 uppercase">Mi</div>
+                                <div class="text-center text-[10px] font-black text-gray-400 uppercase">Ju</div>
+                                <div class="text-center text-[10px] font-black text-gray-400 uppercase">Vi</div>
+                                <div class="text-center text-[10px] font-black text-rose-400 uppercase">Sa</div>
+                                <div class="text-center text-[10px] font-black text-rose-400 uppercase">Do</div>
+                            </div>
+                            
+                            <!-- Grilla Numérica -->
+                            <div class="grid grid-cols-7 gap-1" id="gridDiasPicker">
+                                <!-- JS inserta días aquí -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="pt-6">
-                    <button type="submit" class="w-full h-14 bg-slate-900 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-[#0071e3] transition-all shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[#0071e3]/40 active:scale-95 flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full h-14 bg-slate-900 text-white font-black text-[11px] uppercase tracking-widest rounded-2xl hover:bg-[#0071e3] transition-all shadow-[0_8px_20px_-6px_rgba(0,0,0,0.3)] hover:shadow-[#0071e3]/40 active:scale-95 flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
                         Crear y Asignar
                     </button>
@@ -272,7 +309,9 @@
 </div>
 
 <script>
+    // ==========================================
     // 1. LÓGICA DE FILTRADO POR PESTAÑAS (TABS)
+    // ==========================================
     function filtrarKanban(rangoSeleccionado) {
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('bg-white', 'text-[#0071e3]', 'shadow-[0_2px_10px_rgba(0,0,0,0.05)]', 'active');
@@ -321,12 +360,117 @@
         });
     }
 
-    // 2. LÓGICA DEL MODAL Y CÁLCULO DE FECHAS
+    // ==========================================
+    // 2. LÓGICA DEL CALENDARIO CUSTOM
+    // ==========================================
+    let currentNavDate = new Date(); 
+    let selectedDate = new Date();   
+
+    function initDatePicker() {
+        const val = document.getElementById('inputFechaLimite').value;
+        if(val) {
+            const parts = val.split('-');
+            // Cuidado: El mes en JS va de 0 a 11
+            selectedDate = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+            currentNavDate = new Date(selectedDate);
+            actualizarDisplayFecha();
+        }
+    }
+
+    function toggleDatePicker() {
+        const pop = document.getElementById('popoverDatePicker');
+        pop.classList.toggle('hidden');
+        if(!pop.classList.contains('hidden')){
+            currentNavDate = new Date(selectedDate); // Centrar en el mes actual al abrir
+            renderDatePicker();
+        }
+    }
+
+    function cambiarMesPicker(delta) {
+        currentNavDate.setMonth(currentNavDate.getMonth() + delta);
+        renderDatePicker();
+    }
+
+    function seleccionarDia(anio, mes, dia) {
+        selectedDate = new Date(anio, mes, dia);
+        
+        const y = selectedDate.getFullYear();
+        const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const d = String(selectedDate.getDate()).padStart(2, '0');
+        
+        document.getElementById('inputFechaLimite').value = `${y}-${m}-${d}`;
+        actualizarDisplayFecha();
+        
+        document.getElementById('popoverDatePicker').classList.add('hidden');
+        
+        // Quitar el color azul de los botones rápidos ya que pusiste una fecha custom
+        document.querySelectorAll('.plazo-btn').forEach(b => {
+            b.classList.remove('bg-blue-50', 'border-blue-200', 'text-[#0071e3]');
+            b.classList.add('bg-slate-50', 'border-gray-200', 'text-slate-500');
+        });
+    }
+
+    function actualizarDisplayFecha() {
+        const mNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const d = String(selectedDate.getDate()).padStart(2, '0');
+        const m = mNames[selectedDate.getMonth()];
+        const y = selectedDate.getFullYear();
+        document.getElementById('displayFechaLimite').innerText = `${d} de ${m}, ${y}`;
+    }
+
+    function renderDatePicker() {
+        const y = currentNavDate.getFullYear();
+        const m = currentNavDate.getMonth();
+        const mNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        
+        document.getElementById('mesAnioPicker').innerText = `${mNames[m]} ${y}`;
+        
+        const primerDia = new Date(y, m, 1).getDay();
+        const diasEnMes = new Date(y, m + 1, 0).getDate();
+        
+        let offset = primerDia === 0 ? 6 : primerDia - 1; // Hacer que Lunes sea el inicio
+        
+        const grid = document.getElementById('gridDiasPicker');
+        grid.innerHTML = '';
+        
+        // Celdas vacías
+        for(let i=0; i<offset; i++){
+            grid.innerHTML += `<div class="h-9"></div>`;
+        }
+        
+        const hoy = new Date();
+        for(let i=1; i<=diasEnMes; i++){
+            const esHoy = (hoy.getDate()===i && hoy.getMonth()===m && hoy.getFullYear()===y);
+            const esSeleccionado = (selectedDate.getDate()===i && selectedDate.getMonth()===m && selectedDate.getFullYear()===y);
+            
+            let extraClass = "text-slate-700 hover:bg-slate-100 border border-transparent hover:border-slate-200";
+            if (esSeleccionado) {
+                extraClass = "bg-[#0071e3] text-white shadow-md border-[#0071e3] ring-2 ring-[#0071e3] ring-offset-2";
+            } else if (esHoy) {
+                extraClass = "text-[#0071e3] border-[#0071e3]/30 bg-blue-50/50 hover:bg-blue-50";
+            }
+
+            grid.innerHTML += `<button type="button" onclick="seleccionarDia(${y}, ${m}, ${i})" class="h-10 w-full rounded-xl text-[13px] font-black transition-all flex items-center justify-center ${extraClass}">${i}</button>`;
+        }
+    }
+
+    // Cerrar Picker si se hace clic afuera
+    document.addEventListener('click', function(e) {
+        const pop = document.getElementById('popoverDatePicker');
+        const disp = document.getElementById('displayFechaLimite');
+        if (!pop.contains(e.target) && !disp.contains(e.target) && !pop.classList.contains('hidden')) {
+            pop.classList.add('hidden');
+        }
+    });
+
+    // ==========================================
+    // 3. LÓGICA DEL MODAL Y PLAZOS RÁPIDOS
+    // ==========================================
     function abrirModalTarea() {
         const modal = document.getElementById('modalTarea');
         const content = document.getElementById('modalContent');
         
-        // Al abrir, forzamos por defecto que calcule el fin de semana actual
+        initDatePicker();
         setPlazo('semana', document.querySelector('.plazo-btn'));
 
         modal.classList.remove('hidden');
@@ -345,11 +489,12 @@
         
         setTimeout(() => {
             modal.classList.add('hidden');
+            // Cierra el picker por si quedó abierto
+            document.getElementById('popoverDatePicker').classList.add('hidden');
         }, 300);
     }
 
     function setPlazo(tipo, btn) {
-        // Estilos visuales de los botones
         document.querySelectorAll('.plazo-btn').forEach(b => {
             b.classList.remove('bg-blue-50', 'border-blue-200', 'text-[#0071e3]');
             b.classList.add('bg-slate-50', 'border-gray-200', 'text-slate-500');
@@ -357,27 +502,27 @@
         btn.classList.remove('bg-slate-50', 'border-gray-200', 'text-slate-500');
         btn.classList.add('bg-blue-50', 'border-blue-200', 'text-[#0071e3]');
 
-        // Cálculo inteligente de fechas
-        const inputDate = document.getElementById('inputFechaLimite');
         const hoy = new Date();
         
         if (tipo === 'semana') {
-            // Calcular el próximo domingo
             const diaSemanaActual = hoy.getDay() === 0 ? 7 : hoy.getDay(); 
             const diasFaltantes = 7 - diaSemanaActual;
             hoy.setDate(hoy.getDate() + diasFaltantes);
         } else if (tipo === 'mes') {
-            // Calcular el último día del mes actual
             hoy.setMonth(hoy.getMonth() + 1);
             hoy.setDate(0); 
         }
         
-        // Formatear a YYYY-MM-DD para el input type="date"
-        const anio = hoy.getFullYear();
-        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
-        const dia = String(hoy.getDate()).padStart(2, '0');
+        selectedDate = new Date(hoy);
+        currentNavDate = new Date(hoy);
         
-        inputDate.value = `${anio}-${mes}-${dia}`;
+        const anio = hoy.getFullYear();
+        const mesStr = String(hoy.getMonth() + 1).padStart(2, '0');
+        const diaStr = String(hoy.getDate()).padStart(2, '0');
+        
+        document.getElementById('inputFechaLimite').value = `${anio}-${mesStr}-${diaStr}`;
+        actualizarDisplayFecha();
+        renderDatePicker(); // Sincroniza visualmente si el picker está abierto
     }
 </script>
 
@@ -385,24 +530,11 @@
     .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     
-    select {
+    .select-custom {
         background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
         background-position: right 1rem center;
         background-repeat: no-repeat;
         background-size: 1.5em 1.5em;
-    }
-    
-    input[type="date"]::-webkit-calendar-picker-indicator {
-        background: transparent;
-        bottom: 0;
-        color: transparent;
-        cursor: pointer;
-        height: auto;
-        left: 0;
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: auto;
     }
     
     .scrollbar-delgada::-webkit-scrollbar { width: 6px; height: 6px; }
