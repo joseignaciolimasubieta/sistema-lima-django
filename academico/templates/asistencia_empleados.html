@@ -13,83 +13,34 @@
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
             <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
+                <!-- Botón Configuración Mejorado -->
                 <a href="{% url 'configuracion_empleados' %}" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
                     <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Configuración
                 </a>
 
+                <!-- Buscador Modernizado con botón de Limpiar -->
                 <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all">
                     <div class="relative w-full h-8 flex items-center">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR EMPLEADO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-blue-600 placeholder-gray-400">
+                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR EMPLEADO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-black placeholder-gray-400">
                     </div>
                     <button type="submit" class="h-8 px-5 bg-slate-900 hover:bg-[#0071e3] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">Buscar</button>
+                    
+                    {% if buscar %}
+                    <a href="?mes_buscar={{ mes_buscar }}" class="h-8 w-8 flex items-center justify-center bg-slate-100 hover:bg-rose-50 hover:text-rose-500 text-slate-500 rounded-full transition-colors ml-1.5 shrink-0" title="Quitar filtro">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </a>
+                    {% endif %}
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- RECUADROS EN VIVO MODERNIZADOS -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600"></div>
-            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
-                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white"></span></span>
-                Últimas Entradas (Hoy)
-            </h3>
-            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
-                {% for a in ultimas_entradas %}
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors border border-gray-100 hover:border-emerald-100">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">{{ a.get_estado_display }}</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="flex flex-col items-center justify-center h-24 opacity-40">
-                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-orange-600"></div>
-            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
-                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-sm border border-white"></span></span>
-                Últimas Salidas (Hoy)
-            </h3>
-            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
-                {% for a in ultimas_salidas %}
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-orange-50/50 transition-colors border border-gray-100 hover:border-orange-100">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">Salida Registrada</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="flex flex-col items-center justify-center h-24 opacity-40">
-                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
     <!-- ============================================================== -->
-    <!-- NUEVO: DASHBOARD ESTADÍSTICO MENSUAL -->
+    <!-- DASHBOARD ESTADÍSTICO MENSUAL -->
     <!-- ============================================================== -->
     <div class="mb-10">
         <!-- Panel de Tarjetas de KPIs -->
@@ -188,38 +139,95 @@
         </div>
     </div>
 
+    <!-- RECUADROS EN VIVO MODERNIZADOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600"></div>
+            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white"></span></span>
+                Últimas Entradas (Hoy)
+            </h3>
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
+                {% for a in ultimas_entradas %}
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors border border-gray-100 hover:border-emerald-100">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">{{ a.get_estado_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-orange-600"></div>
+            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-sm border border-white"></span></span>
+                Últimas Salidas (Hoy)
+            </h3>
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
+                {% for a in ultimas_salidas %}
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-orange-50/50 transition-colors border border-gray-100 hover:border-orange-100">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">Salida Registrada</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <!-- MATRIZ DE ASISTENCIA REFINADA CON FILTRO CALENDARIO -->
     <div class="bg-white rounded-[2rem] border border-gray-200 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-10">
         
-        <!-- CABECERA DE LA TABLA (NUEVO CALENDARIO POPOVER) -->
-        <div class="p-5 border-b border-gray-100 bg-white flex justify-end items-center relative z-30">
+        <!-- CABECERA DE LA TABLA (NUEVO CALENDARIO POPOVER MINIMALISTA) -->
+        <div class="p-6 border-b border-gray-100 bg-white flex justify-end items-center relative z-30">
             <form method="GET" id="formFiltroMes" class="relative">
-                <!-- Este input invisible almacena el valor YYYY-MM para enviarlo a Django -->
+                <!-- Input invisible almacena el valor YYYY-MM para enviarlo a Django -->
                 <input type="hidden" name="mes_buscar" id="inputMesBuscar" value="{{ mes_buscar }}">
                 
                 <!-- Botón Desplegable -->
                 <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="h-10 px-5 flex items-center gap-3 bg-white border border-gray-200 rounded-full hover:bg-slate-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10">
                     <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     <span id="txtMesSeleccionado" class="text-[11px] font-black text-slate-700 tracking-widest uppercase">Cargando...</span>
-                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
 
-                <!-- Menú Popover (Estilo SaaS / Grid de Meses) -->
-                <div id="popoverMes" class="hidden absolute right-0 mt-2 w-[22rem] bg-white rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.12)] border border-gray-100 z-50 p-6 transform origin-top-right transition-all">
+                <!-- Menú Popover Minimalista -->
+                <div id="popoverMes" class="hidden absolute right-0 mt-3 w-[20rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 z-50 p-6 transform origin-top-right transition-all">
                     
-                    <!-- Controles de Año -->
+                    <!-- Controles de Año (Elegante) -->
                     <div class="flex items-center justify-between mb-6 px-1">
-                        <button type="button" onclick="cambiarAnio(-1)" class="p-2 text-gray-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                        <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg>
                         </button>
-                        <span id="pickerAnio" class="text-lg font-black text-slate-800 tracking-widest">2026</span>
-                        <button type="button" onclick="cambiarAnio(1)" class="p-2 text-gray-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        <span id="pickerAnio" class="text-[1.35rem] font-light text-slate-800 tracking-wide">2026</span>
+                        <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg>
                         </button>
                     </div>
                     
-                    <!-- Grilla de Meses -->
-                    <div class="grid grid-cols-3 gap-2.5" id="gridMeses">
+                    <!-- Grilla de Meses (Texto Ligero) -->
+                    <div class="grid grid-cols-3 gap-y-4 gap-x-2" id="gridMeses">
                         <!-- Generado dinámicamente por JavaScript -->
                     </div>
                 </div>
@@ -374,7 +382,7 @@
 
 <script>
     // ==========================================
-    // 1. LÓGICA DEL CALENDARIO POPOVER
+    // 1. LÓGICA DEL CALENDARIO POPOVER MINIMALISTA
     // ==========================================
     const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     let anioSeleccionado = new Date().getFullYear();
@@ -422,16 +430,15 @@
         
         for(let i = 1; i <= 12; i++) {
             const isSelected = (anioNavegacion === anioSeleccionado && i === mesSeleccionado);
-            const baseClass = "py-3 rounded-[0.85rem] text-[11.5px] font-bold tracking-wide transition-all ";
+            const baseClass = "py-2.5 rounded-lg text-[14px] font-normal tracking-wide transition-all ";
             const extraClass = isSelected 
-                ? "bg-white border-2 border-[#0071e3] text-[#0071e3] shadow-[0_4px_12px_rgba(0,113,227,0.15)] scale-[1.02]" 
-                : "text-slate-600 bg-slate-50/50 hover:bg-slate-100 border-2 border-transparent hover:border-slate-200";
+                ? "border border-gray-400 text-slate-800 shadow-sm" 
+                : "text-slate-600 border border-transparent hover:bg-slate-50 hover:text-black";
                 
             grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
         }
     }
 
-    // Cierra el popover si haces clic afuera
     document.addEventListener('click', function(event) {
         const pop = document.getElementById('popoverMes');
         if (!event.target.closest('#formFiltroMes') && !pop.classList.contains('hidden')) {
