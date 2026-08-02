@@ -43,14 +43,17 @@
                             <a href="{% url 'consultora' %}" class="apple-nav-link {% if url_name == 'consultora' or 'servicio' in url_name or 'cliente' in url_name %}apple-nav-link-active{% endif %}">Consultora Lima</a>
                             <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                             <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
-                        {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados lista_tareas lista_anticipos crear_anticipo eliminar_anticipo' %}
+                        {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados lista_tareas lista_anticipos crear_anticipo eliminar_anticipo configuracion_asistencia' %}
+    
                             <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
                             <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
                             
                             <!-- AHORA ANTICIPOS PERTENECE EXCLUSIVAMENTE A PLANILLAS SALARIALES -->
                             <a href="{% url 'planillas' %}" class="apple-nav-link {% if url_name == 'planillas' or url_name == 'buscar_boletas' or url_name == 'crear_pago' or url_name == 'editar_pago' or 'anticipo' in url_name %}apple-nav-link-active{% endif %}">Planillas Salariales</a>
                             
-                            <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if url_name == 'asistencia_empleados' %}apple-nav-link-active{% endif %}">Asistencia</a>
+                            <!-- ACTUALIZACIÓN AQUÍ: Condición ampliada para el enlace de Asistencia -->
+                            <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if url_name == 'asistencia_empleados' or url_name == 'configuracion_asistencia' %}apple-nav-link-active{% endif %}">Asistencia</a>
+                            
                             <a href="{% url 'lista_prestamos' %}" class="apple-nav-link {% if url_name == 'lista_prestamos' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' %}apple-nav-link-active{% endif %}">Financiera</a>
                             <a href="{% url 'lista_tareas' %}" class="apple-nav-link {% if 'tarea' in url_name %}apple-nav-link-active{% endif %}">Tareas</a>
                         {% else %}
