@@ -39,6 +39,63 @@
         </div>
     </div>
 
+    <!-- RECUADROS EN VIVO MODERNIZADOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600"></div>
+            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white"></span></span>
+                Últimas Entradas (Hoy)
+            </h3>
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
+                {% for a in ultimas_entradas %}
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors border border-gray-100 hover:border-emerald-100">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">{{ a.get_estado_display }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-orange-600"></div>
+            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
+                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-sm border border-white"></span></span>
+                Últimas Salidas (Hoy)
+            </h3>
+            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
+                {% for a in ultimas_salidas %}
+                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-orange-50/50 transition-colors border border-gray-100 hover:border-orange-100">
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                        <span class="text-sm font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
+                        <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">Salida Registrada</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="flex flex-col items-center justify-center h-24 opacity-40">
+                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================================== -->
     <!-- DASHBOARD ESTADÍSTICO MENSUAL -->
     <!-- ============================================================== -->
@@ -138,64 +195,6 @@
             </div>
         </div>
     </div>
-
-    <!-- RECUADROS EN VIVO MODERNIZADOS -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
-        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-emerald-400 to-emerald-600"></div>
-            <h3 class="text-xs font-black text-emerald-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
-                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-sm border border-white"></span></span>
-                Últimas Entradas (Hoy)
-            </h3>
-            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
-                {% for a in ultimas_entradas %}
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 transition-colors border border-gray-100 hover:border-emerald-100">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-black text-emerald-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-0.5">{{ a.get_estado_display }}</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="flex flex-col items-center justify-center h-24 opacity-40">
-                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha ingresado aún</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="bg-white rounded-[2rem] border border-gray-200 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-orange-400 to-orange-600"></div>
-            <h3 class="text-xs font-black text-orange-600 uppercase tracking-widest mb-5 flex items-center gap-2 pl-2">
-                <span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-orange-500 shadow-sm border border-white"></span></span>
-                Últimas Salidas (Hoy)
-            </h3>
-            <div class="space-y-2.5 max-h-48 overflow-y-auto scrollbar-delgada pr-2 pl-2">
-                {% for a in ultimas_salidas %}
-                <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 hover:bg-orange-50/50 transition-colors border border-gray-100 hover:border-orange-100">
-                    <div class="flex flex-col">
-                        <span class="text-xs font-bold text-gray-900 tracking-tight">{{ a.empleado.nombre_completo }}</span>
-                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">{{ a.empleado.cargo }}</span>
-                    </div>
-                    <div class="flex flex-col items-end">
-                        <span class="text-sm font-black text-orange-600">{{ a.hora|time:"H:i" }}</span>
-                        <span class="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">Salida Registrada</span>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="flex flex-col items-center justify-center h-24 opacity-40">
-                    <svg class="w-6 h-6 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Nadie ha salido aún</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
     <!-- MATRIZ DE ASISTENCIA REFINADA CON FILTRO CALENDARIO -->
     <div class="bg-white rounded-[2rem] border border-gray-200 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-10">
         
