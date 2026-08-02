@@ -13,13 +13,11 @@
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
             <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
-                <!-- Botón Configuración Mejorado -->
                 <a href="{% url 'configuracion_empleados' %}" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
                     <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Configuración
                 </a>
 
-                <!-- Buscador Modernizado -->
                 <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all">
                     <div class="relative w-full h-8 flex items-center">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
@@ -33,103 +31,43 @@
         </div>
     </div>
 
-    <!-- ============================================================== -->
-    <!-- NUEVO: DASHBOARD ESTADÍSTICO MENSUAL -->
-    <!-- ============================================================== -->
-    <div class="mb-10">
-        <!-- Panel de Tarjetas de KPIs -->
-        <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3">
-            <div class="bg-white border border-emerald-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-emerald-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-emerald-100 group-hover:scale-110 transition-transform">A</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Asistencia</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.A }}</p>
-            </div>
-            
-            <div class="bg-white border border-amber-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-amber-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-amber-100 group-hover:scale-110 transition-transform">R</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Retraso</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.R }}</p>
-            </div>
-
-            <div class="bg-white border border-rose-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-rose-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-rose-100 group-hover:scale-110 transition-transform">F</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Falta</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.F }}</p>
-            </div>
-
-            <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-blue-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-blue-100 group-hover:scale-110 transition-transform">P</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Permiso</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.P }}</p>
-            </div>
-
-            <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-gray-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-gray-200 group-hover:scale-110 transition-transform">D</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Descanso</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.D }}</p>
-            </div>
-
-            <div class="bg-white border border-purple-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-purple-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-purple-100 group-hover:scale-110 transition-transform">C</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Comisión</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.C }}</p>
-            </div>
-
-            <div class="bg-white border border-teal-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-teal-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-teal-100 group-hover:scale-110 transition-transform">V</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Vacaciones</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.V }}</p>
-            </div>
-
-            <div class="bg-white border border-orange-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-orange-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-orange-50 text-orange-600 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-orange-100 group-hover:scale-110 transition-transform">S</span>
-                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Cesantía</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.S }}</p>
-            </div>
-
-            <div class="bg-indigo-50/30 border border-indigo-100 rounded-2xl p-4 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden group hover:-translate-y-1 transition-transform">
-                <div class="absolute bottom-0 left-0 w-full h-1.5 bg-indigo-500"></div>
-                <span class="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[13px] mb-2 shadow-sm border border-indigo-200 group-hover:scale-110 transition-transform">E</span>
-                <p class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Feriado</p>
-                <p class="text-xl font-black text-slate-800 leading-none">{{ totales_mes.E }}</p>
-            </div>
+    <!-- NOMENCLATURA ELEGANTE -->
+    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mb-8">
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 font-black flex items-center justify-center text-[8px] border border-emerald-200">A</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Asistencia</span>
         </div>
-
-        <!-- Barra de Distribución Proporcional -->
-        <div class="mt-4 bg-white border border-gray-200 rounded-[1.5rem] p-4 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3 shrink-0">
-                <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-xs font-black text-slate-800 uppercase tracking-widest">Distribución</h3>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{{ total_registros }} registros en el periodo</p>
-                </div>
-            </div>
-            
-            <div class="w-full h-8 flex rounded-xl overflow-hidden gap-0.5 bg-slate-100 border border-slate-200/50 shadow-inner p-0.5">
-                {% if total_registros > 0 %}
-                    {% if totales_mes.A > 0 %}<div style="width: {{ porcentajes.A }}%" class="bg-emerald-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Asistencia: {{ totales_mes.A }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.A|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.R > 0 %}<div style="width: {{ porcentajes.R }}%" class="bg-amber-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Retraso: {{ totales_mes.R }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.R|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.F > 0 %}<div style="width: {{ porcentajes.F }}%" class="bg-rose-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Falta: {{ totales_mes.F }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.F|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.P > 0 %}<div style="width: {{ porcentajes.P }}%" class="bg-blue-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Permiso: {{ totales_mes.P }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.P|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.D > 0 %}<div style="width: {{ porcentajes.D }}%" class="bg-gray-400 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Descanso: {{ totales_mes.D }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.D|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.C > 0 %}<div style="width: {{ porcentajes.C }}%" class="bg-purple-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Comisión: {{ totales_mes.C }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.C|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.V > 0 %}<div style="width: {{ porcentajes.V }}%" class="bg-teal-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Vacaciones: {{ totales_mes.V }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.V|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.S > 0 %}<div style="width: {{ porcentajes.S }}%" class="bg-orange-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Cesantía: {{ totales_mes.S }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.S|floatformat:0 }}%</span></div>{% endif %}
-                    {% if totales_mes.E > 0 %}<div style="width: {{ porcentajes.E }}%" class="bg-indigo-500 rounded-md hover:brightness-110 transition-all cursor-crosshair flex items-center justify-center overflow-hidden" title="Feriado: {{ totales_mes.E }}"><span class="text-[9px] font-black text-white mix-blend-overlay">{{ porcentajes.E|floatformat:0 }}%</span></div>{% endif %}
-                {% else %}
-                    <div class="w-full h-full bg-transparent flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Esperando datos del periodo...</div>
-                {% endif %}
-            </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-amber-100 text-amber-700 font-black flex items-center justify-center text-[8px] border border-amber-200">R</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Retraso</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-rose-100 text-rose-700 font-black flex items-center justify-center text-[8px] border border-rose-200">F</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Falta</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center text-[8px] border border-blue-200">P</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Permiso</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-gray-100 text-gray-600 font-black flex items-center justify-center text-[8px] border border-gray-200">D</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Descanso</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-purple-100 text-purple-700 font-black flex items-center justify-center text-[8px] border border-purple-200">C</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Comisión</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-teal-100 text-teal-700 font-black flex items-center justify-center text-[8px] border border-teal-200">V</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Vacaciones</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-orange-100 text-orange-700 font-black flex items-center justify-center text-[8px] border border-orange-200">S</span>
+            <span class="text-[9px] font-black text-gray-500 uppercase tracking-widest pr-1">Cesantía</span>
+        </div>
+        <div class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50/50 border border-indigo-100 rounded-full shadow-sm hover:shadow-md transition-all cursor-default">
+            <span class="w-4 h-4 rounded-full bg-indigo-100 text-indigo-700 font-black flex items-center justify-center text-[8px] border border-indigo-200">E</span>
+            <span class="text-[9px] font-black text-indigo-600 uppercase tracking-widest pr-1">Feriado</span>
         </div>
     </div>
 
@@ -190,13 +128,41 @@
         </div>
     </div>
 
-    <!-- MATRIZ DE ASISTENCIA REFINADA -->
+    <!-- MATRIZ DE ASISTENCIA REFINADA CON FILTRO CALENDARIO -->
     <div class="bg-white rounded-[2rem] border border-gray-200 overflow-hidden relative shadow-[0_8px_30px_rgb(0,0,0,0.04)] mb-10">
         
+        <!-- CABECERA DE LA TABLA (NUEVO CALENDARIO POPOVER) -->
         <div class="p-5 border-b border-gray-100 bg-white flex justify-end items-center relative z-30">
-            <form method="GET" class="flex gap-2">
-                <input type="month" name="mes_buscar" value="{{ mes_buscar }}" class="h-10 px-4 text-xs font-bold text-gray-700 bg-slate-50 border border-gray-200 rounded-full outline-none focus:bg-white focus:border-[#0071e3] focus:ring-2 focus:ring-[#0071e3]/10 transition-all shadow-sm">
-                <button type="submit" class="h-10 px-6 bg-slate-900 hover:bg-[#0071e3] transition-colors text-white text-[10px] font-black rounded-full uppercase tracking-widest shadow-sm">Filtrar Mes</button>
+            <form method="GET" id="formFiltroMes" class="relative">
+                <!-- Este input invisible almacena el valor YYYY-MM para enviarlo a Django -->
+                <input type="hidden" name="mes_buscar" id="inputMesBuscar" value="{{ mes_buscar }}">
+                
+                <!-- Botón Desplegable -->
+                <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="h-10 px-5 flex items-center gap-3 bg-white border border-gray-200 rounded-full hover:bg-slate-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10">
+                    <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span id="txtMesSeleccionado" class="text-[11px] font-black text-slate-700 tracking-widest uppercase">Cargando...</span>
+                    <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Menú Popover (Estilo SaaS / Grid de Meses) -->
+                <div id="popoverMes" class="hidden absolute right-0 mt-2 w-[22rem] bg-white rounded-3xl shadow-[0_15px_50px_rgba(0,0,0,0.12)] border border-gray-100 z-50 p-6 transform origin-top-right transition-all">
+                    
+                    <!-- Controles de Año -->
+                    <div class="flex items-center justify-between mb-6 px-1">
+                        <button type="button" onclick="cambiarAnio(-1)" class="p-2 text-gray-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                        </button>
+                        <span id="pickerAnio" class="text-lg font-black text-slate-800 tracking-widest">2026</span>
+                        <button type="button" onclick="cambiarAnio(1)" class="p-2 text-gray-400 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                        </button>
+                    </div>
+                    
+                    <!-- Grilla de Meses -->
+                    <div class="grid grid-cols-3 gap-2.5" id="gridMeses">
+                        <!-- Generado dinámicamente por JavaScript -->
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -347,11 +313,82 @@
 </div>
 
 <script>
+    // ==========================================
+    // 1. LÓGICA DEL CALENDARIO POPOVER
+    // ==========================================
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let anioSeleccionado = new Date().getFullYear();
+    let mesSeleccionado = new Date().getMonth() + 1;
+    let anioNavegacion = anioSeleccionado;
+
+    function initPicker() {
+        const val = document.getElementById('inputMesBuscar').value;
+        if(val) {
+            const parts = val.split('-');
+            anioSeleccionado = parseInt(parts[0]);
+            mesSeleccionado = parseInt(parts[1]);
+            anioNavegacion = anioSeleccionado;
+            document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
+        }
+        renderGridMeses();
+    }
+
+    function toggleMesPicker() {
+        const pop = document.getElementById('popoverMes');
+        if(pop.classList.contains('hidden')){
+            anioNavegacion = anioSeleccionado; 
+            renderGridMeses();
+            pop.classList.remove('hidden');
+        } else {
+            pop.classList.add('hidden');
+        }
+    }
+
+    function cambiarAnio(delta) {
+        anioNavegacion += delta;
+        renderGridMeses();
+    }
+
+    function seleccionarMes(mesIndex) {
+        const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
+        document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
+        document.getElementById('formFiltroMes').submit();
+    }
+
+    function renderGridMeses() {
+        document.getElementById('pickerAnio').innerText = anioNavegacion;
+        const grid = document.getElementById('gridMeses');
+        grid.innerHTML = '';
+        
+        for(let i = 1; i <= 12; i++) {
+            const isSelected = (anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+            const baseClass = "py-3 rounded-[0.85rem] text-[11.5px] font-bold tracking-wide transition-all ";
+            const extraClass = isSelected 
+                ? "bg-white border-2 border-[#0071e3] text-[#0071e3] shadow-[0_4px_12px_rgba(0,113,227,0.15)] scale-[1.02]" 
+                : "text-slate-600 bg-slate-50/50 hover:bg-slate-100 border-2 border-transparent hover:border-slate-200";
+                
+            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
+        }
+    }
+
+    // Cierra el popover si haces clic afuera
+    document.addEventListener('click', function(event) {
+        const pop = document.getElementById('popoverMes');
+        if (!event.target.closest('#formFiltroMes') && !pop.classList.contains('hidden')) {
+            pop.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', initPicker);
+
+
+    // ==========================================
+    // 2. LÓGICA DEL PANEL LATERAL DE EDICIÓN
+    // ==========================================
     let currentEmpId = null;
     let currentFecha = null;
     let currentEstado = null;
 
-    // Catálogo interactivo de estados con sus colores de diseño
     const estados = [
         { id: 'PUNTUAL', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'emerald-500', icon: 'A', label: 'Asistencia' },
         { id: 'RETRASO', bg: 'bg-amber-50', text: 'text-amber-700', border: 'amber-500', icon: 'R', label: 'Retraso' },
@@ -370,7 +407,6 @@
         currentEstado = estadoActual || 'FALTA'; 
 
         document.getElementById('slideOverEmpNombre').innerText = nombre;
-        
         const dateParts = fecha.split('-');
         const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         document.getElementById('slideOverFecha').innerText = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -392,7 +428,7 @@
         estados.forEach(est => {
             const isSelected = currentEstado === est.id;
             const extraClasses = isSelected 
-                ? `ring-2 ring-offset-2 ring-${est.border} ${est.bg} border-transparent shadow-sm transform scale-[1.02]` 
+                ? `ring-2 ring-offset-2 ring-${est.border} ${est.bg} border-transparent shadow-md transform scale-[1.02]` 
                 : 'bg-white border-gray-200 hover:bg-slate-50 opacity-60 hover:opacity-100';
             
             container.innerHTML += `

@@ -98,7 +98,7 @@
                 <div class="flex-1 overflow-y-auto p-8 pt-2">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         
-                        <!-- Bloque 1: Horarios -->
+                        <!-- Bloque 1: Horarios (ESTILO DIGITAL GRANDE) -->
                         <div class="space-y-6">
                             <h3 class="text-[11px] font-black text-[#0071e3] uppercase tracking-widest border-b border-gray-100 pb-2 flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -108,11 +108,11 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Hora de Ingreso</label>
-                                    <input type="time" id="inputIngreso" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                                    <input type="time" id="inputIngreso" class="w-full h-14 bg-slate-50 border border-gray-200 rounded-[1rem] text-lg font-black text-slate-800 text-center tracking-widest cursor-pointer outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
                                 </div>
                                 <div>
                                     <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Hora de Salida</label>
-                                    <input type="time" id="inputSalida" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
+                                    <input type="time" id="inputSalida" class="w-full h-14 bg-slate-50 border border-gray-200 rounded-[1rem] text-lg font-black text-slate-800 text-center tracking-widest cursor-pointer outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
                                 </div>
                             </div>
                         </div>
@@ -127,12 +127,12 @@
                             <div>
                                 <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Minutos de Tolerancia</label>
                                 <div class="relative">
-                                    <input type="number" id="inputTolerancia" min="0" class="w-full h-12 pl-4 pr-12 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400 uppercase tracking-widest">MIN</span>
+                                    <input type="number" id="inputTolerancia" min="0" class="w-full h-14 pl-5 pr-14 bg-slate-50 border border-gray-200 rounded-[1rem] text-lg font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 hover:border-gray-300 transition-all shadow-sm">
+                                    <span class="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-gray-400 uppercase tracking-widest">MIN</span>
                                 </div>
                             </div>
 
-                            <!-- NUEVO: SELECTOR DE DÍAS ESTILO PÍLDORAS -->
+                            <!-- SELECTOR DE DÍAS ESTILO PÍLDORAS -->
                             <div>
                                 <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Días Laborales Autorizados</label>
                                 <div class="flex flex-wrap gap-2" id="contenedorDias">
@@ -359,23 +359,32 @@
     .scrollbar-delgada::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     
-    /* Limpiar apariencia de inputs */
+    /* TRUCO CSS: Ocultar el icono nativo del reloj, pero hacerlo 100% clickeable */
+    input[type="time"] {
+        position: relative;
+    }
     input[type="time"]::-webkit-calendar-picker-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
         cursor: pointer;
-        opacity: 0.4;
-        transition: 0.2s;
     }
-    input[type="time"]::-webkit-calendar-picker-indicator:hover {
-        opacity: 0.8;
-    }
+    
+    /* Ocultar flechas numéricas nativas para limpieza */
     input[type="number"]::-webkit-inner-spin-button,
     input[type="number"]::-webkit-outer-spin-button {
-        opacity: 0.5;
+        opacity: 0;
         transition: 0.2s;
     }
     input[type="number"]::-webkit-inner-spin-button:hover,
     input[type="number"]::-webkit-outer-spin-button:hover {
         opacity: 1;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
     }
 </style>
 
