@@ -3619,13 +3619,16 @@ def asistencia_empleados(request):
     ultimas_entradas = [a for a in historial_hoy if a.tipo == 'INGRESO'][:10]
     ultimas_salidas = [a for a in historial_hoy if a.tipo == 'SALIDA'][:10]
 
+    # --- 1. INICIALIZAMOS LOS CONTADORES GLOBALES DEL DASHBOARD ---
+    totales_mes = {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'D': 0, 'C': 0, 'V': 0, 'S': 0, 'E': 0}
+
     # --- MOTOR DE MATRIZ Y CÁLCULO DE FALTAS AUTOMÁTICAS ---
     matriz = []
     for emp in empleados:
         fila = {
             'empleado': emp,
             'dias': [],
-            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'V': 0, 'E': 0},
+            'totales': {'A': 0, 'R': 0, 'F': 0, 'P': 0, 'D': 0, 'C': 0, 'V': 0, 'S': 0, 'E': 0},
             'hoy_in': mapa_hoy.get(emp.id, {}).get('in'),
             'hoy_out': mapa_hoy.get(emp.id, {}).get('out'),
         }
@@ -3642,7 +3645,7 @@ def asistencia_empleados(request):
                 'estado': None,
                 'in': None,
                 'out': None,
-                'virtual': False # Sirve para saber si la falta la calculó el sistema
+                'virtual': False
             }
             
             if datos_dia and datos_dia['estado']:
@@ -3651,22 +3654,50 @@ def asistencia_empleados(request):
                 celda['in'] = datos_dia['in']
                 celda['out'] = datos_dia['out']
                 
-                if estado == 'PUNTUAL': fila['totales']['A'] += 1
-                elif estado == 'RETRASO': fila['totales']['R'] += 1
-                elif estado == 'FALTA': fila['totales']['F'] += 1
-                elif estado == 'PERMISO': fila['totales']['P'] += 1
-                elif estado == 'VACACIONES': fila['totales']['V'] += 1
-                elif estado == 'FERIADO': fila['totales']['E'] += 1
+                # ACUMULAMOS TANTO EN EL EMPLEADO COMO EN EL GLOBAL
+                if estado == 'PUNTUAL': 
+                    fila['totales']['A'] += 1
+                    totales_mes['A'] += 1
+                elif estado == 'RETRASO': 
+                    fila['totales']['R'] += 1
+                    totales_mes['R'] += 1
+                elif estado == 'FALTA': 
+                    fila['totales']['F'] += 1
+                    totales_mes['F'] += 1
+                elif estado == 'PERMISO': 
+                    fila['totales']['P'] += 1
+                    totales_mes['P'] += 1
+                elif estado == 'DESCANSO': 
+                    fila['totales']['D'] += 1
+                    totales_mes['D'] += 1
+                elif estado == 'COMISION': 
+                    fila['totales']['C'] += 1
+                    totales_mes['C'] += 1
+                elif estado == 'VACACIONES': 
+                    fila['totales']['V'] += 1
+                    totales_mes['V'] += 1
+                elif estado == 'CESANTIA': 
+                    fila['totales']['S'] += 1
+                    totales_mes['S'] += 1
+                elif estado == 'FERIADO': 
+                    fila['totales']['E'] += 1
+                    totales_mes['E'] += 1
                 
             elif es_pasado:
-                # ¡MAGIA!: El día ya pasó y no hay registro. Es una falta automática.
                 celda['estado'] = 'FALTA'
                 celda['virtual'] = True 
                 fila['totales']['F'] += 1
+                totales_mes['F'] += 1
                 
             fila['dias'].append(celda)
                 
         matriz.append(fila)
+
+    # --- 2. CÁLCULO DE PORCENTAJES PARA LA BARRA DEL DASHBOARD ---
+    total_registros = sum(totales_mes.values())
+    porcentajes = {}
+    for key, val in totales_mes.items():
+        porcentajes[key] = (val / total_registros * 100) if total_registros > 0 else 0
 
     return render(request, 'asistencia_empleados.html', {
         'matriz': matriz,
@@ -3675,9 +3706,11 @@ def asistencia_empleados(request):
         'buscar': buscar,
         'fecha_hoy': hoy,
         'ultimas_entradas': ultimas_entradas,
-        'ultimas_salidas': ultimas_salidas
+        'ultimas_salidas': ultimas_salidas,
+        'totales_mes': totales_mes,        # <--- ENVIAMOS TOTALES AL HTML
+        'porcentajes': porcentajes,        # <--- ENVIAMOS PORCENTAJES AL HTML
+        'total_registros': total_registros # <--- ENVIAMOS REGISTROS AL HTML
     })
-
 @csrf_exempt
 @login_required
 def editar_asistencia_empleado(request):
