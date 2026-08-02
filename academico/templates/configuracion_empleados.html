@@ -132,10 +132,19 @@
                                 </div>
                             </div>
 
+                            <!-- NUEVO: SELECTOR DE DÍAS ESTILO PÍLDORAS -->
                             <div>
-                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2">Días Laborales Autorizados</label>
-                                <input type="text" id="inputDias" placeholder="Ej: L,M,X,J,V" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm">
-                                <p class="text-[9px] font-bold text-gray-400 mt-2 tracking-wide">Utiliza las iniciales separadas por comas. (L=Lunes, X=Miércoles).</p>
+                                <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Días Laborales Autorizados</label>
+                                <div class="flex flex-wrap gap-2" id="contenedorDias">
+                                    <button type="button" data-dia="L" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Lunes</button>
+                                    <button type="button" data-dia="M" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Martes</button>
+                                    <button type="button" data-dia="X" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Miércoles</button>
+                                    <button type="button" data-dia="J" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Jueves</button>
+                                    <button type="button" data-dia="V" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Viernes</button>
+                                    <button type="button" data-dia="S" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Sábado</button>
+                                    <button type="button" data-dia="D" onclick="toggleDia(this)" class="dia-btn px-4 py-2.5 rounded-xl border border-gray-200 bg-slate-50 text-[11px] font-black tracking-wide text-slate-500 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm">Domingo</button>
+                                </div>
+                                <p class="text-[9px] font-bold text-gray-400 mt-3 tracking-wide">Selecciona los días habilitados para que el sistema marque falta automáticamente en caso de ausencia.</p>
                             </div>
                         </div>
 
@@ -175,11 +184,25 @@
         });
     }
 
-    // 2. Lógica para seleccionar un empleado y pintar el panel derecho
+    // 2. Lógica interactiva para los botones de días
+    function toggleDia(btn) {
+        btn.classList.toggle('activo');
+        if(btn.classList.contains('activo')) {
+            // Estado Activo (Azul)
+            btn.classList.remove('bg-slate-50', 'text-slate-500', 'border-gray-200');
+            btn.classList.add('bg-[#0071e3]', 'text-white', 'border-[#0071e3]', 'shadow-md', 'scale-[1.03]');
+        } else {
+            // Estado Inactivo (Gris)
+            btn.classList.add('bg-slate-50', 'text-slate-500', 'border-gray-200');
+            btn.classList.remove('bg-[#0071e3]', 'text-white', 'border-[#0071e3]', 'shadow-md', 'scale-[1.03]');
+        }
+    }
+
+    // 3. Lógica para seleccionar un empleado y pintar el panel derecho
     function seleccionarEmpleado(id, nombre, cargo, hIngreso, hSalida, tol, dias, elementoCard) {
         currentEmpId = id;
         
-        // Transición de vistas (Ocultar Vacio, Mostrar Formulario)
+        // Transición de vistas
         document.getElementById('estadoVacio').classList.add('opacity-0', 'pointer-events-none');
         document.getElementById('estadoFormulario').classList.remove('opacity-0', 'pointer-events-none');
         
@@ -189,18 +212,29 @@
         document.getElementById('formAvatar').innerText = nombre.charAt(0);
         document.getElementById('txtIdEmpleado').innerText = "ID de Registro: " + id;
         
-        // Pintar Inputs
+        // Pintar Inputs Regulares
         document.getElementById('inputIngreso').value = hIngreso;
         document.getElementById('inputSalida').value = hSalida;
         document.getElementById('inputTolerancia').value = tol;
-        document.getElementById('inputDias').value = dias;
+        
+        // Pintar Selector de Días
+        const diasArray = dias.split(',').map(d => d.trim().toUpperCase());
+        document.querySelectorAll('.dia-btn').forEach(btn => {
+            const diaValor = btn.getAttribute('data-dia');
+            if(diasArray.includes(diaValor)) {
+                btn.classList.add('activo', 'bg-[#0071e3]', 'text-white', 'border-[#0071e3]', 'shadow-md', 'scale-[1.03]');
+                btn.classList.remove('bg-slate-50', 'text-slate-500', 'border-gray-200');
+            } else {
+                btn.classList.remove('activo', 'bg-[#0071e3]', 'text-white', 'border-[#0071e3]', 'shadow-md', 'scale-[1.03]');
+                btn.classList.add('bg-slate-50', 'text-slate-500', 'border-gray-200');
+            }
+        });
         
         // Remarcar la tarjeta activa
         const todasLasCards = document.querySelectorAll('.emp-card');
         todasLasCards.forEach(card => {
             card.classList.remove('bg-blue-50', 'border-blue-100', 'shadow-sm');
             card.classList.add('border-transparent', 'hover:bg-slate-50');
-            // Resetear Avatar interno
             const av = card.querySelector('.avatar-circulo');
             if(av){
                 av.classList.remove('bg-blue-500', 'text-white', 'border-blue-600');
@@ -208,7 +242,6 @@
             }
         });
         
-        // Activar la actual
         elementoCard.classList.remove('border-transparent', 'hover:bg-slate-50');
         elementoCard.classList.add('bg-blue-50', 'border-blue-100', 'shadow-sm');
         const avActivo = elementoCard.querySelector('.avatar-circulo');
@@ -218,7 +251,7 @@
         }
     }
 
-    // 3. Funciones de guardado y notificaciones (Reutilizando tu lógica)
+    // 4. Funciones de guardado y notificaciones
     function obtenerCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -265,10 +298,15 @@
         const ingreso = document.getElementById('inputIngreso').value;
         const salida = document.getElementById('inputSalida').value;
         const tolerancia = document.getElementById('inputTolerancia').value;
-        const dias = document.getElementById('inputDias').value;
-        const btn = document.getElementById('btnGuardar');
+        
+        // Recopilamos las iniciales de los botones que están activos
+        const diasSeleccionados = Array.from(document.querySelectorAll('.dia-btn.activo'))
+                                       .map(btn => btn.getAttribute('data-dia'))
+                                       .join(',');
 
+        const btn = document.getElementById('btnGuardar');
         const textoOriginal = btn.innerHTML;
+        
         btn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Guardando...`;
         btn.disabled = true;
         btn.classList.add('opacity-80', 'cursor-not-allowed');
@@ -284,7 +322,7 @@
                 hora_ingreso: ingreso,
                 hora_salida: salida,
                 tolerancia_minutos: tolerancia,
-                dias_laborales: dias
+                dias_laborales: diasSeleccionados
             })
         })
         .then(response => response.json())
@@ -292,10 +330,10 @@
             if (data.status === 'ok') {
                 mostrarToastNotificacion(data.mensaje);
                 
-                // Actualizar los atributos de la tarjeta en la lista para reflejar los cambios sin recargar
+                // Actualizar los atributos de la tarjeta activa para que tenga los nuevos datos en RAM
                 const activeCard = document.querySelector('.emp-card.bg-blue-50');
                 if(activeCard) {
-                    activeCard.setAttribute('onclick', `seleccionarEmpleado('${currentEmpId}', '${document.getElementById('formNombre').innerText}', '${document.getElementById('formCargo').innerText}', '${ingreso}', '${salida}', '${tolerancia}', '${dias}', this)`);
+                    activeCard.setAttribute('onclick', `seleccionarEmpleado('${currentEmpId}', '${document.getElementById('formNombre').innerText}', '${document.getElementById('formCargo').innerText}', '${ingreso}', '${salida}', '${tolerancia}', '${diasSeleccionados}', this)`);
                 }
             } else {
                 alert("Error al guardar: " + data.mensaje);
