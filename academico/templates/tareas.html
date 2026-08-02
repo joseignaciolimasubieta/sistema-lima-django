@@ -50,19 +50,23 @@
                         </a>
                     </div>
 
-                    <!-- Contenido -->
-                    <h4 class="font-black text-slate-800 text-[13px] leading-snug mb-1 uppercase tracking-tight">{{ tarea.titulo }}</h4>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-5 line-clamp-1">{{ tarea.empleado.nombre_completo }}</p>
+                    <!-- Contenido Principal -->
+                    <h4 class="font-black text-slate-800 text-[13px] leading-snug mb-1.5 uppercase tracking-tight">{{ tarea.titulo }}</h4>
+                    <p class="text-[10px] font-medium text-slate-500 mb-5 line-clamp-2 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
                     
-                    <!-- Footer de Tarjeta -->
-                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-gray-50">
-                        <div class="flex items-center gap-2 text-slate-400" title="Fecha límite: {{ tarea.fecha_limite|date:'d M' }}">
-                            <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[9px] font-black text-slate-500 border border-slate-200">
-                                {{ tarea.empleado.nombre_completo|first }}
-                            </div>
-                            <span class="text-[10px] font-black uppercase">{{ tarea.fecha_limite|date:"d M" }}</span>
+                    <!-- Footer de Tarjeta (Con Nombre Completo) -->
+                    <div class="flex items-end justify-between mt-auto pt-4 border-t border-gray-50">
+                        <div class="flex flex-col gap-1.5 w-2/3">
+                            <span class="text-[10px] font-black text-slate-700 uppercase truncate" title="{{ tarea.empleado.nombre_completo }}">
+                                <svg class="w-3.5 h-3.5 inline-block mr-0.5 text-slate-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                {{ tarea.empleado.nombre_completo }}
+                            </span>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                {{ tarea.fecha_limite|date:"d M Y" }}
+                            </span>
                         </div>
-                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=EN_PROGRESO" class="text-[10px] font-black text-[#0071e3] hover:text-blue-800 transition-colors uppercase tracking-widest flex items-center gap-1 group/btn">
+                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=EN_PROGRESO" class="text-[10px] font-black text-[#0071e3] hover:text-blue-800 transition-colors uppercase tracking-widest flex items-center gap-1 group/btn pb-0.5">
                             Iniciar <span class="group-hover/btn:translate-x-1 transition-transform">&rarr;</span>
                         </a>
                     </div>
@@ -102,22 +106,27 @@
                             <span class="text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">Baja</span>
                         {% endif %}
                         
-                        <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-gray-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-rose-50 rounded-full p-1 -mr-1 -mt-1" title="Eliminar tarea">
+                        <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-blue-200 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-rose-50 rounded-full p-1 -mr-1 -mt-1" title="Eliminar tarea">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </a>
                     </div>
 
-                    <h4 class="font-black text-[#0071e3] text-[13px] leading-snug mb-1 uppercase tracking-tight">{{ tarea.titulo }}</h4>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-5 line-clamp-1">{{ tarea.empleado.nombre_completo }}</p>
+                    <h4 class="font-black text-[#0071e3] text-[13px] leading-snug mb-1.5 uppercase tracking-tight">{{ tarea.titulo }}</h4>
+                    <p class="text-[10px] font-medium text-slate-500 mb-5 line-clamp-2 leading-relaxed">{{ tarea.descripcion|default:"Sin descripción adicional." }}</p>
                     
-                    <div class="flex items-center justify-between mt-auto pt-4 border-t border-blue-50">
-                        <div class="flex items-center gap-2 text-slate-400">
-                            <div class="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-[9px] font-black text-blue-600 border border-blue-100">
-                                {{ tarea.empleado.nombre_completo|first }}
-                            </div>
-                            <span class="text-[10px] font-black uppercase">{{ tarea.fecha_limite|date:"d M" }}</span>
+                    <!-- Footer de Tarjeta (Con Nombre Completo) -->
+                    <div class="flex items-end justify-between mt-auto pt-4 border-t border-blue-50">
+                        <div class="flex flex-col gap-1.5 w-2/3">
+                            <span class="text-[10px] font-black text-[#0071e3] uppercase truncate" title="{{ tarea.empleado.nombre_completo }}">
+                                <svg class="w-3.5 h-3.5 inline-block mr-0.5 text-blue-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                {{ tarea.empleado.nombre_completo }}
+                            </span>
+                            <span class="text-[9px] font-bold text-blue-400/80 uppercase flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                {{ tarea.fecha_limite|date:"d M Y" }}
+                            </span>
                         </div>
-                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest flex items-center gap-1 border border-emerald-100">
+                        <a href="{% url 'cambiar_estado_tarea' tarea.id %}?estado=COMPLETADA" class="text-[10px] font-black text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors uppercase tracking-widest flex items-center gap-1 border border-emerald-100 shrink-0">
                             Finalizar <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
                         </a>
                     </div>
