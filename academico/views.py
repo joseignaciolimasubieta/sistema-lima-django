@@ -3956,18 +3956,44 @@ def api_notificaciones(request):
 def lista_tareas(request):
     from .models import Tarea, Empleado
     from datetime import date, timedelta
+    import calendar
     
-    tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado')
-    tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado')
-    tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=date.today() - timedelta(days=7)).select_related('empleado')
+    hoy = date.today()
+    # Calculamos exactamente cuándo termina la semana actual (Domingo)
+    fin_semana = hoy + timedelta(days=(6 - hoy.weekday()))
+    # Calculamos exactamente cuándo termina el mes actual
+    fin_mes = date(hoy.year, hoy.month, calendar.monthrange(hoy.year, hoy.month)[1])
     
+    tareas_pendientes = Tarea.objects.filter(estado='PENDIENTE').select_related('empleado').order_by('fecha_limite', '-prioridad')
+    tareas_progreso = Tarea.objects.filter(estado='EN_PROGRESO').select_related('empleado').order_by('fecha_limite', '-prioridad')
+    # Las completadas las ordenamos al revés (las más recientes primero) y solo mostramos los últimos 15 días
+    tareas_completadas = Tarea.objects.filter(estado='COMPLETADA', fecha_limite__gte=hoy - timedelta(days=15)).select_related('empleado').order_by('-fecha_limite')
+    
+    # --- MOTOR INTELIGENTE DE ETIQUETADO DE TIEMPO ---
+    def asignar_rango(tareas):
+        for t in tareas:
+            if t.fecha_limite < hoy:
+                t.rango = 'atrasada'
+                t.rango_label = 'Atrasada'
+            elif t.fecha_limite <= fin_semana:
+                t.rango = 'semana'
+                t.rango_label = 'Esta Semana'
+            elif t.fecha_limite <= fin_mes:
+                t.rango = 'mes'
+                t.rango_label = 'Este Mes'
+            else:
+                t.rango = 'futuro'
+                t.rango_label = 'Futuras'
+        return tareas
+
     empleados = Empleado.objects.all().order_by('nombre_completo')
     
     contexto = {
-        'pendientes': tareas_pendientes,
-        'en_progreso': tareas_progreso,
-        'completadas': tareas_completadas,
-        'empleados': empleados
+        'pendientes': asignar_rango(tareas_pendientes),
+        'en_progreso': asignar_rango(tareas_progreso),
+        'completadas': asignar_rango(tareas_completadas),
+        'empleados': empleados,
+        'hoy': hoy
     }
     return render(request, 'tareas.html', contexto)
 
