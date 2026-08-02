@@ -45,14 +45,12 @@
                     
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex gap-2">
-                            <!-- Etiqueta de Rango de Tiempo -->
                             <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md 
                                 {% if tarea.rango == 'atrasada' %}bg-rose-100 text-rose-700 border border-rose-200
                                 {% elif tarea.rango == 'semana' %}bg-amber-100 text-amber-700 border border-amber-200
                                 {% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
                                 {{ tarea.rango_label }}
                             </span>
-                            <!-- Etiqueta de Prioridad -->
                             <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-white border border-gray-200 shadow-sm {% if tarea.prioridad == 'ALTA' %}text-rose-600{% elif tarea.prioridad == 'MEDIA' %}text-amber-600{% else %}text-blue-600{% endif %}">
                                 P. {{ tarea.get_prioridad_display }}
                             </span>
@@ -84,7 +82,6 @@
                 </div>
                 {% endfor %}
 
-                <!-- Estado Vacío -->
                 <div class="empty-state flex-col items-center justify-center pt-24 pb-10 opacity-40 {% if pendientes %}hidden{% else %}flex{% endif %}">
                     <svg class="w-16 h-16 text-slate-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                     <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center px-4">No hay tareas<br>en esta ventana</p>
@@ -108,6 +105,7 @@
                 {% for tarea in en_progreso %}
                 <div class="tarea-card flex-col bg-white p-5 rounded-[2rem] shadow-[0_12px_40px_rgb(0,113,227,0.08)] border border-blue-100 hover:border-blue-300 transition-all duration-300 hover:-translate-y-1 relative group" data-rango="{{ tarea.rango }}">
                     
+                    <!-- Fila Superior: Badge y Borrar AHORA CON PRIORIDAD -->
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex gap-2">
                             <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md 
@@ -116,7 +114,12 @@
                                 {% else %}bg-slate-100 text-slate-600 border border-slate-200{% endif %}">
                                 {{ tarea.rango_label }}
                             </span>
+                            <!-- ETIQUETA DE PRIORIDAD EN "EN CURSO" AÑADIDA -->
+                            <span class="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-white border border-gray-200 shadow-sm {% if tarea.prioridad == 'ALTA' %}text-rose-600{% elif tarea.prioridad == 'MEDIA' %}text-amber-600{% else %}text-blue-600{% endif %}">
+                                P. {{ tarea.get_prioridad_display }}
+                            </span>
                         </div>
+                        
                         <a href="{% url 'eliminar_tarea' tarea.id %}" class="text-blue-200 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity bg-white hover:bg-rose-50 rounded-full p-1 -mr-1 -mt-1 shadow-sm border border-gray-100" title="Eliminar tarea">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </a>
@@ -225,7 +228,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Asignar a</label>
-                        <select name="empleado_id" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-xs font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                        <select name="empleado_id" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
                             <option value="" disabled selected>Seleccione Colaborador</option>
                             {% for emp in empleados %}
                             <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
@@ -234,7 +237,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Nivel de Prioridad</label>
-                        <select name="prioridad" class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-xs font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
+                        <select name="prioridad" class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer">
                             <option value="ALTA">Urgentísimo (Alta)</option>
                             <option value="MEDIA" selected>Normal (Media)</option>
                             <option value="BAJA">Rutina (Baja)</option>
@@ -242,9 +245,19 @@
                     </div>
                 </div>
                 
+                <!-- NUEVO: SELECCIÓN RÁPIDA DE PLAZO -->
                 <div>
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fecha Límite (Deadline)</label>
-                    <input type="date" name="fecha_limite" value="{{ hoy|date:'Y-m-d' }}" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm cursor-pointer uppercase tracking-widest">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Plazo de Ejecución</label>
+                    </div>
+                    
+                    <div class="flex gap-3 mb-4">
+                        <button type="button" onclick="setPlazo('semana', this)" class="plazo-btn flex-1 py-3 rounded-xl border border-blue-200 bg-blue-50 text-[#0071e3] text-[10px] font-black uppercase tracking-widest transition-all">Esta Semana</button>
+                        <button type="button" onclick="setPlazo('mes', this)" class="plazo-btn flex-1 py-3 rounded-xl border border-gray-200 bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-100">Este Mes</button>
+                    </div>
+
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fecha Límite (Deadline) Exacta</label>
+                    <input type="date" name="fecha_limite" id="inputFechaLimite" required class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-sm font-black text-slate-800 outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm cursor-pointer uppercase tracking-widest">
                 </div>
                 
                 <div class="pt-6">
@@ -261,8 +274,6 @@
 <script>
     // 1. LÓGICA DE FILTRADO POR PESTAÑAS (TABS)
     function filtrarKanban(rangoSeleccionado) {
-        
-        // A) Cambiar estilos visuales de los botones (Tabs)
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('bg-white', 'text-[#0071e3]', 'shadow-[0_2px_10px_rgba(0,0,0,0.05)]', 'active');
             btn.classList.add('text-slate-500');
@@ -272,7 +283,6 @@
         activeBtn.classList.remove('text-slate-500');
         activeBtn.classList.add('bg-white', 'text-[#0071e3]', 'shadow-[0_2px_10px_rgba(0,0,0,0.05)]', 'active');
 
-        // B) Filtrar las tarjetas usando el atributo de datos
         const columnas = ['col-pendientes', 'col-progreso', 'col-completadas'];
         
         columnas.forEach(colId => {
@@ -288,22 +298,19 @@
                 if (rangoSeleccionado === 'todo') {
                     mostrar = true;
                 } else if (rangoSeleccionado === 'semana') {
-                    // En semana mostramos las de la semana actual y las que ya están atrasadas
                     if (rangoTarjeta === 'semana' || rangoTarjeta === 'atrasada') mostrar = true;
                 } else if (rangoSeleccionado === 'mes') {
-                    // En mes mostramos todo el mes (incluye semana y atrasadas)
                     if (rangoTarjeta === 'mes' || rangoTarjeta === 'semana' || rangoTarjeta === 'atrasada') mostrar = true;
                 }
 
                 if (mostrar) {
-                    card.style.display = 'flex'; // Usamos flex porque las tarjetas flex-col
+                    card.style.display = 'flex'; 
                     tarjetasVisibles++;
                 } else {
                     card.style.display = 'none';
                 }
             });
 
-            // C) Mostrar u Ocultar el estado vacío si la columna se quedó sin tareas
             if (tarjetasVisibles > 0) {
                 estadoVacio.classList.remove('flex');
                 estadoVacio.classList.add('hidden');
@@ -314,11 +321,14 @@
         });
     }
 
-    // 2. LÓGICA DEL MODAL
+    // 2. LÓGICA DEL MODAL Y CÁLCULO DE FECHAS
     function abrirModalTarea() {
         const modal = document.getElementById('modalTarea');
         const content = document.getElementById('modalContent');
         
+        // Al abrir, forzamos por defecto que calcule el fin de semana actual
+        setPlazo('semana', document.querySelector('.plazo-btn'));
+
         modal.classList.remove('hidden');
         setTimeout(() => {
             content.classList.remove('scale-95', 'opacity-0');
@@ -336,6 +346,38 @@
         setTimeout(() => {
             modal.classList.add('hidden');
         }, 300);
+    }
+
+    function setPlazo(tipo, btn) {
+        // Estilos visuales de los botones
+        document.querySelectorAll('.plazo-btn').forEach(b => {
+            b.classList.remove('bg-blue-50', 'border-blue-200', 'text-[#0071e3]');
+            b.classList.add('bg-slate-50', 'border-gray-200', 'text-slate-500');
+        });
+        btn.classList.remove('bg-slate-50', 'border-gray-200', 'text-slate-500');
+        btn.classList.add('bg-blue-50', 'border-blue-200', 'text-[#0071e3]');
+
+        // Cálculo inteligente de fechas
+        const inputDate = document.getElementById('inputFechaLimite');
+        const hoy = new Date();
+        
+        if (tipo === 'semana') {
+            // Calcular el próximo domingo
+            const diaSemanaActual = hoy.getDay() === 0 ? 7 : hoy.getDay(); 
+            const diasFaltantes = 7 - diaSemanaActual;
+            hoy.setDate(hoy.getDate() + diasFaltantes);
+        } else if (tipo === 'mes') {
+            // Calcular el último día del mes actual
+            hoy.setMonth(hoy.getMonth() + 1);
+            hoy.setDate(0); 
+        }
+        
+        // Formatear a YYYY-MM-DD para el input type="date"
+        const anio = hoy.getFullYear();
+        const mes = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dia = String(hoy.getDate()).padStart(2, '0');
+        
+        inputDate.value = `${anio}-${mes}-${dia}`;
     }
 </script>
 
