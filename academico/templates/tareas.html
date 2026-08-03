@@ -207,7 +207,7 @@
                 <h3 class="text-3xl font-black text-slate-900 tracking-tight">Nueva Tarea.</h3>
                 
             </div>
-            <button type="button" onclick="cerrarModalTarea()" class="bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 p-2.5 rounded-full transition-colors relative z-10 border border-gray-100">
+            <button type="button" onclick="cerrarModalTarea()" class="bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-500 p-2.5 rounded-full transition-colors relative z-10 border border-gray-100">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>
@@ -239,9 +239,9 @@
                     <div>
                         <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Nivel de Prioridad</label>
                         <select name="prioridad" class="w-full h-14 px-5 bg-slate-50 border border-gray-200 rounded-2xl text-[11px] font-black text-slate-800 uppercase outline-none focus:bg-white focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 transition-all shadow-sm appearance-none cursor-pointer select-custom">
-                            <option value="ALTA">Urgentísimo (Alta)</option>
+                            <option value="ALTA">Urgente (Alta)</option>
                             <option value="MEDIA" selected>Normal (Media)</option>
-                            <option value="BAJA">Rutina (Baja)</option>
+                            <option value="BAJA">Básico (Baja)</option>
                         </select>
                     </div>
                 </div>
@@ -257,7 +257,7 @@
                         <button type="button" onclick="setPlazo('mes', this)" class="plazo-btn flex-1 py-3.5 rounded-xl border border-gray-200 bg-slate-50 text-slate-500 text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-100">Este Mes</button>
                     </div>
 
-                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fecha Límite (Deadline) Exacta</label>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Fecha Límite Exacta</label>
                     
                     <div class="relative">
                         <div id="displayFechaLimite" onclick="toggleDatePicker()" class="w-full h-14 px-5 flex items-center justify-between bg-slate-50 border border-gray-200 rounded-2xl text-[13px] font-black text-slate-800 cursor-pointer hover:border-[#0071e3] hover:shadow-[0_4px_12px_rgba(0,113,227,0.1)] transition-all shadow-sm uppercase tracking-widest">
