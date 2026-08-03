@@ -55,7 +55,7 @@
                             <a href="{% url 'asistencia_empleados' %}" class="apple-nav-link {% if url_name == 'asistencia_empleados' or url_name == 'configuracion_empleados' %}apple-nav-link-active{% endif %}">Control de Asistencia</a>
                             
                             <a href="{% url 'lista_prestamos' %}" class="apple-nav-link {% if url_name == 'lista_prestamos' or url_name == 'crear_prestamo' or url_name == 'editar_prestamo' or url_name == 'registrar_pago_prestamo' %}apple-nav-link-active{% endif %}">Financiera</a>
-                            <a href="{% url 'lista_tareas' %}" class="apple-nav-link {% if 'tarea' in url_name %}apple-nav-link-active{% endif %}">Panel deTareas</a>
+                            <a href="{% url 'lista_tareas' %}" class="apple-nav-link {% if 'tarea' in url_name %}apple-nav-link-active{% endif %}">Panel de Tareas</a>
                         {% else %}
                             <a href="{% url 'dashboard' %}" class="apple-nav-link {% if url_name == 'dashboard' %}apple-nav-link-active{% endif %}">Reportes</a>
                             <a href="{% url 'cursos' %}" class="apple-nav-link {% if 'curso' in url_name and 'certificados' not in url_name and 'informacion' not in url_name or 'docente' in url_name %}apple-nav-link-active{% endif %}">Gestión de Cursos</a>

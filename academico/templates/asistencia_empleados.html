@@ -10,29 +10,29 @@
         </div>
         
         <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
-            <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
+            <form method="GET" class="flex flex-col sm:flex-row items-center justify-end gap-4 w-full">
                 
                 <!-- Botón Configuración Mejorado -->
-                <a href="{% url 'configuracion_empleados' %}" class="h-10 px-5 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700 text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2">
-                    <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <a href="{% url 'configuracion_empleados' %}" class="h-11 px-6 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-slate-800 text-[11px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap flex items-center gap-2.5">
+                    <svg class="w-5 h-5 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                     Configuración
                 </a>
 
-                <!-- Buscador Modernizado con botón de Limpiar -->
-                <div class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all">
-                    <div class="relative w-full h-8 flex items-center">
-                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR EMPLEADO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-black placeholder-gray-400">
+                <!-- Buscador Modernizado Estilo Configuración -->
+                <div class="relative flex items-center bg-white p-1 rounded-full border border-gray-200 shadow-sm w-full sm:w-[26rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all h-11">
+                    <div class="absolute left-4 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
-                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#005bb5] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">Buscar</button>
+                    
+                    <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR EMPLEADO..." class="w-full h-full pl-10 pr-2 bg-transparent outline-none text-xs font-bold text-slate-800 placeholder-gray-400">
                     
                     {% if buscar %}
-                    <a href="?mes_buscar={{ mes_buscar }}" class="h-8 w-8 flex items-center justify-center bg-slate-100 hover:bg-black-50 hover:text-black-500 text-slate-500 rounded-full transition-colors ml-1.5 shrink-0" title="Quitar filtro">
+                    <a href="?mes_buscar={{ mes_buscar }}" class="h-8 w-8 flex items-center justify-center bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors shrink-0 mr-1" title="Quitar filtro">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </a>
                     {% endif %}
+
+                    <button type="submit" class="h-full px-7 bg-[#0071e3] hover:bg-[#005bb5] text-white text-[11px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap shrink-0">Buscar</button>
                 </div>
             </form>
         </div>
