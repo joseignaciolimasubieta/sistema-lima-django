@@ -3902,26 +3902,25 @@ def portal_buscar_certificado(request):
     from datetime import date
     from django.db.models import Q
     
-    inscripciones = None
-    buscado = False
-    
     if request.method == 'POST':
         ci_buscado = request.POST.get('ci', '').strip()
         if ci_buscado:
             hoy = date.today()
             # Buscamos inscripciones que coincidan con el C.I. 
-            # Y que el curso ya esté marcado como enviado O que su fecha de finalización sea hoy o en el pasado
             inscripciones = Inscripcion.objects.filter(
                 participante__ci=ci_buscado
             ).filter(
                 Q(curso__certificados_enviados=True) | Q(curso__fecha_finalizacion__lte=hoy)
             ).select_related('curso', 'curso__docente', 'participante')
-        buscado = True
-        
-    return render(request, 'portal_buscar_certificado.html', {
-        'inscripciones': inscripciones,
-        'buscado': buscado
-    })
+            
+            # 🚀 REDIRIGIMOS A LA NUEVA PÁGINA DE RESULTADOS
+            return render(request, 'portal_resultados_certificado.html', {
+                'inscripciones': inscripciones,
+                'ci_buscado': ci_buscado
+            })
+            
+    # Si es GET (recién entra), mostramos solo el buscador limpio
+    return render(request, 'portal_buscar_certificado.html')
 
 def descargar_certificado_publico(request, inscripcion_id):
     from datetime import date
