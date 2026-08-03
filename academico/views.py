@@ -3534,8 +3534,8 @@ def registrar_asistencia_rfid(request):
                     second=0, microsecond=0
                 )
                 
-                # Le sumamos sus minutos de tolerancia personales
-                hora_limite_con_tolerancia = hora_limite + timedelta(minutos=empleado.tolerancia_minutos)
+                # Le sumamos sus minutos de tolerancia personales (CORREGIDO: en inglés)
+                hora_limite_con_tolerancia = hora_limite + timedelta(minutes=empleado.tolerancia_minutos)
                 
                 if ahora > hora_limite_con_tolerancia:
                     estado_asistencia = 'RETRASO'
