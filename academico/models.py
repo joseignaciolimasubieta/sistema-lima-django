@@ -163,11 +163,36 @@ class Inscripcion(models.Model):
                 movimiento.delete() # Si se eliminan todas las inscripciones del día, borra la fila limpia
 
     def save(self, *args, **kwargs):
-        # 1. Guardamos la inscripción primero
+        # 1. "MEMORIA": Si el registro ya existe (es una edición), capturamos cómo estaba antes de cambiarlo
+        if self.pk:
+            vieja_inscripcion = Inscripcion.objects.get(pk=self.pk)
+            fecha_anterior = vieja_inscripcion.fecha_inscripcion
+            banco_anterior = vieja_inscripcion.banco
+            modalidad_anterior = vieja_inscripcion.modalidad
+            saldo_anterior = vieja_inscripcion.saldo_pendiente
+        else:
+            fecha_anterior = None
+
+        # 2. Guardamos la inscripción normalmente con los datos nuevos
         super().save(*args, **kwargs)
         
-        # 2. Obligamos al Flujo de Caja a recalcular ese día
+        # 3. Obligamos al Flujo de Caja a recalcular la fecha NUEVA (o actual)
         self.sincronizar_caja_inscripciones()
+
+        # 4. LIMPIEZA DEL PASADO: Si la fecha (o datos vitales) cambiaron, mandamos al fantasma a limpiar el día viejo
+        if fecha_anterior and (
+            fecha_anterior != self.fecha_inscripcion or 
+            banco_anterior != self.banco or 
+            modalidad_anterior != self.modalidad or 
+            saldo_anterior != self.saldo_pendiente
+        ):
+            fantasma = Inscripcion(
+                fecha_inscripcion=fecha_anterior, 
+                banco=banco_anterior, 
+                modalidad=modalidad_anterior, 
+                saldo_pendiente=saldo_anterior
+            )
+            fantasma.sincronizar_caja_inscripciones()
 
     def delete(self, *args, **kwargs):
         # 1. Capturamos los datos vitales antes de que el alumno desaparezca
