@@ -87,6 +87,8 @@
                             {% endif %}
                             {% if grupo.name == 'Certificados' %}
                                 <a href="{% url 'lista_cursos_certificados' %}" class="apple-nav-link {% if 'certificados' in url_name %}apple-nav-link-active{% endif %}">Certificados</a>
+                            {% endif %}
+                            {% if grupo.name == 'Control WhatsApp' %}
                                 <a href="{% url 'revision_whatsapp' %}" class="apple-nav-link {% if 'whatsapp' in url_name %}apple-nav-link-active{% endif %}">Control Grupos</a>
                             {% endif %}
                         {% endfor %}

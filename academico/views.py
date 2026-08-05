@@ -58,6 +58,9 @@ def es_certificados(user):
 def es_contabilidad(user):
     return user.is_superuser or user.groups.filter(name='Contabilidad').exists()
 
+def es_whatsapp(user):
+    return user.is_superuser or user.groups.filter(name='Control WhatsApp').exists()
+
 @login_required
 def dashboard(request):
     hoy = date.today()
@@ -1604,15 +1607,12 @@ def editar_servicio(request, servicio_id):
         'clientes': clientes_bd
     })
 
-@login_required
 def portal_inicio(request):
     user = request.user
     
-    # 1. Pantalla de Portal Limpia
     if user.is_superuser:
         return render(request, 'portal.html')
         
-    # 2. Distribución inteligente para empleados
     if user.groups.filter(name='Ventas').exists():
         return redirect('inscripciones')
     elif user.groups.filter(name='Marketing').exists():
@@ -1623,6 +1623,8 @@ def portal_inicio(request):
         return redirect('lista_cursos_certificados')
     elif user.groups.filter(name='Contabilidad').exists():
         return redirect('consultora')
+    elif user.groups.filter(name='Control WhatsApp').exists(): # <-- NUEVO GRUPO
+        return redirect('revision_whatsapp')
         
     from django.contrib.auth import logout
     logout(request)
@@ -4132,6 +4134,7 @@ def eliminar_tarea(request, tarea_id):
 # ==============================================================
 
 @login_required
+@user_passes_test(es_whatsapp) # <-- Agrega esta restricción
 def revision_whatsapp(request):
     hoy = date.today()
     mes_buscar = request.GET.get('mes', '') 
@@ -4156,6 +4159,7 @@ def revision_whatsapp(request):
     })
 
 @login_required
+@user_passes_test(es_whatsapp) # <-- Agrega esta restricción
 def detalle_revision_whatsapp(request, curso_id):
     hoy = date.today()
     curso = get_object_or_404(Curso, id=curso_id)
