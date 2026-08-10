@@ -3112,11 +3112,29 @@ def arqueo_caja(request):
 
     if request.method == 'POST':
         cuenta_seleccionada = request.POST.get('cuenta_arqueo')
-        saldo_en_sistema = request.POST.get('saldo_sistema')
-        total_contado = request.POST.get('total_fisico_oculto')
-        diferencia_final = request.POST.get('diferencia_oculta')
+        
+        # NUEVO: Función segura para limpiar cualquier formato de moneda
+        def limpiar_decimal(valor):
+            if not valor:
+                return Decimal('0.00')
+            valor = str(valor).strip()
+            # Quitamos puntos de miles y cambiamos comas por puntos
+            if ',' in valor and '.' in valor:
+                valor = valor.replace('.', '').replace(',', '.')
+            elif ',' in valor:
+                valor = valor.replace(',', '.')
+            try:
+                return Decimal(valor)
+            except:
+                return Decimal('0.00')
+
+        # Aplicamos la limpieza a los campos problemáticos recolectados
+        saldo_en_sistema = limpiar_decimal(request.POST.get('saldo_sistema'))
+        total_contado = limpiar_decimal(request.POST.get('total_fisico_oculto'))
+        diferencia_final = limpiar_decimal(request.POST.get('diferencia_oculta'))
         obs = request.POST.get('observaciones')
 
+        # Ahora el guardado recibe números puros y seguros
         ArqueoCaja.objects.create(
             usuario=request.user,
             cuenta=cuenta_seleccionada,
