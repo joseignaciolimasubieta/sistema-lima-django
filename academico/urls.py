@@ -98,7 +98,8 @@ urlpatterns = [
     path('financiera/prestamos/nuevo/', views.crear_prestamo, name='crear_prestamo'), 
     path('financiera/prestamos/<int:prestamo_id>/pagar/', views.registrar_pago_prestamo, name='registrar_pago_prestamo'), 
     path('financiera/prestamos/<int:prestamo_id>/editar/', views.editar_prestamo, name='editar_prestamo'),
-    path('planillas/boleta/<int:pago_id>/', views.imprimir_boleta, name='imprimir_boleta'),     
+    path('planillas/boleta/<int:pago_id>/', views.imprimir_boleta, name='imprimir_boleta'),
+    path('financiera/prestamos/abono/<int:pago_id>/editar/', views.editar_pago_prestamo, name='editar_pago_prestamo'),     
     path('financiera/prestamos/recibo/<int:pago_id>/', views.imprimir_recibo_pago, name='imprimir_recibo_pago'), 
     path('consultora/eliminar-cliente/<int:cliente_id>/', views.eliminar_cliente, name='eliminar_cliente'), 
 

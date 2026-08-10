@@ -2340,7 +2340,6 @@ def lista_prestamos(request):
     
     # --- 1. MOTOR DE BÚSQUEDA POR TEXTO (Nombre o C.I.) ---
     if buscar:
-        # 🚀 Si buscas, también permite buscar por nombre_externo
         prestamos = prestamos.filter(
             Q(empleado__nombre_completo__icontains=buscar) |
             Q(empleado__ci__icontains=buscar) |
@@ -2348,13 +2347,14 @@ def lista_prestamos(request):
         )
         
     # --- 2. CÁLCULO DE TOTALES PARA LAS TARJETAS (KPIs) ---
-    totales_bd = prestamos.aggregate(
-        t_capital=Sum('monto_prestado'),
-        t_pagos=Sum('pagos__monto') # Suma todos los pagos asociados
-    )
+    # SOLUCIÓN: Separamos las sumas para evitar el "Join Duplication" de Django.
+    # Sumamos 'total_deuda' (capital + interés) para que la resta del saldo restante sea matemáticamente perfecta.
     
-    total_capital_prestado = totales_bd['t_capital'] or Decimal('0.00')
-    total_recuperado = totales_bd['t_pagos'] or Decimal('0.00')
+    total_capital_prestado = prestamos.aggregate(total=Sum('total_deuda'))['total'] or Decimal('0.00')
+    
+    # Sumamos el dinero recuperado buscando en la tabla de pagos pero solo de los préstamos filtrados en pantalla
+    total_recuperado = PagoPrestamo.objects.filter(prestamo__in=prestamos).aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
+    
     saldo_por_cobrar = total_capital_prestado - total_recuperado
 
     contexto = {
@@ -2555,7 +2555,7 @@ def registrar_pago_prestamo(request, prestamo_id):
                 # Buscamos el asiento de ingreso que creó el modelo automáticamente para asignarle la cuenta elegida
                 movimiento = MovimientoCaja.objects.filter(
                     fecha=pago.fecha_pago,
-                    detalle=f"Cobro Cuota Préstamo: {prestamo.empleado.nombre_completo}",
+                    detalle=f"Cobro Cuota Préstamo: {prestamo.nombre_deudor}",
                     tipo='ENTRADA',
                     monto=monto_abono
                 ).last()
@@ -4206,4 +4206,107 @@ def detalle_revision_whatsapp(request, curso_id):
         'curso': curso,
         'inscritos': inscritos,
         'empleados': empleados
+    })
+
+@login_required
+@user_passes_test(es_administrador)
+def editar_pago_prestamo(request, pago_id):
+    pago = get_object_or_404(PagoPrestamo, id=pago_id)
+    prestamo = pago.prestamo
+    
+    if request.method == 'POST':
+        # --- CASO A: ELIMINAR EL ABONO ---
+        if 'eliminar' in request.POST:
+            # 1. Buscar y eliminar el movimiento en el Flujo de Caja
+            movimiento = MovimientoCaja.objects.filter(
+                fecha=pago.fecha_pago,
+                detalle=f"Cobro Cuota Préstamo: {prestamo.nombre_deudor}",
+                tipo='ENTRADA',
+                monto=pago.monto
+            ).first()
+            if movimiento:
+                movimiento.delete()
+                
+            # 2. Eliminar el pago
+            pago.delete()
+            
+            # 3. Recalcular el estado del préstamo (si estaba pagado, vuelve a estar activo)
+            if prestamo.saldo_restante > 0:
+                prestamo.estado = 'ACTIVO'
+                prestamo.save()
+                
+            messages.success(request, 'El abono fue eliminado y el dinero fue restado del Flujo de Caja exitosamente.')
+            return redirect('lista_prestamos')
+
+        # --- CASO B: EDITAR EL ABONO ---
+        monto_raw = str(request.POST.get('monto', '0')).strip()
+        if ',' in monto_raw and '.' in monto_raw:
+            monto_raw = monto_raw.replace('.', '').replace(',', '.')
+        elif ',' in monto_raw:
+            monto_raw = monto_raw.replace(',', '.')
+            
+        try:
+            nuevo_monto = Decimal(monto_raw)
+        except:
+            nuevo_monto = Decimal('0.00')
+            
+        cuenta_id = request.POST.get('cuenta_destino_id')
+        nueva_fecha = request.POST.get('fecha_pago')
+        
+        # Validar que no se pase del monto adeudado (saldo actual + lo que ya había pagado en esta cuota)
+        saldo_disponible = prestamo.saldo_restante + pago.monto
+        if nuevo_monto > saldo_disponible:
+            messages.error(request, f'Error: El nuevo monto (Bs {nuevo_monto}) supera el saldo disponible (Bs {saldo_disponible}).')
+            return redirect('editar_pago_prestamo', pago_id=pago.id)
+
+        # 1. Encontrar y editar el movimiento de caja con los datos antiguos antes de cambiarlos
+        if not pago.es_descuento_planilla:
+            movimiento = MovimientoCaja.objects.filter(
+                fecha=pago.fecha_pago,
+                detalle=f"Cobro Cuota Préstamo: {prestamo.nombre_deudor}",
+                tipo='ENTRADA',
+                monto=pago.monto
+            ).first()
+            
+            if movimiento:
+                if cuenta_id:
+                    movimiento.cuenta = CuentaCaja.objects.get(id=cuenta_id)
+                movimiento.monto = nuevo_monto
+                movimiento.fecha = nueva_fecha
+                movimiento.save()
+
+        # 2. Actualizar el pago
+        pago.monto = nuevo_monto
+        pago.fecha_pago = nueva_fecha
+        pago.save()
+        
+        # 3. Recalcular el estado del préstamo general
+        if prestamo.saldo_restante <= 0:
+            prestamo.estado = 'PAGADO'
+        else:
+            prestamo.estado = 'ACTIVO'
+        prestamo.save()
+        
+        messages.success(request, 'El abono fue actualizado correctamente en el préstamo y en la Caja.')
+        return redirect('lista_prestamos')
+
+    cuentas = CuentaCaja.objects.all().order_by('codigo')
+    
+    # Intentamos adivinar en qué cuenta estaba depositado este dinero actualmente
+    cuenta_actual_id = None
+    if not pago.es_descuento_planilla:
+        mov = MovimientoCaja.objects.filter(
+            fecha=pago.fecha_pago,
+            detalle=f"Cobro Cuota Préstamo: {prestamo.nombre_deudor}",
+            tipo='ENTRADA',
+            monto=pago.monto
+        ).first()
+        if mov:
+            cuenta_actual_id = mov.cuenta.id
+
+    return render(request, 'editar_pago_prestamo.html', {
+        'pago': pago, 
+        'prestamo': prestamo, 
+        'cuentas': cuentas,
+        'cuenta_actual_id': cuenta_actual_id
     })

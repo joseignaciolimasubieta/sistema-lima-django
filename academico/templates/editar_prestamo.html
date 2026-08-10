@@ -1,6 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/90 backdrop-blur-xl text-gray-900 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        
+        <!-- Icono dinámico según el tipo de mensaje (Éxito o Error) -->
+        {% if message.tags == 'error' %}
+        <div class="bg-rose-500 p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </div>
+        {% else %}
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        {% endif %}
+        
+        <p class="text-sm font-bold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        
+        // Animación de entrada
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+            
+            // Animación de salida automática a los 4 segundos
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500); // Elimina el elemento del HTML
+            }, 4000);
+        });
+    });
+</script>
+{% endif %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <div class="max-w-4xl mx-auto mt-8 animate-fade-in relative z-10 font-sans">

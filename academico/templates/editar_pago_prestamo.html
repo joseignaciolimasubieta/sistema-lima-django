@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if messages %}
+<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+    {% for message in messages %}
+    <div class="toast-message bg-white/90 backdrop-blur-xl text-gray-900 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        
+        <!-- Icono dinámico según el tipo de mensaje (Éxito o Error) -->
+        {% if message.tags == 'error' %}
+        <div class="bg-rose-500 p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </div>
+        {% else %}
+        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        {% endif %}
+        
+        <p class="text-sm font-bold tracking-tight">{{ message }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-message');
+        
+        // Animación de entrada
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+            
+            // Animación de salida automática a los 4 segundos
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500); // Elimina el elemento del HTML
+            }, 4000);
+        });
+    });
+</script>
+{% endif %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="max-w-xl mx-auto mt-12 animate-fade-in relative z-10 font-sans">
+    
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-black text-black tracking-tight">Editar Abono Registrado</h2>
+        </div>
+        <a href="{% url 'lista_prestamos' %}" class="shrink-0 inline-flex items-center justify-center gap-2 h-9 px-5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-semibold transition-all shadow-sm">
+            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a Préstamos
+        </a>
+    </div>
+
+    <form method="POST" class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+        {% csrf_token %}
+        
+        <div class="bg-gray-50 px-6 py-5 border-b border-gray-200">
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Funcionario Abonado</p>
+            <h3 class="text-lg font-black text-black mt-0.5 uppercase tracking-tight">{{ prestamo.nombre_deudor }}</h3>
+            <div class="mt-2 pt-2 border-t border-gray-200 flex justify-between items-center text-xs">
+                <span class="font-medium text-gray-500">Saldo Pendiente Restante:</span>
+                <span id="saldo_pendiente_display" class="font-black text-[#0071e3] text-sm">
+                    Bs {{ prestamo.saldo_restante }}
+                </span>
+            </div>
+        </div>
+
+        <div class="p-6 space-y-5">
+            
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Fecha del Abono</label>
+                <input type="text" id="fecha_pago" name="fecha_pago" value="{{ pago.fecha_pago|date:'Y-m-d' }}" required class="w-full h-11 bg-white border border-gray-200 rounded-xl px-4 text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors cursor-pointer">
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Cuenta de Ingreso (Ajuste)</label>
+                <select name="cuenta_destino_id" class="w-full h-11 bg-white border border-gray-200 rounded-xl px-4 text-xs font-bold text-gray-800 outline-none hover:border-gray-300 focus:border-[#0071e3] transition-colors cursor-pointer" required>
+                    {% for c in cuentas %}
+                    <option value="{{ c.id }}" {% if cuenta_actual_id == c.id %}selected{% endif %}>{{ c.codigo }} — {{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest pl-1">Edita la cuenta si te equivocaste al registrarlo inicialmente.</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Monto de la Cuota (Bs)</label>
+                <input type="text" id="input_monto" name="monto" value="{{ pago.monto }}" required placeholder="0.00" class="w-full h-12 bg-white border border-gray-300 rounded-xl px-4 text-lg font-black text-gray-800 text-right outline-none focus:border-[#0071e3] focus:ring-4 focus:ring-blue-50/50 transition-all">
+            </div>
+        </div>
+
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-between items-center gap-3">
+            <!-- BOTÓN ELIMINAR -->
+            <button type="submit" name="eliminar" onclick="return confirm('¿Estás seguro de que deseas eliminar este abono? El dinero se restará automáticamente del flujo de caja.');" class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-full text-[10px] font-bold uppercase tracking-widest text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white transition-colors shadow-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                Eliminar Abono
+            </button>
+            
+            <div class="flex gap-3">
+                <a href="{% url 'lista_prestamos' %}" class="inline-flex items-center justify-center h-10 px-5 rounded-full text-xs font-bold uppercase tracking-widest text-gray-500 bg-white border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-xs font-bold uppercase tracking-widest shadow-md transition-all active:scale-95">
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr("#fecha_pago", {
+            locale: "es",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "j \\de F, Y"
+        });
+
+    const inputMonto = document.getElementById('input_monto');
+
+        function limpiarMonto(val) {
+            if (!val) return 0;
+            val = val.toString().replace(/[^\d.,\-]/g, ''); 
+            if (val.includes(',') && val.includes('.')) {
+                return parseFloat(val.replace(/\./g, '').replace(',', '.'));
+            } else if (val.includes(',')) {
+                return parseFloat(val.replace(',', '.'));
+            }
+            return parseFloat(val.replace(/\./g, ''));
+        }
+
+        function formatMoneda(num) {
+            if (isNaN(num)) return "0.00";
+            let partes = Math.abs(num).toFixed(2).split('.');
+            partes[0] = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            return (num < 0 ? "-" : "") + partes.join(',');
+        }
+
+        // Formatear al inicio
+        let numInicial = limpiarMonto(inputMonto.value);
+        if(!isNaN(numInicial) && numInicial > 0) {
+            inputMonto.value = formatMoneda(numInicial);
+        }
+
+        const saldoElement = document.getElementById('saldo_pendiente_display');
+        const saldoValor = parseFloat("{{ prestamo.saldo_restante }}");
+        
+        if (saldoElement && !isNaN(saldoValor)) {
+            saldoElement.textContent = "Bs " + formatMoneda(saldoValor);
+        }
+
+        inputMonto.addEventListener('blur', function() {
+            let num = limpiarMonto(this.value);
+            if(!isNaN(num) && num > 0) {
+                this.value = formatMoneda(num);
+            }
+        });
+
+        inputMonto.addEventListener('focus', function() {
+            let num = limpiarMonto(this.value);
+            if(num > 0) this.value = num; 
+        });
+    });
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% endblock %}
