@@ -44,7 +44,7 @@
                             <a href="{% url 'citas_consultora' %}" class="apple-nav-link {% if 'cita' in url_name %}apple-nav-link-active{% endif %}">Agenda de Citas</a>
                             <a href="{% url 'archivo_digital' %}" class="apple-nav-link {% if 'archivo' in url_name %}apple-nav-link-active{% endif %}">Archivo Digital</a>
                         <!-- 1. En la condición principal del menú, usa 'configuracion_empleados' al final de la lista -->
-                        {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo asistencia_empleados lista_tareas lista_anticipos crear_anticipo eliminar_anticipo configuracion_empleados' %}
+                        {% elif url_name in 'flujo_caja arqueo_caja historial_arqueos planillas lista_prestamos crear_movimiento editar_movimiento buscar_boletas crear_pago editar_pago crear_prestamo editar_prestamo registrar_pago_prestamo editar_pago_prestamo asistencia_empleados lista_tareas lista_anticipos crear_anticipo eliminar_anticipo configuracion_empleados' %}
                             
                             <a href="{% url 'flujo_caja' %}" class="apple-nav-link {% if url_name == 'flujo_caja' or url_name == 'crear_movimiento' or url_name == 'editar_movimiento' %}apple-nav-link-active{% endif %}">Flujo de Caja</a>
                             <a href="{% url 'arqueo_caja' %}" class="apple-nav-link {% if url_name == 'arqueo_caja' or url_name == 'historial_arqueos' %}apple-nav-link-active{% endif %}">Arqueo de Caja</a>
