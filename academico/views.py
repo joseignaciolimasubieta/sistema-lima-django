@@ -1888,7 +1888,7 @@ def eliminar_venta_servicio(request, id):
     messages.success(request, f'La venta de {tipo} fue eliminada correctamente.')
     return redirect('inscripciones')
 
-from django.shortcuts import get_object_or_404, redirect
+
 
 @login_required
 @user_passes_test(es_certificados)
@@ -3944,7 +3944,6 @@ def confirmar_publicacion(request, curso_id):
 
 def portal_buscar_certificado(request):
     from datetime import date
-    from django.db.models import Q
     
     if request.method == 'POST':
         ci_buscado = request.POST.get('ci', '').strip()
@@ -3969,12 +3968,9 @@ def portal_buscar_certificado(request):
 def descargar_certificado_publico(request, inscripcion_id):
     from datetime import date
     from django.db.models import Q
-    from django.shortcuts import get_object_or_404
-    import os
-    from pathlib import Path
-    from django.template.loader import render_to_string
-    from django.http import HttpResponse
-    from weasyprint import HTML
+
+
+    
     
     hoy = date.today()
     
