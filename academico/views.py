@@ -1993,7 +1993,7 @@ def exportar_excel_caja(request):
     
     # --- NUEVO: ATRAPAR EL FILTRO DE FECHAS ---
     rango_fechas = request.GET.get('rango_fechas', '')
-    movimientos_qs = MovimientoCaja.objects.all().order_by('fecha', 'id')
+    movimientos_qs = MovimientoCaja.objects.select_related('cuenta').all().order_by('fecha', 'id')
     
     if rango_fechas:
         if ' a ' in rango_fechas:
