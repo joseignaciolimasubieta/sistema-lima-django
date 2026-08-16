@@ -195,21 +195,22 @@
     <!-- Overlay oscurecido con desenfoque -->
     <div id="modal-qr-overlay" onclick="cerrarModalQR()" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0 duration-500 cursor-pointer"></div>
 
-    <!-- Contenedor Principal: max-w-2xl permite que crezca a lo ancho en PC sin romper la pantalla verticalmente -->
+    <!-- Contenedor Principal -->
     <div id="modal-qr-content" class="bg-white rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] p-5 md:p-8 max-w-sm md:max-w-2xl w-full relative transform transition-all scale-95 opacity-0 translate-y-12 duration-500 overflow-hidden flex flex-col border border-white/20">
 
         <!-- Destello decorativo de fondo -->
         <div class="absolute -top-20 -right-20 w-48 h-48 bg-[#0071e3]/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <!-- Cabecera del Modal -->
-        <div class="flex items-center justify-between mb-5 relative z-10">
+        <div class="flex items-center justify-between mb-6 relative z-10">
             <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0071e3] shadow-inner border border-blue-100/50">
+                <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-[#0071e3] shadow-inner border border-blue-100/50 shrink-0">
+                    <!-- Icono de Código QR -->
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                 </div>
                 <div>
-                    <h3 class="text-xl md:text-2xl font-black text-slate-800 leading-tight">Depósito</h3>
-                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Cuenta Autorizada</p>
+                    <h3 class="text-xl md:text-2xl font-black text-slate-800 leading-tight uppercase">QR Autorizado</h3>
+                    <p class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mt-0.5">Cuenta Oficial</p>
                 </div>
             </div>
             <!-- Botón Cerrar "X" -->
@@ -218,33 +219,22 @@
             </button>
         </div>
 
-        <!-- Banner Horizontal de Titular (Ocupa poco espacio arriba) -->
-        <div class="bg-blue-50/50 rounded-2xl p-3 md:p-4 mb-5 border border-blue-100/50 flex items-center gap-4 relative z-10">
-            <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-full bg-white flex items-center justify-center shadow-sm border border-blue-50">
-                <svg class="w-5 h-5 md:w-6 md:h-6 text-[#0071e3]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
-            </div>
-            <div>
-                <p class="text-[10px] md:text-[11px] font-black text-[#0071e3] uppercase tracking-widest mb-0.5">Titular de la Cuenta</p>
-                <p class="text-sm md:text-lg font-bold text-slate-800 leading-tight">Administración Central</p>
-            </div>
-        </div>
-
         <!-- Zona del QR (1 sola columna, ocupa toda la pantalla posible) -->
         <div class="w-full bg-slate-50 p-4 md:p-6 rounded-[2rem] border border-slate-100 flex flex-col items-center justify-center group relative z-10 flex-grow">
             
             <!-- WRAPPER INTELIGENTE: Se ajusta al tamaño máximo de la imagen -->
-            <div class="relative w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow-sm bg-white">
+            <div class="relative w-full max-w-[500px] mx-auto rounded-xl overflow-hidden shadow-sm bg-white border border-slate-100/50">
                 
                 <!-- Láser de Escaneo -->
                 <div class="absolute left-0 right-0 h-[3px] bg-[#0071e3] shadow-[0_0_20px_5px_rgba(0,113,227,0.7)] z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" style="animation: scan-full 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;"></div>
                 
-                <!-- Imagen QR (Crece a lo ancho, pero max-h-[50vh] evita que rompa la pantalla hacia abajo) -->
-                <img src="{% static 'qr_code.jpg' %}" alt="Código QR de Pago" class="w-full h-auto max-h-[50vh] object-contain block relative z-10 transition-transform duration-500 group-hover:scale-[1.02] mix-blend-multiply">
+                <!-- Imagen QR -->
+                <img src="{% static 'qr_code.jpg' %}" alt="Código QR de Pago" class="w-full h-auto max-h-[55vh] object-contain block relative z-10 transition-transform duration-500 group-hover:scale-[1.02] mix-blend-multiply">
             </div>
         </div>
 
         <!-- Botón de Confirmación -->
-        <div class="mt-5 relative z-10">
+        <div class="mt-6 relative z-10">
             <button type="button" onclick="cerrarModalQR()" class="w-full h-14 shrink-0 bg-[#0071e3] hover:bg-[#0077ED] active:scale-95 text-white text-xs md:text-sm font-bold uppercase tracking-widest rounded-full transition-all shadow-[0_8px_20px_-6px_rgba(0,113,227,0.5)] flex items-center justify-center gap-2">
                 <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
                 Confirmar Lectura
