@@ -1101,6 +1101,7 @@ def crear_pago(request):
             bono_whatsapp=a_decimal(request.POST.get('bono_whatsapp')), # <-- CAMBIADO
             comision_certificados=a_decimal(request.POST.get('comision_certificados')),
             bono_consultora=a_decimal(request.POST.get('bono_consultora')),
+            horas_extras=a_decimal(request.POST.get('horas_extras')),
             otros_bonos=a_decimal(request.POST.get('otros_bonos')),
             aportes_afp=a_decimal(request.POST.get('aportes_afp')),
             rc_iva=a_decimal(request.POST.get('rc_iva')),
@@ -2232,8 +2233,8 @@ def editar_pago(request, pago_id):
         pago.bono_whatsapp = a_decimal(request.POST.get('bono_whatsapp')) # <-- CAMBIADO
         pago.comision_certificados = a_decimal(request.POST.get('comision_certificados'))
         pago.bono_consultora = a_decimal(request.POST.get('bono_consultora'))
+        pago.horas_extras = a_decimal(request.POST.get('horas_extras'))
         pago.otros_bonos = a_decimal(request.POST.get('otros_bonos'))
-        #... el resto queda igual
         pago.aportes_afp = a_decimal(request.POST.get('aportes_afp'))
         pago.rc_iva = a_decimal(request.POST.get('rc_iva'))
         pago.anticipos = a_decimal(request.POST.get('anticipos'))
