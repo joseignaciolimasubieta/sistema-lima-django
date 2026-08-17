@@ -298,7 +298,7 @@
                         <!-- Celdas Editables Soft -->
                         {% for celda in fila.dias %}
                             <td class="px-0 py-1.5 text-center border-l border-gray-50">
-                                <div onclick="abrirEditor('{{ fila.empleado.id }}', '{{ fila.empleado.nombre_completo }}', '{{ celda.fecha_full }}', '{{ celda.estado|default:'' }}', '{{ celda.in|default:'' }}')"
+                                <div onclick="abrirEditor('{{ fila.empleado.id }}', '{{ fila.empleado.nombre_completo|escapejs }}', '{{ celda.fecha_full }}', '{{ celda.estado|default:'' }}', '{{ celda.in|default:'' }}', '{{ fila.empleado.hora_ingreso|time:"H:i" }}')"
                                      class="w-full h-8 flex items-center justify-center cursor-pointer hover:bg-slate-200/50 transition-all rounded-lg m-0.5 relative group/cell"
                                      title="Haz clic para editar. {% if celda.in %}Entrada: {{ celda.in }} | Salida: {{ celda.out|default:'--' }}{% endif %}">
                                     
@@ -356,7 +356,7 @@
                             <h2 class="text-xl font-black text-slate-900 tracking-tight">Editar Asistencia</h2>
                             <p class="text-[10px] font-bold text-[#0071e3] tracking-widest mt-1 uppercase" id="slideOverFecha"></p>
                         </div>
-                        <button onclick="cerrarEditor()" class="p-2 bg-white rounded-full hover:bg-rose-50 hover:text-rose-600 transition-colors shadow-sm border border-gray-200">
+                        <button onclick="cerrarEditor()" class="p-2 bg-white rounded-full hover:bg-slate-100 hover:text-blue-600 transition-colors shadow-sm border border-gray-200">
                             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
@@ -578,7 +578,7 @@
         { id: 'FERIADO', bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'indigo-500', icon: 'E', label: 'Feriado' },
     ];
 
-    function abrirEditor(empId, nombre, fecha, estadoActual, horaActual) {
+    function abrirEditor(empId, nombre, fecha, estadoActual, horaActual, horaConfigurada) {
         currentEmpId = empId;
         currentFecha = fecha;
         currentEstado = estadoActual || 'FALTA'; 
@@ -588,8 +588,9 @@
         const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         document.getElementById('slideOverFecha').innerText = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // NUEVO: Asignar hora actual a la pantalla visual y al input oculto
-        const horaVisual = (horaActual && horaActual !== 'None') ? horaActual : '08:30';
+        // NUEVO: Usamos la hora actual, y si no existe, usamos la hora configurada del empleado
+        const horaVisual = (horaActual && horaActual !== 'None') ? horaActual : (horaConfigurada || '08:30');
+        
         document.getElementById('inputHoraManual').value = horaVisual;
         document.getElementById('displayHoraManual').innerText = horaVisual;
 
