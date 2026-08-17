@@ -36,59 +36,98 @@
 </script>
 {% endif %}
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
     
     <!-- ======================================================= -->
-    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
+    <!-- CABECERA PRINCIPAL                                      -->
     <!-- ======================================================= -->
     <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
         
-        <!-- IZQUIERDA: TÍTULO -->
         <div class="space-y-3 shrink-0">
             <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Honorarios.</h1>
         </div>
 
-        <!-- DERECHA: CONTROLES AGRUPADOS -->
-        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0 z-50">
             
-            <!-- FILA ÚNICA: Buscador unificado -->
             <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
-                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
-                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                <form method="GET" id="formFiltroMes" class="flex flex-wrap lg:flex-nowrap items-center bg-white p-1.5 rounded-3xl lg:rounded-full border border-gray-200 shadow-sm w-full lg:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
                     
-                    <!-- Búsqueda por Texto (Nombre del Docente) -->
-                    <div class="relative w-full sm:w-48 h-8 flex items-center">
+                    <!-- BUSCADOR EN TIEMPO REAL -->
+                    <div class="relative w-full lg:w-72 h-9 flex items-center mb-2 lg:mb-0">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" name="docente" value="{{ busqueda_docente|default:'' }}" placeholder="BUSCAR DOCENTE..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
+                        <input type="text" id="buscadorHonorarios" onkeyup="filtrarHonorarios()" placeholder="BUSCAR DOCENTE, CURSO, ESTADO O MODALIDAD..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
                     </div>
 
-                    <!-- Divisor sutil -->
-                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+                    <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
 
-                    <!-- Buscador de Mes / Periodo -->
-                    <div class="relative w-full sm:w-36 h-8 flex items-center">
-                        <!-- Le agregamos pointer-events-none para que el ícono no bloquee tu dedo -->
-                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <!-- CALENDARIO POPOVER MODERNO (MES O DÍA) -->
+                    <div class="relative w-full lg:w-auto flex items-center border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0 shrink-0">
+                        <input type="hidden" name="rango_fechas" id="inputMesBuscar" value="{{ rango_fechas|default:'' }}">
+                        
+                        <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="h-9 px-4 flex items-center justify-between gap-3 bg-white hover:bg-slate-50 transition-all rounded-full focus:outline-none w-full lg:w-40">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span id="txtMesSeleccionado" class="text-[10px] font-black text-slate-700 tracking-widest uppercase">FECHAS</span>
+                            </div>
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        <!-- Menú Popover Dual -->
+                        <div id="popoverMes" class="hidden absolute right-0 top-12 mt-1 w-[20rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-5 transform origin-top-right transition-all z-50">
+                            
+                            <!-- Pestañas -->
+                            <div class="flex items-center justify-between mb-5 bg-slate-50 p-1.5 rounded-xl border border-gray-100">
+                                <button type="button" onclick="setModoCalendario('mes')" id="btnTabMes" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all">Por Mes</button>
+                                <button type="button" onclick="setModoCalendario('dia')" id="btnTabDia" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all">Día Exacto</button>
+                            </div>
+
+                            <!-- Vista: Por Mes -->
+                            <div id="vistaMes" class="animate-fade-in">
+                                <div class="flex items-center justify-between mb-5 px-2">
+                                    <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerAnio" class="text-xl font-light text-slate-800 tracking-wide">2026</span>
+                                    <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-y-3 gap-x-2" id="gridMeses"></div>
+                            </div>
+
+                            <!-- Vista: Por Día -->
+                            <div id="vistaDia" class="hidden animate-fade-in">
+                                <div class="flex items-center justify-between mb-4 px-1">
+                                    <button type="button" onclick="cambiarMesDia(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerMesAnioDia" class="text-sm font-black text-slate-800 tracking-widest uppercase">AGOSTO 2026</span>
+                                    <button type="button" onclick="cambiarMesDia(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-7 text-center mb-2 border-b border-gray-100 pb-2">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Lu</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ma</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Mi</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ju</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Vi</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Sa</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Do</span>
+                                </div>
+                                <div class="grid grid-cols-7 gap-y-1 gap-x-1" id="gridDias"></div>
+                            </div>
+
                         </div>
-                        <!-- Quitamos el class="hidden" y lo dejamos visible -->
-                        <input type="text" id="calendario_honorarios" name="rango_fechas" value="{{ rango_fechas }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
                     </div>
                     
-                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
-                        BUSCAR
-                    </button>
-                    
-                    {% if busqueda_docente or rango_fechas %}
-                    <a href="{% url 'honorarios' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </a>
+                    {% if rango_fechas %}
+                        <a href="{% url 'honorarios' %}" class="absolute -top-3 -right-3 lg:static lg:w-9 lg:h-9 lg:ml-2 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0 shadow-sm" title="Limpiar Filtro">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </a>
                     {% endif %}
                 </form>
 
@@ -96,7 +135,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm z-10">
         <div class="overflow-x-auto scrollbar-delgada max-h-[75vh]">
             <table class="w-full text-left border-collapse">
                 
@@ -115,8 +154,9 @@
                 
                 <tbody class="divide-y divide-gray-100 text-xs bg-white">
                     {% for h in honorarios %}
-                    
-                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group">
+                    <!-- ATRIBUTOS DATA PARA BÚSQUEDA JS -->
+                    <tr class="honorario-row hover:bg-[#0071e3] transition-colors duration-200 group"
+                        data-busqueda="{{ h.curso.docente.nombre|lower|default:'' }} {{ h.curso.nombre|lower|default:'' }} {{ h.estado_curso_calc|lower|default:'no inició' }} {{ h.curso.modalidad|lower|default:'' }}">
                         
                         <td class="px-6 py-4 relative">
                             <div class="font-bold text-black group-hover:text-white transition-colors text-sm uppercase tracking-tight">{{ h.curso.docente.nombre }}</div>
@@ -236,42 +276,42 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Configurador del Buscador de Calendario
-        flatpickr("#calendario_honorarios", {
-            locale: "es",
-            disableMobile: true, // 📱 Evita usar el calendario nativo roto
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: false,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                })
-            ],
-            altInput: true,
-            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
+        
+        // ==========================================
+        // 1. LÓGICA DE BÚSQUEDA EN TIEMPO REAL
+        // ==========================================
+        function filtrarHonorarios() {
+            const input = document.getElementById('buscadorHonorarios').value.toLowerCase();
+            const filas = document.querySelectorAll('.honorario-row');
             
-            // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
-            onReady: function(selectedDates, dateStr, instance) {
-                if (instance.altInput) {
-                    // 1. Quita el candado que bloquea los toques en celulares
-                    instance.altInput.removeAttribute('readonly');
-                    // 2. Apaga el teclado de letras para que no estorbe
-                    instance.altInput.setAttribute('inputmode', 'none');
+            filas.forEach(fila => {
+                const busqueda = fila.getAttribute('data-busqueda') || '';
+                
+                if(busqueda.includes(input)) {
+                    fila.style.display = '';
+                    fila.classList.remove('oculto-por-filtro');
+                } else {
+                    fila.style.display = 'none';
+                    fila.classList.add('oculto-por-filtro');
                 }
-            }
-        });
-    
-        // Tu función de totales intacta
+            });
+            
+            calcularTotalesHonorarios(); // Recalcular totales visibles
+        }
+
+        const inputBuscador = document.getElementById('buscadorHonorarios');
+        if(inputBuscador) {
+            inputBuscador.addEventListener('keyup', filtrarHonorarios);
+        }
+
+        // ==========================================
+        // 2. CÁLCULO DINÁMICO DE TOTALES 
+        // ==========================================
         function calcularTotalesHonorarios() {
-            const celdasHonorario = document.querySelectorAll('.val-honorario');
-            const celdasAnticipo = document.querySelectorAll('.val-anticipo');
-            const celdasSaldo = document.querySelectorAll('.val-saldo');
+            // Solo tomamos las filas que NO tienen la clase oculta
+            const filasVisibles = document.querySelectorAll('.honorario-row:not(.oculto-por-filtro)');
             
             let sumaHonorario = 0;
             let sumaAnticipo = 0;
@@ -294,9 +334,15 @@
                 return parseFloat(limpio) || 0;
             }
 
-            celdasHonorario.forEach(celda => { sumaHonorario += limpiarNumero(celda.textContent); });
-            celdasAnticipo.forEach(celda => { sumaAnticipo += limpiarNumero(celda.textContent); });
-            celdasSaldo.forEach(celda => { sumaSaldo += limpiarNumero(celda.textContent); });
+            filasVisibles.forEach(fila => {
+                const celdaHonorario = fila.querySelector('.val-honorario');
+                const celdaAnticipo = fila.querySelector('.val-anticipo');
+                const celdaSaldo = fila.querySelector('.val-saldo');
+                
+                if (celdaHonorario) sumaHonorario += limpiarNumero(celdaHonorario.textContent);
+                if (celdaAnticipo) sumaAnticipo += limpiarNumero(celdaAnticipo.textContent);
+                if (celdaSaldo) sumaSaldo += limpiarNumero(celdaSaldo.textContent);
+            });
 
             function formatearMoneda(valor) {
                 return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -313,7 +359,189 @@
             `;
         }
 
-        calcularTotalesHonorarios();
+        calcularTotalesHonorarios(); // Calcular al cargar la página
+
+        // ==========================================
+        // 3. LÓGICA DEL CALENDARIO POPOVER DUAL (MES / DÍA)
+        // ==========================================
+        const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        let anioSeleccionado = new Date().getFullYear();
+        let mesSeleccionado = new Date().getMonth() + 1; // 1-12
+        let anioNavegacion = anioSeleccionado;
+        
+        let anioNavegacionDia = anioSeleccionado;
+        let mesNavegacionDia = mesSeleccionado - 1; // 0-11
+        let diaSeleccionadoStr = "";
+
+        function initPicker() {
+            const val = document.getElementById('inputMesBuscar').value;
+            if(val && val.length === 7 && val.includes('-')) {
+                const parts = val.split('-');
+                anioSeleccionado = parseInt(parts[0]);
+                mesSeleccionado = parseInt(parts[1]);
+                anioNavegacion = anioSeleccionado;
+                
+                anioNavegacionDia = anioSeleccionado;
+                mesNavegacionDia = mesSeleccionado - 1;
+                
+                document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
+                setModoCalendario('mes');
+            } else if (val && val.length === 10 && val.includes('-')) {
+                const parts = val.split('-');
+                anioSeleccionado = parseInt(parts[0]);
+                mesSeleccionado = parseInt(parts[1]);
+                const dia = parts[2];
+                
+                anioNavegacion = anioSeleccionado;
+                anioNavegacionDia = anioSeleccionado;
+                mesNavegacionDia = mesSeleccionado - 1;
+                diaSeleccionadoStr = val;
+                
+                document.getElementById('txtMesSeleccionado').innerText = `${dia} ${mesesNombres[mesSeleccionado-1].substring(0,3)}. ${anioSeleccionado}`;
+                setModoCalendario('dia');
+            } else if (val) {
+                document.getElementById('txtMesSeleccionado').innerText = 'FILTRADO';
+                setModoCalendario('mes');
+            } else {
+                document.getElementById('txtMesSeleccionado').innerText = 'FECHAS';
+                setModoCalendario('mes');
+            }
+            renderGridMeses();
+            renderGridDias();
+        }
+
+        window.toggleMesPicker = function() {
+            const pop = document.getElementById('popoverMes');
+            if(pop.classList.contains('hidden')){
+                anioNavegacion = anioSeleccionado; 
+                anioNavegacionDia = anioSeleccionado;
+                if(diaSeleccionadoStr) {
+                    const parts = diaSeleccionadoStr.split('-');
+                    mesNavegacionDia = parseInt(parts[1]) - 1;
+                } else {
+                    mesNavegacionDia = new Date().getMonth();
+                }
+                
+                renderGridMeses();
+                renderGridDias();
+                pop.classList.remove('hidden');
+            } else {
+                pop.classList.add('hidden');
+            }
+        };
+
+        window.cambiarAnio = function(delta) {
+            anioNavegacion += delta;
+            renderGridMeses();
+        };
+
+        window.cambiarMesDia = function(delta) {
+            mesNavegacionDia += delta;
+            if(mesNavegacionDia < 0) {
+                mesNavegacionDia = 11;
+                anioNavegacionDia--;
+            } else if (mesNavegacionDia > 11) {
+                mesNavegacionDia = 0;
+                anioNavegacionDia++;
+            }
+            renderGridDias();
+        };
+
+        window.seleccionarMes = function(mesIndex) {
+            const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
+            document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
+            document.getElementById('formFiltroMes').submit();
+        };
+
+        window.seleccionarDia = function(dia) {
+            const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+            const d = dia.toString().padStart(2, '0');
+            const fecha = `${anioNavegacionDia}-${m}-${d}`;
+            document.getElementById('inputMesBuscar').value = fecha;
+            document.getElementById('formFiltroMes').submit();
+        };
+
+        function renderGridMeses() {
+            document.getElementById('pickerAnio').innerText = anioNavegacion;
+            const grid = document.getElementById('gridMeses');
+            grid.innerHTML = '';
+            
+            for(let i = 1; i <= 12; i++) {
+                const val = document.getElementById('inputMesBuscar').value;
+                const isSelected = (val.length === 7 && anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+                const baseClass = "py-2.5 rounded-lg text-[13px] font-bold tracking-wide transition-all ";
+                const extraClass = isSelected 
+                    ? "bg-[#0071e3] text-white shadow-sm" 
+                    : "text-slate-600 border border-transparent hover:bg-slate-100 hover:text-black";
+                    
+                grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1].substring(0,3)}.</button>`;
+            }
+        }
+
+        function renderGridDias() {
+            document.getElementById('pickerMesAnioDia').innerText = `${mesesNombres[mesNavegacionDia]} ${anioNavegacionDia}`;
+            const grid = document.getElementById('gridDias');
+            grid.innerHTML = '';
+            
+            const firstDay = new Date(anioNavegacionDia, mesNavegacionDia, 1);
+            const daysInMonth = new Date(anioNavegacionDia, mesNavegacionDia + 1, 0).getDate();
+            
+            let startDay = firstDay.getDay(); 
+            startDay = startDay === 0 ? 6 : startDay - 1; 
+            
+            for(let i=0; i<startDay; i++) {
+                grid.innerHTML += `<div class="p-1"></div>`; 
+            }
+            
+            for(let i=1; i<=daysInMonth; i++) {
+                const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+                const d = i.toString().padStart(2, '0');
+                const fechaActual = `${anioNavegacionDia}-${m}-${d}`;
+                
+                const hoy = new Date();
+                const esHoy = (hoy.getFullYear() === anioNavegacionDia && hoy.getMonth() === mesNavegacionDia && hoy.getDate() === i);
+                
+                const isSelected = (fechaActual === diaSeleccionadoStr);
+                
+                const baseClass = "w-full h-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all";
+                let extraClass = "text-slate-700 hover:bg-slate-100 hover:text-black cursor-pointer border border-transparent";
+                
+                if (isSelected) {
+                    extraClass = "bg-[#0071e3] text-white shadow-sm border border-[#0071e3]";
+                } else if (esHoy) {
+                    extraClass = "bg-blue-50 text-[#0071e3] font-black border border-blue-200 cursor-pointer hover:bg-blue-100";
+                }
+                    
+                grid.innerHTML += `
+                    <div class="p-0.5 flex items-center justify-center">
+                        <button type="button" onclick="seleccionarDia(${i})" class="${baseClass} ${extraClass}">${i}</button>
+                    </div>
+                `;
+            }
+        }
+
+        window.setModoCalendario = function(modo) {
+            if(modo === 'mes') {
+                document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
+                document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
+                document.getElementById('vistaMes').classList.remove('hidden');
+                document.getElementById('vistaDia').classList.add('hidden');
+            } else {
+                document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
+                document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
+                document.getElementById('vistaMes').classList.add('hidden');
+                document.getElementById('vistaDia').classList.remove('hidden');
+            }
+        };
+
+        document.addEventListener('click', function(event) {
+            const pop = document.getElementById('popoverMes');
+            if (pop && !event.target.closest('#formFiltroMes') && !pop.classList.contains('hidden')) {
+                pop.classList.add('hidden');
+            }
+        });
+
+        initPicker();
     });
 </script>
 
@@ -328,6 +556,8 @@
         50% { opacity: 0.3; transform: scale(0.85); }
     }
     .animacion-parpadeo { animation: parpadeo-suave 2s infinite ease-in-out; }
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 {% endblock %}
