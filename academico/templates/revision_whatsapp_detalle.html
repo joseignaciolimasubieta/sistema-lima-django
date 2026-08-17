@@ -49,7 +49,6 @@
                         <div class="relative flex-1">
                             <select name="empleado_id" required class="w-full h-[46px] bg-white border-2 border-gray-200 hover:border-gray-300 rounded-full pl-5 pr-12 text-xs font-black text-black outline-none focus:border-[#0071e3] transition-all uppercase appearance-none cursor-pointer">
                                 <option value="">¿QUIÉN REVISA?</option>
-                                <!-- Aquí el backend ahora sólo envía a Patricia -->
                                 {% for emp in empleados %}
                                 <option value="{{ emp.id }}">{{ emp.nombre_completo }}</option>
                                 {% endfor %}
@@ -70,11 +69,22 @@
     </div>
 
     <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
-        <div class="px-6 py-4 bg-slate-50 border-b border-gray-200 flex justify-between items-center">
+        <div class="px-6 py-4 bg-slate-50 border-b border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
             <h3 class="text-xs font-black text-black uppercase tracking-widest">Lista Oficial de Inscritos</h3>
-            <span class="text-[10px] font-bold bg-white border border-gray-200 px-3 py-1 rounded-full text-gray-500 tracking-widest">
-                TOTAL: <span class="text-black">{{ inscritos.count }}</span>
-            </span>
+            
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <!-- BUSCADOR EN TIEMPO REAL -->
+                <div class="relative flex items-center bg-white p-1 rounded-full border border-gray-200 shadow-sm w-full md:w-[20rem] group focus-within:border-[#0071e3] transition-all h-9">
+                    <div class="absolute left-3 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="buscadorAlumnos" onkeyup="filtrarAlumnosWhatsApp()" placeholder="BUSCAR ALUMNO O CELULAR..." class="w-full h-full pl-8 pr-3 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 rounded-full uppercase">
+                </div>
+
+                <span class="text-[10px] font-bold bg-white border border-gray-200 px-3 py-1.5 rounded-full text-gray-500 tracking-widest shrink-0">
+                    TOTAL: <span id="contador-participantes" class="text-black">{{ inscritos.count }}</span>
+                </span>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[500px]">
@@ -87,7 +97,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-xs">
                     {% for alumno in inscritos %}
-                    <tr class="hover:bg-slate-50 transition-colors duration-200">
+                    <tr class="alumno-row hover:bg-slate-50 transition-colors duration-200" data-busqueda="{{ alumno.participante.nombre_completo|lower }} {{ alumno.participante.celular|default:'' }}">
                         <td class="px-6 py-4 text-center font-bold text-gray-400">{{ forloop.counter }}</td>
                         <td class="px-6 py-4">
                             <div class="font-black text-black uppercase text-[13px]">{{ alumno.participante.nombre_completo }}</div>
@@ -111,4 +121,36 @@
         </div>
     </div>
 </div>
+
+<script>
+    // ==========================================
+    // LÓGICA DE BÚSQUEDA EN TIEMPO REAL
+    // ==========================================
+    function filtrarAlumnosWhatsApp() {
+        const input = document.getElementById('buscadorAlumnos').value.toLowerCase();
+        const filas = document.querySelectorAll('.alumno-row');
+        let visibles = 0;
+
+        filas.forEach(fila => {
+            const busqueda = fila.getAttribute('data-busqueda') || '';
+            if(busqueda.includes(input)) {
+                fila.style.display = '';
+                visibles++;
+            } else {
+                fila.style.display = 'none';
+            }
+        });
+
+        // Actualizar el contador de estudiantes en vivo
+        const contador = document.getElementById('contador-participantes');
+        if (contador) {
+            contador.innerText = visibles;
+        }
+    }
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 {% endblock %}
