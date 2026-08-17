@@ -1,342 +1,498 @@
 {% extends 'base.html' %}
 {% block content %}
+
 {% if messages %}
-<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3">
+<div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3">
     {% for message in messages %}
-    <div class="toast-message bg-white border border-gray-200 text-gray-900 px-5 py-4 rounded-2xl shadow-lg flex items-center gap-3 animate-fade-in">
-        <div class="bg-[#0071e3] p-1.5 rounded-full flex items-center justify-center shrink-0">
-            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
+    <div class="toast-mensaje bg-white/90 backdrop-blur-xl text-gray-900 px-6 py-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200/50 flex items-center gap-3.5 transform transition-all duration-500 translate-x-10 opacity-0">
+        <div class="bg-emerald-500 p-1.5 rounded-full flex items-center justify-center shadow-sm shrink-0">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>
         </div>
-        <p class="text-sm font-bold">{{ message }}</p>
+        <p class="text-sm font-bold tracking-tight">{{ message }}</p>
     </div>
     {% endfor %}
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toasts = document.querySelectorAll('.toast-mensaje');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                toast.classList.remove('translate-x-10', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
+        });
+        setTimeout(() => {
+            toasts.forEach(toast => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }, 3000);
+    });
+</script>
 {% endif %}
-
-<!-- LIBRERÍAS CSS DEL CALENDARIO FLATPICKR -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
 
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
     
-    <!-- ======================================================= -->
-    <!-- CABECERA PRINCIPAL (DISEÑO ALINEADO A LA DERECHA)       -->
-    <!-- ======================================================= -->
-    <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
+    <div class="mb-12 flex flex-col xl:flex-row xl:items-end justify-between gap-8 w-full">
         
-        <!-- IZQUIERDA: TÍTULO -->
         <div class="space-y-3 shrink-0">
-            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Catálogo de Cursos.</h1>
+            <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Inscripciones.</h1>
         </div>
-
-        <!-- DERECHA: CONTROLES AGRUPADOS -->
-        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+        
+        <div class="flex flex-col items-end gap-4 w-full xl:w-auto shrink-0 z-50">
             
-            <!-- FILA ÚNICA: Buscador unificado -->
+            <div class="flex flex-wrap items-center justify-end gap-4 w-full">
+                <button onclick="irAlFinal()" class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    Ir al Ultimo Registro
+                </button>
+
+                <script>
+                    function irAlFinal() {
+                        const filas = document.querySelectorAll('table tbody tr:not(.oculto-por-filtro)');
+                        if (filas.length >= 2) {
+                            filas[filas.length - 2].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (filas.length === 1) {
+                            filas[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }
+                </script>
+                                
+                <a href="{% url 'cuentas_por_cobrar' %}" class="h-10 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-black border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                    Cuentas por Cobrar
+                </a>
+            </div>
+
             <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
-                <!-- BARRA DE BÚSQUEDA Y FILTROS (Unificada) -->
-                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
+                <!-- 1. BUSCADOR DE MES (POPOVER) -->
+                <form method="GET" id="formFiltroMes" class="relative shrink-0 w-full sm:w-auto">
+                    <input type="hidden" name="rango_fechas" id="inputMesBuscar" value="{{ rango_fechas|default:'' }}">
                     
-                    <!-- Búsqueda por Texto (Nombre del Curso o Docente) -->
-                    <div class="relative w-full sm:w-48 h-8 flex items-center">
-                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <!-- Botón Desplegable -->
+                    <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="w-full sm:w-auto h-11 px-5 flex items-center justify-between sm:justify-start gap-3 bg-white border border-gray-200 rounded-full hover:bg-slate-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span id="txtMesSeleccionado" class="text-[11px] font-black text-slate-700 tracking-widest uppercase">PERIODO</span>
                         </div>
-                        <input type="text" name="buscar" value="{{ buscar|default:'' }}" placeholder="BUSCAR CURSO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-black placeholder-gray-400">
-                    </div>
-
-                    <!-- Divisor sutil -->
-                    <div class="hidden sm:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
-
-                    <!-- Buscador de Mes / Periodo -->
-                    <div class="relative w-full sm:w-36 h-8 flex items-center">
-                        <!-- Le agregamos pointer-events-none para que el ícono no bloquee tu dedo -->
-                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        </div>
-                        <!-- Quitamos el class="hidden" y lo dejamos visible -->
-                        <input type="text" id="calendario_informacion" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
-                    </div>
-                    
-                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
-                        BUSCAR
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    
-                    {% if mes_buscar or buscar %}
-                    <a href="{% url 'informacion_cursos' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+
+                    <!-- Menú Popover Minimalista -->
+                    <div id="popoverMes" class="hidden absolute right-0 mt-3 w-[20rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-6 transform origin-top-right transition-all">
+                        <div class="flex items-center justify-between mb-6 px-1">
+                            <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <span id="pickerAnio" class="text-[1.35rem] font-light text-slate-800 tracking-wide">2026</span>
+                            <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-y-4 gap-x-2" id="gridMeses"></div>
+                    </div>
+                </form>
+
+                <!-- 2. BUSCADOR EN VIVO -->
+                <div class="relative flex items-center bg-white p-1 rounded-full border border-gray-200 shadow-sm w-full sm:w-[20rem] lg:w-[24rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all h-11 shrink-0">
+                    <div class="absolute left-4 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="buscadorInscripciones" onkeyup="filtrarInscripciones()" placeholder="BUSCAR ALUMNO O CELULAR..." class="w-full h-full pl-10 pr-4 bg-transparent outline-none text-[11px] font-bold text-slate-800 placeholder-gray-400 rounded-full uppercase">
+                </div>
+
+                {% if rango_fechas %}
+                    <a href="{% url 'inscripciones' %}" class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </a>
-                    {% endif %}
-                </form>
+                {% endif %}
 
+                <button id="btn-toggle-edicion" class="h-11 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0"></button>
+
+                <a href="{% url 'crear_inscripcion' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0 active:scale-95">
+                    <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+                    Inscrito
+                </a>
             </div>
         </div>
     </div>
-    <!-- CUADRÍCULA DE CURSOS -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {% for c in cursos %}
-        <div class="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-[#0071e3] transition-all cursor-pointer group flex flex-col justify-between h-full"
-             onclick="cargarYMostrarAfiche(this)"
-             data-id="{{ c.id }}"
-             data-contenido-url="{% if c.imagen_contenido %}{{ c.imagen_contenido.url }}{% endif %}"
-             data-nombre="{{ c.nombre }}"
-             data-mes="{{ c.mes_curso }}"
-             data-turno="{{ c.turno }}"
-             data-docente="{{ c.docente.nombre }}"
-             data-inicio="{{ c.fecha_inicio|date:'d/m/Y'|default:'-' }}"
-             data-inicio-largo="{{ c.fecha_inicio|date:'l d \d\e F'|default:'-'|upper }}"
-             data-fin="{{ c.fecha_finalizacion|date:'d/m/Y'|default:'-' }}"
-             data-horario="{{ c.horario|default:'-' }}"
-             data-dias="{{ c.dias|default:'-' }}"
-             data-duracion="{{ c.duracion|default:'-' }}"
-             data-modalidad="{{ c.modalidad|default:'VIRTUAL' }}"
-             data-inversion="{{ c.inversion }}"
-             data-promo="{{ c.promo }}"
-             data-antiguos="{{ c.antiguos }}">
-             
-            <div>
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-[9px] font-black {% if c.modalidad == 'VIRTUAL' %}bg-blue-50 text-[#0071e3]{% else %}bg-amber-50 text-amber-600 border-amber-200{% endif %} uppercase tracking-widest px-3 py-1 rounded-full">{{ c.modalidad|default:"VIRTUAL" }}</span>
-                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{ c.mes_curso|default:"-" }}</span>
-                </div>
-                <h3 class="font-black text-lg text-black uppercase leading-tight group-hover:text-[#0071e3] transition-colors">{{ c.nombre }}</h3>
-                <p class="text-xs font-bold text-gray-500 mt-2 uppercase flex items-center gap-1.5">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    {{ c.docente.nombre }}
-                </p>
-            </div>
+
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm z-10">
+        <div class="overflow-x-auto overflow-y-auto max-h-[75vh] relative scrollbar-delgada">
             
-            <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between">
-                <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Inicia el</span>
-                    <span class="text-xs font-black text-black uppercase">{{ c.fecha_inicio|date:"d M Y"|default:"-" }}</span>
-                </div>
-                <div class="w-8 h-8 rounded-full bg-gray-50 text-[#0071e3] group-hover:bg-[#0071e3] group-hover:text-white flex items-center justify-center transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </div>
-            </div>
+            <table class="w-full text-sm text-left border-collapse">
+                
+                <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
+                    <tr>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Participante</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Celular</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Curso / Mes</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Turno</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Modalidad</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Forma<br>De Pago</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Destino</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Importe</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Vendedor</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Comisión</th>
+                        <th class="py-2 px-2 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Registro</th>
+                        <th class="col-edicion hidden px-2.5 py-3 text-center text-[9px] font-black text-[#0071e3] uppercase tracking-widest whitespace-nowrap bg-slate-100">Acciones</th>
+                    </tr>
+                </thead>
+                
+                <tbody class="divide-y divide-gray-100 text-xs bg-white">
+                    {% for item in lista_combinada %}
+                        
+                        {% if item.curso %}
+                        <!-- ATENCIÓN: data-busqueda permite buscar en tiempo real -->
+                        <tr class="inscripcion-row hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer" data-busqueda="{{ item.participante.nombre_completo|lower|default:item.participante }} {{ item.participante.ci|default:'' }} {{ item.participante.celular|default:'' }} {{ item.curso.nombre|lower|default:'' }}">
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">
+                                <div class="font-bold text-[11px] uppercase">{{ item.fecha_inscripcion|date:"l d" }}</div>
+                                <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_inscripcion|date:"F" }} DE {{ item.fecha_inscripcion|date:"Y" }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 leading-tight min-w-[180px] whitespace-nowrap">
+                                <div class="font-bold text-black group-hover:text-white transition-colors uppercase text-xs">{{ item.participante }}</div>
+                                <div class="text-[9px] font-black text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">C.I. {{ item.participante.ci|default:"-" }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.participante.celular|default:"-" }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
+                                <div class="font-bold text-black group-hover:text-white transition-colors text-[11px]">{{ item.curso.nombre|default:item.curso }}</div>
+                                <div class="text-[9px] font-black text-[#0071e3] group-hover:text-blue-200 transition-colors uppercase tracking-widest mt-0.5">{{ item.curso.mes_curso|default:"-" }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.curso.turno|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-[10px] font-bold text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-wider whitespace-nowrap">
+                                {{ item.modalidad|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.forma_pago|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.banco|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                                {{ item.importe|default:"0,00" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.vendedor|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
+                                {{ item.comision|default:0|floatformat:3 }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
+                                {{ item.registrado_por|default:"-" }}
+                            </td>
+                            
+                            <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'editar_inscripcion' item.id %}" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Editar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Editar</span>
+                                    </a>
+                                    <a href="{% url 'eliminar_inscripcion' item.id %}" onclick="return confirm('⚠ ATENCIÓN: ¿Deseas ELIMINAR este registro? Esta acción no se puede deshacer.');" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Eliminar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        {% elif item.tipo_servicio %}
+                        <!-- ATENCIÓN: data-busqueda permite buscar en tiempo real -->
+                        <tr class="inscripcion-row hover:bg-[#0071e3] transition-colors duration-200 bg-gray-50/30 group relative cursor-pointer" data-busqueda="{{ item.participante.nombre_completo|lower }} {{ item.participante.celular|default:'' }} {{ item.tipo_servicio|lower }}">
+                            <td class="px-2.5 py-3 text-gray-500 group-hover:text-white transition-colors whitespace-nowrap">
+                                <div class="font-bold text-[11px] uppercase">{{ item.fecha_venta|date:"l d" }}</div>
+                                <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_venta|date:"F" }} DE {{ item.fecha_venta|date:"Y" }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
+                                {{ item.participante.nombre_completo }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
+                                {{ item.participante.celular|default:"-" }}
+                            </td>
+                            
+                            <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
+                                <div class="font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] uppercase">{{ item.tipo_servicio }}</div>
+                                <div class="text-[9px] font-black text-gray-400 group-hover:text-white transition-colors uppercase tracking-widest mt-0.5">{{ item.detalle }}</div>
+                            </td>
+                            
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.forma_pago|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.banco|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
+                                {{ item.importe|default:"0,00" }}
+                            </td>       
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
+                                {{ item.vendedor|default:"-" }}
+                            </td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
+                                {{ item.comision|default:0|floatformat:3 }}
+                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
+                                {{ item.registrado_por|default:"-" }}
+                            </td>
+                            
+                            <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{% url 'editar_venta_servicio' item.id %}" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Editar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Editar</span>
+                                    </a>
+                                    <a href="{% url 'eliminar_venta_servicio' item.id %}" onclick="return confirm('¿Estás seguro de que deseas eliminar permanentemente esta venta de servicio?');" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-rose-500 hover:!text-white transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Eliminar">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        <span class="text-[9px] font-black uppercase tracking-widest">Eliminar</span>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="13" class="px-6 py-20 text-center bg-gray-50">
+                            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">No hay inscripciones ni ventas registradas</h3>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                
+                <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
+                    <tr>
+                        <td class="px-2.5 py-4 text-left text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">TOTALES</td>
+                        <td class="px-2.5 py-4 text-left text-xs uppercase whitespace-nowrap" id="total-participantes">
+                            <span class="text-black font-black">0</span>
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4 text-right text-sm font-black text-black whitespace-nowrap" id="total-importe">
+                            Bs 0,00
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="px-2.5 py-4 text-right text-sm font-black text-[#0071e3] whitespace-nowrap" id="total-comision">
+                            Bs 0,00
+                        </td>
+                        <td class="px-2.5 py-4"></td>
+                        <td class="col-edicion hidden px-2.5 py-4 bg-slate-100 border-l border-slate-200"></td>
+                    </tr>
+                </tfoot>
+            </table>
         </div>
-        {% empty %}
-        <div class="col-span-full py-24 text-center bg-white rounded-3xl border border-gray-200">
-            <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest">No hay cursos registrados</h3>
-        </div>
-        {% endfor %}
     </div>
 </div>
-
-<!-- FOLLETO DIGITAL (MODAL) -->
-<div id="modal-afiche-curso" class="fixed inset-0 bg-black/30 backdrop-blur-md z-[300] flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-[#f5f5f7] rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] w-full max-w-xl overflow-y-auto max-h-[95vh] transform scale-95 transition-transform duration-300 mx-4 relative border border-white/60 font-sans">
-        
-        <div class="bg-white p-5 sm:p-8 pb-5 sm:pb-6 border-b border-gray-100 relative">
-            <div class="flex justify-between items-start gap-4">
-                <div class="flex flex-wrap gap-2">
-                    <span id="afiche-periodo" class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest bg-blue-50 text-[#0071e3]">PERIODO</span>
-                </div>
-                <button onclick="cerrarAficheInformacion()" class="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-black flex items-center justify-center transition-all outline-none" title="Cerrar">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <h2 id="afiche-nombre" class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-black uppercase mt-6 leading-none">CARGANDO...</h2>
-            
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest border-t border-gray-50 pt-4">
-                <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-black text-white font-black text-[9px] flex items-center justify-center" id="afiche-avatar-docente">D</div>
-                    <span>FACILITADOR(A): <span id="afiche-docente" class="text-black font-black">DOCENTE</span></span>
-                </div>
-            </div>
-            <p id="afiche-inicio-sub" class="text-sm font-black text-[#0071e3] tracking-widest uppercase mt-3">INICIO: ...</p>
-        </div>
-
-        <div class="p-5 sm:p-8 space-y-6">
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Días de Clase</span>
-                    <p id="afiche-dias" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Duración del Curso</span>
-                    <p id="afiche-duracion" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Horario</span>
-                    <p id="afiche-horas" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Modalidad del Curso</span>
-                    <p id="afiche-modalidad-box" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Turno Asignado</span>
-                    <p id="afiche-turno-box" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-                
-                <div class="bg-white p-4 rounded-2xl border border-gray-200/60 shadow-sm">
-                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest block mb-1">Fecha de Finalización</span>
-                    <p id="afiche-fin" class="text-xs font-black text-black uppercase">...</p>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 sm:p-6 rounded-3xl border border-gray-200/80 shadow-sm space-y-4">
-                <span class="text-[13px] font-bold text-black uppercase tracking-widest block border-b border-gray-50 pb-2">Precio del Curso</span>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-2 text-center divide-y sm:divide-y-0 sm:divide-x divide-gray-100">
-                    <div class="space-y-1 pt-2 sm:pt-0">
-                        <span class="text-[9px] font-black text-gray-500 uppercase tracking-wider block">Inversión</span>
-                        <div class="text-xl md:text-2xl font-black text-gray-900 tracking-tight" id="afiche-precio-base">Bs 0.00</div>
-                    </div>
-                    <div class="space-y-1 pt-3 sm:pt-0 sm:pl-2">
-                        <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Promoción Amistad</span>
-                        <div class="text-xl md:text-2xl font-black text-emerald-600 tracking-tight" id="afiche-precio-promo">Bs 0.00</div>
-                    </div>
-                    <div class="space-y-1 pt-3 sm:pt-0 sm:pl-2">
-                        <span class="text-[9px] font-black text-[#0071e3] bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">Alumnos Antiguos</span>
-                        <div class="text-xl md:text-2xl font-black text-[#0071e3] tracking-tight" id="afiche-precio-antiguo">Bs 0.00</div>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-3xl border border-gray-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-                
-                <div id="grupo-botones-contenido" class="hidden w-full sm:w-auto flex-1 items-center gap-2">
-                    <a id="btn-ver-contenido" href="#" target="_blank" class="flex-1 h-10 rounded-xl bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black uppercase tracking-widest shadow-sm transition-all flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                        VER CONTENIDO
-                    </a>
-                    <a id="btn-descargar-contenido" href="#" target="_blank" download class="h-10 px-4 rounded-xl bg-blue-50 text-[#0071e3] hover:bg-blue-100 font-black transition-all flex items-center justify-center" title="Descargar">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    </a>
-                </div>
-                
-                <form method="POST" enctype="multipart/form-data" id="form-subir-contenido" class="w-full sm:w-auto">
-                    {% csrf_token %}
-                    <input type="hidden" name="curso_id" id="modal-curso-id-input" value="">
-                    <input type="file" name="imagen_contenido" id="input-imagen-contenido" class="hidden" accept="image/*" onchange="document.getElementById('form-subir-contenido').submit();">
-                    
-                    <label for="input-imagen-contenido" id="lbl-subir-contenido" class="w-full sm:w-auto h-10 px-6 rounded-xl bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-600 text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-                        <span id="texto-lbl-subir">SUBIR TEMARIO</span>
-                    </label>
-                </form>
-            </div>
-            <div class="text-center pt-2">
-                <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-relaxed">
-                    ESCUELA FINANCIERA LUCA PACIOLI
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Configurador del Buscador de Calendario
-        flatpickr("#calendario_informacion", {
-            locale: "es",
-            disableMobile: true, // 📱 Evita usar el calendario nativo roto
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: false,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                })
-            ],
-            altInput: true,
-            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
+        
+        // ==========================================
+        // 1. LÓGICA DE BÚSQUEDA EN TIEMPO REAL
+        // ==========================================
+        const inputBuscador = document.getElementById('buscadorInscripciones');
+        if (inputBuscador) {
+            inputBuscador.addEventListener('keyup', filtrarInscripciones);
+        }
+
+        function filtrarInscripciones() {
+            const input = document.getElementById('buscadorInscripciones').value.toLowerCase();
+            const filas = document.querySelectorAll('.inscripcion-row');
             
-            // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
-            onReady: function(selectedDates, dateStr, instance) {
-                if (instance.altInput) {
-                    // 1. Quita el candado que bloquea los toques en celulares
-                    instance.altInput.removeAttribute('readonly');
-                    // 2. Apaga el teclado de letras para que no estorbe
-                    instance.altInput.setAttribute('inputmode', 'none');
+            filas.forEach(fila => {
+                const busqueda = fila.getAttribute('data-busqueda') || '';
+                if(busqueda.includes(input)) {
+                    fila.style.display = '';
+                    fila.classList.remove('oculto-por-filtro');
+                } else {
+                    fila.style.display = 'none';
+                    fila.classList.add('oculto-por-filtro');
                 }
+            });
+            
+            calcularTotalesMatematicos(); // Recalcular con lo que quedó visible
+        }
+
+        // ==========================================
+        // 2. CÁLCULO DE TOTALES (Solo para filas visibles)
+        // ==========================================
+        function calcularTotalesMatematicos() {
+            // Solo tomamos las filas que NO tienen la clase oculta
+            const filasVisibles = document.querySelectorAll('.inscripcion-row:not(.oculto-por-filtro)');
+            
+            let sumaImporte = 0;
+            let sumaComision = 0;
+            let totalRegistros = filasVisibles.length;
+
+            function limpiarNumero(texto) {
+                if (!texto || texto.trim() === "-") return 0;
+                let limpio = texto.replace(/[^0-9.,-]/g, '').trim();
+                if (!limpio) return 0;
+                limpio = limpio.replace(/\./g, '');
+                limpio = limpio.replace(',', '.');
+                return parseFloat(limpio) || 0;
+            }
+
+            filasVisibles.forEach(fila => {
+                const celdaImporte = fila.querySelector('.val-importe');
+                const celdaComision = fila.querySelector('.val-comision');
+                if (celdaImporte) sumaImporte += limpiarNumero(celdaImporte.textContent);
+                if (celdaComision) sumaComision += limpiarNumero(celdaComision.textContent);
+            });
+
+            function formatearMoneda(valor, decimalesMaximos = 2) {
+                return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: decimalesMaximos });
+            }
+
+            document.getElementById('total-participantes').innerHTML = `<span class="text-black font-black text-sm">${totalRegistros}</span>`;
+            document.getElementById('total-importe').innerHTML = `<span class="text-black font-black text-sm">Bs ${formatearMoneda(sumaImporte, 2)}</span>`;
+            document.getElementById('total-comision').innerHTML = `<span class="text-[#0071e3] font-black text-sm">Bs ${formatearMoneda(sumaComision, 3)}</span>`;
+        }
+
+        calcularTotalesMatematicos(); // Calcular al cargar la página
+
+        // ==========================================
+        // 3. BOTÓN EDICIÓN
+        // ==========================================
+        const btnEdicion = document.getElementById('btn-toggle-edicion');
+        const colsEdicion = document.querySelectorAll('.col-edicion');
+        let modoEdicion = localStorage.getItem('modoEdicionInscripciones') === 'true';
+        
+        function aplicarModoEdicion() {
+            colsEdicion.forEach(col => {
+                if (modoEdicion) {
+                    col.classList.remove('hidden');
+                } else {
+                    col.classList.add('hidden');
+                }
+            });
+            
+            if (modoEdicion) {
+                btnEdicion.className = "h-11 px-5 bg-[#0071e3] text-white rounded-full shadow-md transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                    <span class="text-center leading-tight">Edición</span>
+                `;
+            } else {
+                btnEdicion.className = "h-11 px-5 bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 rounded-full shadow-sm transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 group";
+                btnEdicion.innerHTML = `
+                    <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-800 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    <span class="text-center leading-tight">Editar</span>
+                `;
+            }
+        }
+
+        aplicarModoEdicion();
+        
+        btnEdicion.addEventListener('click', function(e) {
+            e.preventDefault();
+            modoEdicion = !modoEdicion; 
+            localStorage.setItem('modoEdicionInscripciones', modoEdicion); 
+            aplicarModoEdicion(); 
+            
+            if (modoEdicion) {
+                const contenedorTabla = document.querySelector('.scrollbar-delgada');
+                setTimeout(() => {
+                    contenedorTabla.scrollTo({ left: contenedorTabla.scrollWidth, behavior: 'smooth' });
+                }, 100);
             }
         });
+    }); 
+
+    // ==========================================
+    // 4. LÓGICA DEL CALENDARIO POPOVER MINIMALISTA
+    // ==========================================
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let anioSeleccionado = new Date().getFullYear();
+    let mesSeleccionado = new Date().getMonth() + 1;
+    let anioNavegacion = anioSeleccionado;
+
+    function initPicker() {
+        const val = document.getElementById('inputMesBuscar').value;
+        if(val && val.length === 7 && val.includes('-')) {
+            const parts = val.split('-');
+            anioSeleccionado = parseInt(parts[0]);
+            mesSeleccionado = parseInt(parts[1]);
+            anioNavegacion = anioSeleccionado;
+            document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
+        } else if (val) {
+            document.getElementById('txtMesSeleccionado').innerText = 'FILTRADO';
+        } else {
+            document.getElementById('txtMesSeleccionado').innerText = 'PERIODO';
+        }
+        renderGridMeses();
+    }
+
+    function toggleMesPicker() {
+        const pop = document.getElementById('popoverMes');
+        if(pop.classList.contains('hidden')){
+            anioNavegacion = anioSeleccionado; 
+            renderGridMeses();
+            pop.classList.remove('hidden');
+        } else {
+            pop.classList.add('hidden');
+        }
+    }
+
+    function cambiarAnio(delta) {
+        anioNavegacion += delta;
+        renderGridMeses();
+    }
+
+    function seleccionarMes(mesIndex) {
+        const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
+        document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
+        document.getElementById('formFiltroMes').submit();
+    }
+
+    function renderGridMeses() {
+        document.getElementById('pickerAnio').innerText = anioNavegacion;
+        const grid = document.getElementById('gridMeses');
+        grid.innerHTML = '';
+        
+        for(let i = 1; i <= 12; i++) {
+            const isSelected = (anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+            const baseClass = "py-2.5 rounded-lg text-[14px] font-normal tracking-wide transition-all ";
+            const extraClass = isSelected 
+                ? "border border-gray-400 text-slate-800 shadow-sm" 
+                : "text-slate-600 border border-transparent hover:bg-slate-50 hover:text-black";
+                
+            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const pop = document.getElementById('popoverMes');
+        if (pop && !event.target.closest('#formFiltroMes') && !pop.classList.contains('hidden')) {
+            pop.classList.add('hidden');
+        }
     });
 
-    function cargarYMostrarAfiche(elemento) {
-        // --- NUEVA LÓGICA DEL TEMARIO ---
-        const cursoId = elemento.getAttribute('data-id');
-        const contenidoUrl = elemento.getAttribute('data-contenido-url');
-        
-        document.getElementById('modal-curso-id-input').value = cursoId;
-        
-        const grupoBotones = document.getElementById('grupo-botones-contenido');
-        const btnVer = document.getElementById('btn-ver-contenido');
-        const btnDescargar = document.getElementById('btn-descargar-contenido');
-        const textoSubir = document.getElementById('texto-lbl-subir');
-        
-        if (contenidoUrl && contenidoUrl.trim() !== '') {
-            btnVer.href = contenidoUrl;
-            btnDescargar.href = contenidoUrl + "?download="; // Fuerza la descarga de supabase
-            grupoBotones.classList.remove('hidden');
-            grupoBotones.classList.add('flex');
-            textoSubir.textContent = 'CAMBIAR TEMARIO';
-        } else {
-            btnVer.href = '#';
-            btnDescargar.href = '#';
-            grupoBotones.classList.add('hidden');
-            grupoBotones.classList.remove('flex');
-            textoSubir.textContent = 'SUBIR TEMARIO';
-        }
-        document.getElementById('afiche-nombre').textContent = elemento.getAttribute('data-nombre').toUpperCase();
-        document.getElementById('afiche-inicio-sub').textContent = "INICIO: " + elemento.getAttribute('data-inicio-largo').toUpperCase();
-        document.getElementById('afiche-docente').textContent = elemento.getAttribute('data-docente').toUpperCase();
-        document.getElementById('afiche-dias').textContent = elemento.getAttribute('data-dias').toUpperCase();
-        document.getElementById('afiche-horas').textContent = elemento.getAttribute('data-horario').toUpperCase();
-        document.getElementById('afiche-duracion').textContent = elemento.getAttribute('data-duracion').toUpperCase();
-        document.getElementById('afiche-fin').textContent = elemento.getAttribute('data-fin');
-        document.getElementById('afiche-periodo').textContent = elemento.getAttribute('data-mes').toUpperCase();
-        document.getElementById('afiche-modalidad-box').textContent = elemento.getAttribute('data-modalidad').toUpperCase();
-        document.getElementById('afiche-turno-box').textContent = elemento.getAttribute('data-turno').toUpperCase();
-        
-        const docenteStr = elemento.getAttribute('data-docente');
-        if(docenteStr) {
-            document.getElementById('afiche-avatar-docente').textContent = docenteStr.trim().substring(0, 1).toUpperCase();
-        }
-        
-        document.getElementById('afiche-precio-base').textContent = "Bs " + parseFloat(elemento.getAttribute('data-inversion')).toFixed(2);
-        document.getElementById('afiche-precio-promo').textContent = "Bs " + parseFloat(elemento.getAttribute('data-promo')).toFixed(2);
-        document.getElementById('afiche-precio-antiguo').textContent = "Bs " + parseFloat(elemento.getAttribute('data-antiguos')).toFixed(2);
-
-        const modal = document.getElementById('modal-afiche-curso');
-        const card = modal.querySelector('div');
-        
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            card.classList.remove('scale-95');
-            modal.classList.add('opacity-100');
-            card.classList.add('scale-100');
-        }, 10);
-    }
-
-    function cerrarAficheInformacion() {
-        const modal = document.getElementById('modal-afiche-curso');
-        const card = modal.querySelector('div');
-        
-        modal.classList.remove('opacity-100');
-        card.classList.remove('scale-100');
-        modal.classList.add('opacity-0');
-        card.classList.add('scale-95');
-        
-        setTimeout(() => {
-            modal.classList.add('hidden');
-        }, 300);
-    }
+    document.addEventListener('DOMContentLoaded', initPicker);
 </script>
 
 <style>
+    .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; border: 2px solid white; }
+    .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
     .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
-
 {% endblock %}
