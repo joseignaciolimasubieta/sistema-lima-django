@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
 from datetime import date, time
+from django.utils import timezone
 
 class Docente(models.Model):
     nombre = models.CharField(max_length=100)
@@ -1036,7 +1037,7 @@ class AsistenciaEmpleado(models.Model):
     
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, related_name='asistencias_laborales')
     fecha = models.DateField(default=date.today)
-    hora = models.TimeField(auto_now_add=True)
+    hora = models.TimeField(default=timezone.now)
     tipo = models.CharField(max_length=20, choices=TIPO_MARCADO)
     estado = models.CharField(max_length=20, choices=ESTADOS_ASISTENCIA, default='PUNTUAL')
     minutos_retraso = models.IntegerField(default=0) 

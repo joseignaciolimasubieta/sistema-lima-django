@@ -3861,33 +3861,52 @@ def editar_asistencia_empleado(request):
             empleado_id = data.get('empleado_id')
             fecha_str = data.get('fecha')
             nuevo_estado = data.get('estado')
+            nueva_hora = data.get('hora') # <--- NUEVO: Capturamos la hora manual
             
             empleado = get_object_or_404(Empleado, id=empleado_id)
             fecha_obj = datetime.datetime.strptime(fecha_str, '%Y-%m-%d').date()
             
-            # --- NUEVA LÓGICA: ELIMINAR REGISTRO COMPLETAMENTE ---
             if nuevo_estado == 'ELIMINAR':
-                # Borramos todos los marcajes de ese empleado en ese día específico
                 AsistenciaEmpleado.objects.filter(empleado=empleado, fecha=fecha_obj).delete()
                 return JsonResponse({'status': 'ok', 'nuevo_estado': 'ELIMINADO'})
             
-            # Buscamos si ya hay un registro base (INGRESO)
             asistencia = AsistenciaEmpleado.objects.filter(
                 empleado=empleado, fecha=fecha_obj, tipo='INGRESO'
             ).first()
             
+            # --- NUEVO: Procesamiento de hora ---
+            from datetime import time, timedelta
+            hora_obj = time(0, 0)
+            minutos_retraso = 0
+            
+            if nueva_hora and nuevo_estado in ['PUNTUAL', 'RETRASO']:
+                hora_obj = datetime.datetime.strptime(nueva_hora, '%H:%M').time()
+                
+                # Si es retraso, calculamos los minutos exactos
+                if nuevo_estado == 'RETRASO':
+                    hora_limite = datetime.datetime.combine(fecha_obj, empleado.hora_ingreso)
+                    hora_marcada = datetime.datetime.combine(fecha_obj, hora_obj)
+                    hora_tolerancia = hora_limite + timedelta(minutes=empleado.tolerancia_minutos)
+                    
+                    if hora_marcada > hora_tolerancia:
+                        diferencia = hora_marcada - hora_limite
+                        minutos_retraso = int(diferencia.total_seconds() / 60)
+            
+            # Guardamos o actualizamos
             if asistencia:
                 asistencia.estado = nuevo_estado
+                if nueva_hora and nuevo_estado in ['PUNTUAL', 'RETRASO']:
+                    asistencia.hora = hora_obj
+                    asistencia.minutos_retraso = minutos_retraso
                 asistencia.save()
             else:
-                # Si no existía (ej. falta automática), creamos un registro manual con hora base
-                from datetime import time
                 AsistenciaEmpleado.objects.create(
                     empleado=empleado,
                     fecha=fecha_obj,
-                    hora=time(0, 0), 
+                    hora=hora_obj, 
                     tipo='INGRESO', 
-                    estado=nuevo_estado
+                    estado=nuevo_estado,
+                    minutos_retraso=minutos_retraso
                 )
             
             return JsonResponse({'status': 'ok', 'nuevo_estado': nuevo_estado})
