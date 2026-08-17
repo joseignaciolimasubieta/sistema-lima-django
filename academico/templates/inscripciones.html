@@ -73,12 +73,11 @@
                 
                 <form method="GET" id="formFiltroMes" class="flex flex-wrap lg:flex-nowrap items-center bg-white p-1.5 rounded-3xl lg:rounded-full border border-gray-200 shadow-sm w-full lg:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
                     
-                    <!-- BUSCADOR GENERAL (Alumno, Cel, Curso, Pago) -->
+                    <!-- BUSCADOR GENERAL -->
                     <div class="relative w-full lg:w-56 h-9 flex items-center mb-2 lg:mb-0">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <!-- Filtro JS en vivo -->
                         <input type="text" id="buscadorGeneral" onkeyup="filtrarInscripciones()" placeholder="ALUMNO, CEL, CURSO, PAGO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
                     </div>
 
@@ -89,7 +88,6 @@
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                         </div>
-                        <!-- Filtro JS en vivo -->
                         <input type="text" id="buscadorVendedor" onkeyup="filtrarInscripciones()" placeholder="VENDEDOR..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
                     </div>
 
@@ -130,10 +128,29 @@
                                 <div class="grid grid-cols-3 gap-y-3 gap-x-2" id="gridMeses"></div>
                             </div>
 
-                            <!-- Vista: Por Día -->
-                            <div id="vistaDia" class="hidden animate-fade-in text-center py-4">
-                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Selecciona una fecha exacta</label>
-                                <input type="date" id="inputDiaExacto" onchange="seleccionarDiaExacto(this.value)" class="w-full h-12 px-4 bg-slate-50 border border-gray-200 rounded-xl text-sm font-bold text-slate-700 outline-none focus:border-[#0071e3] focus:bg-white transition-all cursor-pointer">
+                            <!-- Vista: Por Día (NUEVO DISEÑO ELEGANTE) -->
+                            <div id="vistaDia" class="hidden animate-fade-in">
+                                <div class="flex items-center justify-between mb-4 px-1">
+                                    <button type="button" onclick="cambiarMesDia(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerMesAnioDia" class="text-sm font-black text-slate-800 tracking-widest uppercase">AGOSTO 2026</span>
+                                    <button type="button" onclick="cambiarMesDia(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <!-- Días de la semana -->
+                                <div class="grid grid-cols-7 text-center mb-2 border-b border-gray-100 pb-2">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Lu</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ma</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Mi</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ju</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Vi</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Sa</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Do</span>
+                                </div>
+                                <!-- Grilla de días -->
+                                <div class="grid grid-cols-7 gap-y-1 gap-x-1" id="gridDias"></div>
                             </div>
 
                         </div>
@@ -358,11 +375,9 @@
                 const dataGeneral = fila.getAttribute('data-general') || '';
                 const dataVendedor = fila.getAttribute('data-vendedor') || '';
                 
-                // Si el buscador está vacío, "includes('')" siempre es verdadero
                 const matchGeneral = dataGeneral.includes(inputGeneral);
                 const matchVendedor = dataVendedor.includes(inputVendedor);
 
-                // Solo mostramos si cumple AMBAS condiciones (si se escriben cosas en los dos campos)
                 if(matchGeneral && matchVendedor) {
                     fila.style.display = '';
                     fila.classList.remove('oculto-por-filtro');
@@ -375,7 +390,6 @@
             calcularTotalesMatematicos(); // Recalcular totales visibles al instante
         }
 
-        // Asignar el evento a los dos inputs
         const inputGen = document.getElementById('buscadorGeneral');
         const inputVen = document.getElementById('buscadorVendedor');
         if(inputGen) inputGen.addEventListener('keyup', filtrarInscripciones);
@@ -472,8 +486,13 @@
     // ==========================================
     const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     let anioSeleccionado = new Date().getFullYear();
-    let mesSeleccionado = new Date().getMonth() + 1;
+    let mesSeleccionado = new Date().getMonth() + 1; // 1-12
     let anioNavegacion = anioSeleccionado;
+    
+    // Variables para la pestaña de Día Exacto
+    let anioNavegacionDia = anioSeleccionado;
+    let mesNavegacionDia = mesSeleccionado - 1; // 0-11
+    let diaSeleccionadoStr = "";
 
     function initPicker() {
         const val = document.getElementById('inputMesBuscar').value;
@@ -483,6 +502,11 @@
             anioSeleccionado = parseInt(parts[0]);
             mesSeleccionado = parseInt(parts[1]);
             anioNavegacion = anioSeleccionado;
+            
+            // Sincronizar el Día Exacto con este mes
+            anioNavegacionDia = anioSeleccionado;
+            mesNavegacionDia = mesSeleccionado - 1;
+            
             document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
             setModoCalendario('mes');
         } else if (val && val.length === 10 && val.includes('-')) {
@@ -491,58 +515,93 @@
             anioSeleccionado = parseInt(parts[0]);
             mesSeleccionado = parseInt(parts[1]);
             const dia = parts[2];
+            
+            // Sincronizar navegación
             anioNavegacion = anioSeleccionado;
+            anioNavegacionDia = anioSeleccionado;
+            mesNavegacionDia = mesSeleccionado - 1;
+            diaSeleccionadoStr = val;
+            
             document.getElementById('txtMesSeleccionado').innerText = `${dia} ${mesesNombres[mesSeleccionado-1].substring(0,3)}. ${anioSeleccionado}`;
-            document.getElementById('inputDiaExacto').value = val;
             setModoCalendario('dia');
         } else if (val) {
             document.getElementById('txtMesSeleccionado').innerText = 'FILTRADO';
+            setModoCalendario('mes');
         } else {
             document.getElementById('txtMesSeleccionado').innerText = 'FECHAS';
+            setModoCalendario('mes');
         }
         renderGridMeses();
+        renderGridDias();
     }
 
     function toggleMesPicker() {
         const pop = document.getElementById('popoverMes');
         if(pop.classList.contains('hidden')){
+            // Reseteamos navegadores a la selección actual
             anioNavegacion = anioSeleccionado; 
+            anioNavegacionDia = anioSeleccionado;
+            // Si el modo es día pero no hay nada seleccionado, usamos el mes actual
+            if(diaSeleccionadoStr) {
+                const parts = diaSeleccionadoStr.split('-');
+                mesNavegacionDia = parseInt(parts[1]) - 1;
+            } else {
+                mesNavegacionDia = new Date().getMonth();
+            }
+            
             renderGridMeses();
+            renderGridDias();
             pop.classList.remove('hidden');
         } else {
             pop.classList.add('hidden');
         }
     }
 
+    // Navegación en vista MES
     function cambiarAnio(delta) {
         anioNavegacion += delta;
         renderGridMeses();
     }
 
-    // Al seleccionar el mes
+    // Navegación en vista DÍA
+    function cambiarMesDia(delta) {
+        mesNavegacionDia += delta;
+        if(mesNavegacionDia < 0) {
+            mesNavegacionDia = 11;
+            anioNavegacionDia--;
+        } else if (mesNavegacionDia > 11) {
+            mesNavegacionDia = 0;
+            anioNavegacionDia++;
+        }
+        renderGridDias();
+    }
+
+    // Al seleccionar un Mes (pestaña Mes)
     function seleccionarMes(mesIndex) {
         const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
         document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
-        // Enviamos el form
         document.getElementById('formFiltroMes').submit();
     }
 
-    // Al seleccionar un día en el input de type="date"
-    function seleccionarDiaExacto(val) {
-        if(val) {
-            document.getElementById('inputMesBuscar').value = val;
-            document.getElementById('formFiltroMes').submit();
-        }
+    // Al seleccionar un Día (pestaña Día)
+    function seleccionarDia(dia) {
+        const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+        const d = dia.toString().padStart(2, '0');
+        const fecha = `${anioNavegacionDia}-${m}-${d}`;
+        document.getElementById('inputMesBuscar').value = fecha;
+        document.getElementById('formFiltroMes').submit();
     }
 
-    // Renderizar la cuadrícula
+    // Renderizar la cuadrícula de Meses
     function renderGridMeses() {
         document.getElementById('pickerAnio').innerText = anioNavegacion;
         const grid = document.getElementById('gridMeses');
         grid.innerHTML = '';
         
         for(let i = 1; i <= 12; i++) {
-            const isSelected = (anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+            const val = document.getElementById('inputMesBuscar').value;
+            // Solo resaltamos si estamos en vista mes y coincide
+            const isSelected = (val.length === 7 && anioNavegacion === anioSeleccionado && i === mesSeleccionado);
             const baseClass = "py-2.5 rounded-lg text-[13px] font-bold tracking-wide transition-all ";
             const extraClass = isSelected 
                 ? "bg-[#0071e3] text-white shadow-sm" 
@@ -552,16 +611,63 @@
         }
     }
 
+    // Renderizar la cuadrícula de Días
+    function renderGridDias() {
+        document.getElementById('pickerMesAnioDia').innerText = `${mesesNombres[mesNavegacionDia]} ${anioNavegacionDia}`;
+        const grid = document.getElementById('gridDias');
+        grid.innerHTML = '';
+        
+        const firstDay = new Date(anioNavegacionDia, mesNavegacionDia, 1);
+        const daysInMonth = new Date(anioNavegacionDia, mesNavegacionDia + 1, 0).getDate();
+        
+        // Ajustamos para que Lunes sea el primer día de la semana (0 = Lunes, 6 = Domingo)
+        let startDay = firstDay.getDay(); 
+        startDay = startDay === 0 ? 6 : startDay - 1; 
+        
+        // Celdas vacías al inicio
+        for(let i=0; i<startDay; i++) {
+            grid.innerHTML += `<div class="p-1"></div>`; 
+        }
+        
+        // Días del mes
+        for(let i=1; i<=daysInMonth; i++) {
+            const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+            const d = i.toString().padStart(2, '0');
+            const fechaActual = `${anioNavegacionDia}-${m}-${d}`;
+            
+            // ¿Es hoy?
+            const hoy = new Date();
+            const esHoy = (hoy.getFullYear() === anioNavegacionDia && hoy.getMonth() === mesNavegacionDia && hoy.getDate() === i);
+            
+            const isSelected = (fechaActual === diaSeleccionadoStr);
+            
+            const baseClass = "w-full h-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all";
+            let extraClass = "text-slate-700 hover:bg-slate-100 hover:text-black cursor-pointer border border-transparent";
+            
+            if (isSelected) {
+                extraClass = "bg-[#0071e3] text-white shadow-sm border border-[#0071e3]";
+            } else if (esHoy) {
+                extraClass = "bg-blue-50 text-[#0071e3] font-black border border-blue-200 cursor-pointer hover:bg-blue-100";
+            }
+                
+            grid.innerHTML += `
+                <div class="p-0.5 flex items-center justify-center">
+                    <button type="button" onclick="seleccionarDia(${i})" class="${baseClass} ${extraClass}">${i}</button>
+                </div>
+            `;
+        }
+    }
+
     // Lógica para cambiar las pestañas (Mes / Día)
     function setModoCalendario(modo) {
         if(modo === 'mes') {
             document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
-            document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all";
+            document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
             document.getElementById('vistaMes').classList.remove('hidden');
             document.getElementById('vistaDia').classList.add('hidden');
         } else {
             document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
-            document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all";
+            document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
             document.getElementById('vistaMes').classList.add('hidden');
             document.getElementById('vistaDia').classList.remove('hidden');
         }
