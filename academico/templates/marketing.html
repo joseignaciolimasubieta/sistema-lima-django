@@ -40,11 +40,6 @@
 </script>
 {% endif %}
 
-<div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
-
 <div class="max-w-[95rem] mx-auto px-4 md:px-8 pb-16 pt-10 animate-fade-in relative z-10 font-sans">
 
     <div class="mb-10 flex flex-col xl:flex-row xl:items-end justify-between gap-6 w-full">
@@ -53,31 +48,53 @@
             <h1 class="text-5xl md:text-6xl font-bold text-black tracking-tight">Marketing.</h1>
         </div>
         
-        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0">
+        <div class="flex flex-col items-end gap-3 w-full xl:w-auto shrink-0 z-50">
             
             <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
-                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto group focus-within:border-[#0071e3] transition-all shrink-0">
-                   <div class="relative w-full sm:w-36 h-8 flex items-center">
-                        <!-- Le agregamos pointer-events-none para que el ícono no bloquee tu dedo -->
-                        <div class="absolute left-2.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors pointer-events-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <!-- 1. BUSCADOR DE MES (POPOVER) -->
+                <form method="GET" id="formFiltroMes" class="relative shrink-0 w-full sm:w-auto">
+                    <input type="hidden" name="mes" id="inputMesBuscar" value="{{ mes_buscar }}">
+                    
+                    <!-- Botón Desplegable -->
+                    <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="w-full sm:w-auto h-11 px-5 flex items-center justify-between sm:justify-start gap-3 bg-white border border-gray-200 rounded-full hover:bg-slate-50 hover:border-gray-300 transition-all shadow-sm focus:outline-none focus:ring-4 focus:ring-[#0071e3]/10">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span id="txtMesSeleccionado" class="text-[11px] font-black text-slate-700 tracking-widest uppercase">PERIODO</span>
                         </div>
-                        <!-- Quitamos el class="hidden" y lo dejamos visible -->
-                        <input type="text" id="calendario_marketing" name="mes" value="{{ mes_buscar }}" class="w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer" placeholder="PERIODO...">
-                    </div>
-                    
-                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap ml-1">
-                        BUSCAR
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                     </button>
-                    
-                    {% if mes_buscar %}
-                    <a href="{% url 'marketing' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </a>
-                    {% endif %}
+
+                    <!-- Menú Popover Minimalista -->
+                    <div id="popoverMes" class="hidden absolute right-0 mt-3 w-[20rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-6 transform origin-top-right transition-all z-50">
+                        <div class="flex items-center justify-between mb-6 px-1">
+                            <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"></path></svg>
+                            </button>
+                            <span id="pickerAnio" class="text-[1.35rem] font-light text-slate-800 tracking-wide">2026</span>
+                            <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-black transition-colors rounded-lg hover:bg-slate-50">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7"></path></svg>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-y-4 gap-x-2" id="gridMeses"></div>
+                    </div>
                 </form>
 
+                <!-- 2. BUSCADOR EN TIEMPO REAL -->
+                <div class="relative flex items-center bg-white p-1 rounded-full border border-gray-200 shadow-sm w-full sm:w-[22rem] lg:w-[26rem] group focus-within:border-[#0071e3] focus-within:ring-4 focus-within:ring-[#0071e3]/10 transition-all h-11 shrink-0">
+                    <div class="absolute left-4 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                    <input type="text" id="buscadorMarketing" onkeyup="filtrarMarketing()" placeholder="BUSCAR CURSO O DOCENTE..." class="w-full h-full pl-10 pr-4 bg-transparent outline-none text-xs font-bold text-slate-800 placeholder-gray-400 rounded-full">
+                </div>
+                
+                {% if mes_buscar %}
+                <a href="{% url 'marketing' %}" class="w-11 h-11 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtros">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </a>
+                {% endif %}
+
+                <!-- 3. INDICADOR DE FECHA DE HOY -->
                 <div class="hidden sm:flex items-center gap-2 bg-white px-5 h-11 rounded-full border border-gray-200 shadow-sm shrink-0">
                     <div class="relative flex h-2 w-2">
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
@@ -122,7 +139,7 @@
     </div>
     {% endif %}
 
-    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm">
+    <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm z-10">
         <div class="overflow-x-auto scrollbar-delgada">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50 border-b-2 border-gray-100">
@@ -138,7 +155,8 @@
                 <tbody class="divide-y divide-gray-100 text-xs text-gray-800 bg-white">
                     {% for c in campanas %}
                     
-                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group">
+                    <!-- ATENCIÓN AQUÍ: class="campana-row" y data-busqueda -->
+                    <tr class="campana-row hover:bg-[#0071e3] transition-colors duration-200 group" data-busqueda="{{ c.curso.nombre|lower }} {{ c.curso.docente.nombre|lower }}">
                         
                         <td class="py-5 px-6 relative cursor-pointer"
                             onclick="cargarYMostrarAfiche(this)"
@@ -289,38 +307,98 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Configurador del Buscador de Calendario
-        flatpickr("#calendario_marketing", {
-            locale: "es",
-            disableMobile: true, // 📱 Evita usar el calendario nativo roto
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: false,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y",
-                })
-            ],
-            altInput: true,
-            altInputClass: "w-full h-full pl-8 pr-2 bg-transparent outline-none text-[10px] font-bold text-black uppercase placeholder-gray-400 cursor-pointer",
-            
-            // 🚀 EL PARCHE DEFINITIVO PARA IPHONE Y ANDROID
-            onReady: function(selectedDates, dateStr, instance) {
-                if (instance.altInput) {
-                    // 1. Quita el candado que bloquea los toques en celulares
-                    instance.altInput.removeAttribute('readonly');
-                    // 2. Apaga el teclado de letras para que no estorbe
-                    instance.altInput.setAttribute('inputmode', 'none');
-                }
+    // ==========================================
+    // 1. LÓGICA DE BÚSQUEDA EN TIEMPO REAL
+    // ==========================================
+    function filtrarMarketing() {
+        const input = document.getElementById('buscadorMarketing').value.toLowerCase();
+        const filas = document.querySelectorAll('.campana-row');
+        
+        filas.forEach(fila => {
+            const nombre = fila.getAttribute('data-busqueda') || '';
+            if(nombre.includes(input)) {
+                fila.style.display = '';
+            } else {
+                fila.style.display = 'none';
             }
         });
+    }
+
+    // ==========================================
+    // 2. LÓGICA DEL CALENDARIO POPOVER MINIMALISTA
+    // ==========================================
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let anioSeleccionado = new Date().getFullYear();
+    let mesSeleccionado = new Date().getMonth() + 1;
+    let anioNavegacion = anioSeleccionado;
+
+    function initPicker() {
+        const val = document.getElementById('inputMesBuscar').value;
+        if(val && val.length === 7 && val.includes('-')) {
+            const parts = val.split('-');
+            anioSeleccionado = parseInt(parts[0]);
+            mesSeleccionado = parseInt(parts[1]);
+            anioNavegacion = anioSeleccionado;
+            document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
+        } else if (val) {
+            document.getElementById('txtMesSeleccionado').innerText = 'FILTRADO';
+        } else {
+            document.getElementById('txtMesSeleccionado').innerText = 'PERIODO';
+        }
+        renderGridMeses();
+    }
+
+    function toggleMesPicker() {
+        const pop = document.getElementById('popoverMes');
+        if(pop.classList.contains('hidden')){
+            anioNavegacion = anioSeleccionado; 
+            renderGridMeses();
+            pop.classList.remove('hidden');
+        } else {
+            pop.classList.add('hidden');
+        }
+    }
+
+    function cambiarAnio(delta) {
+        anioNavegacion += delta;
+        renderGridMeses();
+    }
+
+    function seleccionarMes(mesIndex) {
+        const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
+        document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
+        document.getElementById('formFiltroMes').submit();
+    }
+
+    function renderGridMeses() {
+        document.getElementById('pickerAnio').innerText = anioNavegacion;
+        const grid = document.getElementById('gridMeses');
+        grid.innerHTML = '';
+        
+        for(let i = 1; i <= 12; i++) {
+            const isSelected = (anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+            const baseClass = "py-2.5 rounded-lg text-[14px] font-normal tracking-wide transition-all ";
+            const extraClass = isSelected 
+                ? "border border-gray-400 text-slate-800 shadow-sm" 
+                : "text-slate-600 border border-transparent hover:bg-slate-50 hover:text-black";
+                
+            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
+        }
+    }
+
+    document.addEventListener('click', function(event) {
+        const pop = document.getElementById('popoverMes');
+        if (pop && !event.target.closest('#formFiltroMes') && !pop.classList.contains('hidden')) {
+            pop.classList.add('hidden');
+        }
     });
 
+    document.addEventListener('DOMContentLoaded', initPicker);
+
+    // ==========================================
+    // 3. LÓGICA DE COPIAR TEXTO Y TOAST
+    // ==========================================
     function cargarYMostrarAfiche(elemento) {
         const curso = {
             nombre: elemento.getAttribute('data-nombre'),
@@ -338,10 +416,14 @@
             promo: elemento.getAttribute('data-promo'),
             antiguos: elemento.getAttribute('data-antiguos')
         };
-        abrirAficheInformacion(curso);
+        // Asume que la función abrirAficheInformacion() existe globalmente en base.html u otro archivo
+        if (typeof abrirAficheInformacion === 'function') {
+            abrirAficheInformacion(curso);
+        }
     }
 
     function copiarTextoRedes(btnElement, nombre, fecha, horario, dias, duracion, modalidad, inversion, promo, antiguos, docente, cantSubcursos) {
+        event.stopPropagation(); // Evita que se abra el modal al hacer click en el botón de copiar
         const hashtag = "#" + nombre.trim().replace(/\s+/g, '_').toUpperCase();
         const fechaCapitalizada = fecha ? fecha.charAt(0).toUpperCase() + fecha.slice(1) : "Por definir";
         const listaSubcursos = btnElement.getAttribute('data-subcursos');
