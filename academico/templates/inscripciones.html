@@ -607,10 +607,10 @@
                 ? "bg-[#0071e3] text-white shadow-sm" 
                 : "text-slate-600 border border-transparent hover:bg-slate-100 hover:text-black";
                 
-            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1].substring(0,3)}.</button>`;
+            // Eliminamos el .substring(0,3). para mostrar el mes completo
+            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
         }
     }
-
     // Renderizar la cuadrícula de Días
     function renderGridDias() {
         document.getElementById('pickerMesAnioDia').innerText = `${mesesNombres[mesNavegacionDia]} ${anioNavegacionDia}`;

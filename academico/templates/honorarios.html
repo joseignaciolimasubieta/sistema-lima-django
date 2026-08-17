@@ -392,7 +392,8 @@
                     ? "bg-[#0071e3] text-white shadow-sm" 
                     : "text-slate-600 border border-transparent hover:bg-slate-100 hover:text-black";
                     
-                grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1].substring(0,3)}.</button>`;
+                // El cambio está en la siguiente línea: usamos mesesNombres[i-1] directamente
+                grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
             }
         }
 
