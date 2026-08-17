@@ -374,10 +374,26 @@
                             </div>
                         </div>
 
-                        <!-- NUEVO CAMPO DE HORA MANUAL -->
+                        <!-- NUEVO CAMPO DE HORA MANUAL (DISEÑO PERSONALIZADO) -->
                         <div id="divHoraManual" class="mb-6 hidden animate-fade-in">
-                            <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-3">Hora de Ingreso</label>
-                            <input type="time" id="inputHoraManual" class="w-full h-11 bg-white border border-blue-100 rounded-xl px-4 text-sm font-bold text-slate-700 focus:border-[#0071e3] focus:ring-4 focus:ring-[#0071e3]/10 outline-none transition-all shadow-sm">
+                            <label class="block text-[10px] font-black text-[#0071e3] uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Hora de Ingreso
+                            </label>
+                            <div class="relative">
+                                <!-- Pantalla simulada -->
+                                <div id="displayHoraManual" onclick="toggleTimePicker('HoraManual')" class="w-full h-14 flex items-center justify-center bg-white border border-blue-100 rounded-[1rem] text-[20px] font-black text-[#0071e3] tracking-widest cursor-pointer hover:border-[#0071e3] hover:ring-4 hover:ring-[#0071e3]/10 transition-all shadow-sm">
+                                    08:30
+                                </div>
+                                <!-- Input oculto para enviar al servidor -->
+                                <input type="hidden" id="inputHoraManual" value="08:30">
+
+                                <!-- Dropdown Interactivo (Time Picker) -->
+                                <div id="pickerHoraManual" class="hidden absolute top-[64px] left-0 bg-white border border-gray-200 rounded-[1rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-[100] flex overflow-hidden">
+                                    <div class="w-[4.5rem] h-56 overflow-y-auto no-scrollbar border-r border-gray-100 scroll-smooth p-1" id="listHorasHoraManual"></div>
+                                    <div class="w-[4.5rem] h-56 overflow-y-auto no-scrollbar scroll-smooth p-1" id="listMinutosHoraManual"></div>
+                                </div>
+                            </div>
                         </div>
                         
                         <div class="mt-10 space-y-3">
@@ -399,6 +415,82 @@
 </div>
 
 <script>
+    // ==========================================
+    // LÓGICA DEL TIME PICKER PERSONALIZADO
+    // ==========================================
+    let activePicker = null;
+
+    function toggleTimePicker(type) {
+        if (activePicker && activePicker !== type) {
+            document.getElementById('picker' + activePicker).classList.add('hidden');
+        }
+        const picker = document.getElementById('picker' + type);
+        picker.classList.toggle('hidden');
+        activePicker = picker.classList.contains('hidden') ? null : type;
+        
+        if (!picker.classList.contains('hidden')) {
+            renderTimePicker(type);
+        }
+    }
+
+    function renderTimePicker(type) {
+        const currentVal = document.getElementById('input' + type).value || '08:30';
+        const [h, m] = currentVal.split(':');
+        
+        const listH = document.getElementById('listHoras' + type);
+        const listM = document.getElementById('listMinutos' + type);
+        
+        // Lista de Horas
+        let htmlH = '';
+        for(let i=0; i<24; i++) {
+            let s = i.toString().padStart(2, '0');
+            let isAct = (s === h) ? 'bg-[#0071e3] text-white shadow-sm border border-[#0071e3]' : 'text-slate-800 hover:bg-slate-100 border border-transparent';
+            htmlH += `<div onclick="setTimeVal('${type}', '${s}', true, event)" class="py-2.5 my-0.5 rounded-lg text-center text-sm font-black cursor-pointer transition-colors ${isAct}">${s}</div>`;
+        }
+        listH.innerHTML = htmlH;
+        
+        // Lista de Minutos
+        let htmlM = '';
+        for(let i=0; i<60; i++) {
+            let s = i.toString().padStart(2, '0');
+            let isAct = (s === m) ? 'bg-[#0071e3] text-white shadow-sm border border-[#0071e3]' : 'text-slate-800 hover:bg-slate-100 border border-transparent';
+            htmlM += `<div onclick="setTimeVal('${type}', '${s}', false, event)" class="py-2.5 my-0.5 rounded-lg text-center text-sm font-black cursor-pointer transition-colors ${isAct}">${s}</div>`;
+        }
+        listM.innerHTML = htmlM;
+
+        // Centrar automáticamente en la opción elegida
+        setTimeout(() => {
+            const actH = listH.querySelector('.bg-\\[\\#0071e3\\]');
+            if(actH) listH.scrollTop = actH.offsetTop - (listH.clientHeight/2) + (actH.clientHeight/2);
+            const actM = listM.querySelector('.bg-\\[\\#0071e3\\]');
+            if(actM) listM.scrollTop = actM.offsetTop - (listM.clientHeight/2) + (actM.clientHeight/2);
+        }, 10);
+    }
+
+    function setTimeVal(type, val, isHour, e) {
+        if(e) e.stopPropagation(); // Evita que se cierre instantáneamente
+        const current = document.getElementById('input' + type).value || '08:30';
+        let [h, m] = current.split(':');
+        
+        if (isHour) h = val; else m = val;
+        
+        document.getElementById('input' + type).value = `${h}:${m}`;
+        document.getElementById('display' + type).innerText = `${h}:${m}`;
+        
+        renderTimePicker(type); // Refresca para repintar
+    }
+
+    // Cierra el panel interactivo si haces click fuera de él
+    document.addEventListener('click', function(e) {
+        if (activePicker) {
+            const pickerDiv = document.getElementById('picker' + activePicker);
+            const displayDiv = document.getElementById('display' + activePicker);
+            if (!pickerDiv.contains(e.target) && !displayDiv.contains(e.target)) {
+                pickerDiv.classList.add('hidden');
+                activePicker = null;
+            }
+        }
+    });
     // ==========================================
     // 1. LÓGICA DEL CALENDARIO POPOVER MINIMALISTA
     // ==========================================
@@ -486,7 +578,7 @@
         { id: 'FERIADO', bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'indigo-500', icon: 'E', label: 'Feriado' },
     ];
 
-    function abrirEditor(empId, nombre, fecha, estadoActual, horaActual) { // <--- AÑADIDO horaActual
+    function abrirEditor(empId, nombre, fecha, estadoActual, horaActual) {
         currentEmpId = empId;
         currentFecha = fecha;
         currentEstado = estadoActual || 'FALTA'; 
@@ -496,8 +588,10 @@
         const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
         document.getElementById('slideOverFecha').innerText = dateObj.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // NUEVO: Asignar hora actual al input si existe
-        document.getElementById('inputHoraManual').value = horaActual || '';
+        // NUEVO: Asignar hora actual a la pantalla visual y al input oculto
+        const horaVisual = (horaActual && horaActual !== 'None') ? horaActual : '08:30';
+        document.getElementById('inputHoraManual').value = horaVisual;
+        document.getElementById('displayHoraManual').innerText = horaVisual;
 
         renderOpciones();
         seleccionarEstado(currentEstado); // Forzamos la evaluación para ocultar/mostrar la hora
@@ -642,6 +736,9 @@
     .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
     .scrollbar-delgada::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     .scrollbar-delgada::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    /* Clase fundamental para el scroll limpio del Time Picker */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
 {% endblock %}
