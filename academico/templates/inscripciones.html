@@ -78,7 +78,7 @@
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" id="buscadorGeneral" onkeyup="filtrarInscripciones()" placeholder="ALUMNO, CEL, CURSO, PAGO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
+                        <input type="text" name="buscar" value="{{ buscar }}" id="buscadorGeneral" onkeyup="filtrarInscripciones()" placeholder="ALUMNO, CURSO... (Enter p/ Historial)" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
                     </div>
 
                     <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
