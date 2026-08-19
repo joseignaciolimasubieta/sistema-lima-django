@@ -78,7 +78,7 @@
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
-                        <input type="text" name="buscar" value="{{ buscar }}" id="buscadorGeneral" onkeyup="filtrarInscripciones()" placeholder="ALUMNO, CURSO... (Enter p/ Historial)" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
+                        <input type="text" id="buscadorGeneral" onkeyup="filtrarInscripciones()" placeholder="ALUMNO, CEL, CURSO, PAGO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
                     </div>
 
                     <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
@@ -93,7 +93,7 @@
 
                     <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
 
-                    <!-- CALENDARIO POPOVER MODERNO (MES O DÍA) -->
+                    <!-- CALENDARIO POPOVER MODERNO (AÑO, MES O DÍA) -->
                     <div class="relative w-full lg:w-auto flex items-center border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0 shrink-0">
                         <input type="hidden" name="rango_fechas" id="inputMesBuscar" value="{{ rango_fechas|default:'' }}">
                         
@@ -105,13 +105,30 @@
                             <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
 
-                        <!-- Menú Popover Dual -->
-                        <div id="popoverMes" class="hidden absolute right-0 top-12 mt-1 w-[20rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-5 transform origin-top-right transition-all z-50">
+                        <!-- Menú Popover -->
+                        <div id="popoverMes" class="hidden absolute right-0 top-12 mt-1 w-[21rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-5 transform origin-top-right transition-all z-50">
                             
-                            <!-- Pestañas -->
-                            <div class="flex items-center justify-between mb-5 bg-slate-50 p-1.5 rounded-xl border border-gray-100">
-                                <button type="button" onclick="setModoCalendario('mes')" id="btnTabMes" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all">Por Mes</button>
-                                <button type="button" onclick="setModoCalendario('dia')" id="btnTabDia" class="flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all">Día Exacto</button>
+                            <!-- Pestañas (Tres Opciones) -->
+                            <div class="flex items-center justify-between mb-5 bg-slate-50 p-1.5 rounded-xl border border-gray-100 gap-1">
+                                <button type="button" onclick="setModoCalendario('anio')" id="btnTabAnio" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg">Por Año</button>
+                                <button type="button" onclick="setModoCalendario('mes')" id="btnTabMes" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all">Por Mes</button>
+                                <button type="button" onclick="setModoCalendario('dia')" id="btnTabDia" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg">Día Exacto</button>
+                            </div>
+
+                            <!-- Vista: Por Año -->
+                            <div id="vistaAnio" class="hidden animate-fade-in">
+                                <div class="flex items-center justify-between mb-2 px-2">
+                                    <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerAnioSolo" class="text-4xl font-black text-slate-800 tracking-wide my-4">2026</span>
+                                    <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="seleccionarAnio()" class="w-full py-3 mt-4 bg-slate-800 hover:bg-black text-white text-[10px] uppercase tracking-widest font-black rounded-xl transition-all shadow-md">
+                                    Seleccionar Todo el Año
+                                </button>
                             </div>
 
                             <!-- Vista: Por Mes -->
@@ -128,7 +145,7 @@
                                 <div class="grid grid-cols-3 gap-y-3 gap-x-2" id="gridMeses"></div>
                             </div>
 
-                            <!-- Vista: Por Día (NUEVO DISEÑO ELEGANTE) -->
+                            <!-- Vista: Por Día -->
                             <div id="vistaDia" class="hidden animate-fade-in">
                                 <div class="flex items-center justify-between mb-4 px-1">
                                     <button type="button" onclick="cambiarMesDia(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
@@ -173,6 +190,7 @@
         </div>
     </div>
 
+    <!-- EL RESTO DE TU TABLA SE MANTIENE EXACTAMENTE IGUAL -->
     <div class="bg-white rounded-3xl border border-gray-200 overflow-hidden relative shadow-sm z-10">
         <div class="overflow-x-auto overflow-y-auto max-h-[75vh] relative scrollbar-delgada">
             
@@ -200,7 +218,6 @@
                     {% for item in lista_combinada %}
                         
                         {% if item.curso %}
-                        <!-- ATRIBUTOS DATA PARA BÚSQUEDA JS -->
                         <tr class="inscripcion-row hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer" 
                             data-general="{{ item.participante.nombre_completo|lower|default:'' }} {{ item.participante.ci|lower|default:'' }} {{ item.participante.celular|lower|default:'' }} {{ item.curso.nombre|lower|default:'' }} {{ item.forma_pago|lower|default:'' }}"
                             data-vendedor="{{ item.vendedor|lower|default:'' }}">
@@ -209,46 +226,23 @@
                                 <div class="font-bold text-[11px] uppercase">{{ item.fecha_inscripcion|date:"l d" }}</div>
                                 <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_inscripcion|date:"F" }} DE {{ item.fecha_inscripcion|date:"Y" }}</div>
                             </td>
-                            
                             <td class="px-2.5 py-3 leading-tight min-w-[180px] whitespace-nowrap">
                                 <div class="font-bold text-black group-hover:text-white transition-colors uppercase text-xs">{{ item.participante }}</div>
                                 <div class="text-[9px] font-black text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-widest mt-0.5">C.I. {{ item.participante.ci|default:"-" }}</div>
                             </td>
-                            
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
-                                {{ item.participante.celular|default:"-" }}
-                            </td>
-                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">{{ item.participante.celular|default:"-" }}</td>
                             <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
                                 <div class="font-bold text-black group-hover:text-white transition-colors text-[11px]">{{ item.curso.nombre|default:item.curso }}</div>
                                 <div class="text-[9px] font-black text-[#0071e3] group-hover:text-blue-200 transition-colors uppercase tracking-widest mt-0.5">{{ item.curso.mes_curso|default:"-" }}</div>
                             </td>
-                            
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.curso.turno|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-[10px] font-bold text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-wider whitespace-nowrap">
-                                {{ item.modalidad|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.forma_pago|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.banco|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
-                                {{ item.importe|default:"0,00" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.vendedor|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
-                                {{ item.comision|default:0|floatformat:3 }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
-                                {{ item.registrado_por|default:"-" }}
-                            </td>
-                            
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.curso.turno|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-center text-[10px] font-bold text-gray-500 group-hover:text-blue-100 transition-colors uppercase tracking-wider whitespace-nowrap">{{ item.modalidad|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.forma_pago|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.banco|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">{{ item.importe|default:"0,00" }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.vendedor|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">{{ item.comision|default:0|floatformat:3 }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">{{ item.registrado_por|default:"-" }}</td>
                             <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
                                 <div class="flex items-center justify-center gap-2">
                                     <a href="{% url 'editar_inscripcion' item.id %}" class="h-7 px-3 rounded-full bg-white border border-gray-200 text-gray-500 group-hover:bg-white/20 group-hover:border-transparent group-hover:text-white hover:!bg-white hover:!text-[#0071e3] transition-all font-bold flex items-center justify-center gap-1.5 shadow-sm" title="Editar">
@@ -264,7 +258,6 @@
                         </tr>
 
                         {% elif item.tipo_servicio %}
-                        <!-- ATRIBUTOS DATA PARA BÚSQUEDA JS -->
                         <tr class="inscripcion-row hover:bg-[#0071e3] transition-colors duration-200 bg-gray-50/30 group relative cursor-pointer" 
                             data-general="{{ item.participante.nombre_completo|lower|default:'' }} {{ item.participante.ci|lower|default:'' }} {{ item.participante.celular|lower|default:'' }} {{ item.tipo_servicio|lower|default:'' }} {{ item.detalle|lower|default:'' }} {{ item.forma_pago|lower|default:'' }}"
                             data-vendedor="{{ item.vendedor|lower|default:'' }}">
@@ -273,40 +266,20 @@
                                 <div class="font-bold text-[11px] uppercase">{{ item.fecha_venta|date:"l d" }}</div>
                                 <div class="text-[9px] tracking-widest uppercase mt-0.5">{{ item.fecha_venta|date:"F" }} DE {{ item.fecha_venta|date:"Y" }}</div>
                             </td>
-                            
-                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">
-                                {{ item.participante.nombre_completo }}
-                            </td>
-                            
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">
-                                {{ item.participante.celular|default:"-" }}
-                            </td>
-                            
+                            <td class="px-2.5 py-3 font-bold text-black group-hover:text-white transition-colors uppercase text-xs leading-tight min-w-[180px] whitespace-nowrap">{{ item.participante.nombre_completo }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[11px] whitespace-nowrap">{{ item.participante.celular|default:"-" }}</td>
                             <td class="px-2.5 py-3 min-w-[150px] max-w-[220px] leading-tight whitespace-normal break-words">
                                 <div class="font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] uppercase">{{ item.tipo_servicio }}</div>
                                 <div class="text-[9px] font-black text-gray-400 group-hover:text-white transition-colors uppercase tracking-widest mt-0.5">{{ item.detalle }}</div>
                             </td>
-                            
                             <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
                             <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">-</td>
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.forma_pago|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.banco|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">
-                                {{ item.importe|default:"0,00" }}
-                            </td>       
-                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">
-                                {{ item.vendedor|default:"-" }}
-                            </td>
-                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">
-                                {{ item.comision|default:0|floatformat:3 }}
-                            </td>
-                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">
-                                {{ item.registrado_por|default:"-" }}
-                            </td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.forma_pago|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.banco|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-right font-black text-black group-hover:text-white transition-colors text-xs whitespace-nowrap val-importe">{{ item.importe|default:"0,00" }}</td>       
+                            <td class="px-2.5 py-3 text-center text-gray-500 group-hover:text-blue-100 transition-colors font-medium text-[10px] uppercase whitespace-nowrap">{{ item.vendedor|default:"-" }}</td>
+                            <td class="px-2.5 py-3 text-right font-bold text-[#0071e3] group-hover:text-blue-200 transition-colors text-[11px] whitespace-nowrap val-comision">{{ item.comision|default:0|floatformat:3 }}</td>
+                            <td class="px-2.5 py-3 text-center text-gray-400 group-hover:text-blue-100 transition-colors font-medium text-[9px] uppercase tracking-wider whitespace-nowrap">{{ item.registrado_por|default:"-" }}</td>
                             
                             <td class="col-edicion hidden px-2.5 py-3 text-center group-hover:bg-transparent bg-gray-50/50 transition-colors whitespace-nowrap border-l border-transparent group-hover:border-white/20">
                                 <div class="flex items-center justify-center gap-2">
@@ -387,7 +360,7 @@
                 }
             });
             
-            calcularTotalesMatematicos(); // Recalcular totales visibles al instante
+            calcularTotalesMatematicos();
         }
 
         const inputGen = document.getElementById('buscadorGeneral');
@@ -482,7 +455,7 @@
     }); 
 
     // ==========================================
-    // 4. LÓGICA DEL CALENDARIO POPOVER DUAL (MES / DÍA)
+    // 4. LÓGICA DEL CALENDARIO POPOVER DUAL (AÑO / MES / DÍA)
     // ==========================================
     const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
     let anioSeleccionado = new Date().getFullYear();
@@ -496,14 +469,21 @@
 
     function initPicker() {
         const val = document.getElementById('inputMesBuscar').value;
-        if(val && val.length === 7 && val.includes('-')) {
+        if(val && val.length === 4 && !val.includes('-')) {
+            // Es formato de AÑO: "2026"
+            anioSeleccionado = parseInt(val);
+            anioNavegacion = anioSeleccionado;
+            anioNavegacionDia = anioSeleccionado;
+            
+            document.getElementById('txtMesSeleccionado').innerText = `AÑO ${anioSeleccionado}`;
+            setModoCalendario('anio');
+        } else if(val && val.length === 7 && val.includes('-')) {
             // Es un formato de MES: "2026-08"
             const parts = val.split('-');
             anioSeleccionado = parseInt(parts[0]);
             mesSeleccionado = parseInt(parts[1]);
             anioNavegacion = anioSeleccionado;
             
-            // Sincronizar el Día Exacto con este mes
             anioNavegacionDia = anioSeleccionado;
             mesNavegacionDia = mesSeleccionado - 1;
             
@@ -516,7 +496,6 @@
             mesSeleccionado = parseInt(parts[1]);
             const dia = parts[2];
             
-            // Sincronizar navegación
             anioNavegacion = anioSeleccionado;
             anioNavegacionDia = anioSeleccionado;
             mesNavegacionDia = mesSeleccionado - 1;
@@ -531,17 +510,15 @@
             document.getElementById('txtMesSeleccionado').innerText = 'FECHAS';
             setModoCalendario('mes');
         }
-        renderGridMeses();
-        renderGridDias();
+        renderVistas();
     }
 
     function toggleMesPicker() {
         const pop = document.getElementById('popoverMes');
         if(pop.classList.contains('hidden')){
-            // Reseteamos navegadores a la selección actual
             anioNavegacion = anioSeleccionado; 
             anioNavegacionDia = anioSeleccionado;
-            // Si el modo es día pero no hay nada seleccionado, usamos el mes actual
+            
             if(diaSeleccionadoStr) {
                 const parts = diaSeleccionadoStr.split('-');
                 mesNavegacionDia = parseInt(parts[1]) - 1;
@@ -549,18 +526,23 @@
                 mesNavegacionDia = new Date().getMonth();
             }
             
-            renderGridMeses();
-            renderGridDias();
+            renderVistas();
             pop.classList.remove('hidden');
         } else {
             pop.classList.add('hidden');
         }
     }
 
-    // Navegación en vista MES
+    function renderVistas() {
+        renderVistaAnio();
+        renderGridMeses();
+        renderGridDias();
+    }
+
+    // Navegación principal (Afecta Año y Mes)
     function cambiarAnio(delta) {
         anioNavegacion += delta;
-        renderGridMeses();
+        renderVistas();
     }
 
     // Navegación en vista DÍA
@@ -576,14 +558,20 @@
         renderGridDias();
     }
 
-    // Al seleccionar un Mes (pestaña Mes)
+    // Al seleccionar el Año completo
+    function seleccionarAnio() {
+        document.getElementById('inputMesBuscar').value = anioNavegacion.toString();
+        document.getElementById('formFiltroMes').submit();
+    }
+
+    // Al seleccionar un Mes
     function seleccionarMes(mesIndex) {
         const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
         document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
         document.getElementById('formFiltroMes').submit();
     }
 
-    // Al seleccionar un Día (pestaña Día)
+    // Al seleccionar un Día
     function seleccionarDia(dia) {
         const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
         const d = dia.toString().padStart(2, '0');
@@ -592,7 +580,11 @@
         document.getElementById('formFiltroMes').submit();
     }
 
-    // Renderizar la cuadrícula de Meses
+    function renderVistaAnio() {
+        const spanAnioSolo = document.getElementById('pickerAnioSolo');
+        if(spanAnioSolo) spanAnioSolo.innerText = anioNavegacion;
+    }
+
     function renderGridMeses() {
         document.getElementById('pickerAnio').innerText = anioNavegacion;
         const grid = document.getElementById('gridMeses');
@@ -600,18 +592,16 @@
         
         for(let i = 1; i <= 12; i++) {
             const val = document.getElementById('inputMesBuscar').value;
-            // Solo resaltamos si estamos en vista mes y coincide
             const isSelected = (val.length === 7 && anioNavegacion === anioSeleccionado && i === mesSeleccionado);
             const baseClass = "py-2.5 rounded-lg text-[13px] font-bold tracking-wide transition-all ";
             const extraClass = isSelected 
                 ? "bg-[#0071e3] text-white shadow-sm" 
                 : "text-slate-600 border border-transparent hover:bg-slate-100 hover:text-black";
                 
-            // Eliminamos el .substring(0,3). para mostrar el mes completo
             grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
         }
     }
-    // Renderizar la cuadrícula de Días
+
     function renderGridDias() {
         document.getElementById('pickerMesAnioDia').innerText = `${mesesNombres[mesNavegacionDia]} ${anioNavegacionDia}`;
         const grid = document.getElementById('gridDias');
@@ -620,25 +610,20 @@
         const firstDay = new Date(anioNavegacionDia, mesNavegacionDia, 1);
         const daysInMonth = new Date(anioNavegacionDia, mesNavegacionDia + 1, 0).getDate();
         
-        // Ajustamos para que Lunes sea el primer día de la semana (0 = Lunes, 6 = Domingo)
         let startDay = firstDay.getDay(); 
         startDay = startDay === 0 ? 6 : startDay - 1; 
         
-        // Celdas vacías al inicio
         for(let i=0; i<startDay; i++) {
             grid.innerHTML += `<div class="p-1"></div>`; 
         }
         
-        // Días del mes
         for(let i=1; i<=daysInMonth; i++) {
             const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
             const d = i.toString().padStart(2, '0');
             const fechaActual = `${anioNavegacionDia}-${m}-${d}`;
             
-            // ¿Es hoy?
             const hoy = new Date();
             const esHoy = (hoy.getFullYear() === anioNavegacionDia && hoy.getMonth() === mesNavegacionDia && hoy.getDate() === i);
-            
             const isSelected = (fechaActual === diaSeleccionadoStr);
             
             const baseClass = "w-full h-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all";
@@ -658,19 +643,18 @@
         }
     }
 
-    // Lógica para cambiar las pestañas (Mes / Día)
+    // Manejador de las tres pestañas
     function setModoCalendario(modo) {
-        if(modo === 'mes') {
-            document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
-            document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
-            document.getElementById('vistaMes').classList.remove('hidden');
-            document.getElementById('vistaDia').classList.add('hidden');
-        } else {
-            document.getElementById('btnTabDia').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
-            document.getElementById('btnTabMes').className = "flex-1 py-1.5 text-[10px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200";
-            document.getElementById('vistaMes').classList.add('hidden');
-            document.getElementById('vistaDia').classList.remove('hidden');
-        }
+        const btnActivo = "flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
+        const btnInactivo = "flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg";
+        
+        document.getElementById('btnTabAnio').className = modo === 'anio' ? btnActivo : btnInactivo;
+        document.getElementById('btnTabMes').className = modo === 'mes' ? btnActivo : btnInactivo;
+        document.getElementById('btnTabDia').className = modo === 'dia' ? btnActivo : btnInactivo;
+
+        document.getElementById('vistaAnio').classList.toggle('hidden', modo !== 'anio');
+        document.getElementById('vistaMes').classList.toggle('hidden', modo !== 'mes');
+        document.getElementById('vistaDia').classList.toggle('hidden', modo !== 'dia');
     }
 
     document.addEventListener('click', function(event) {
