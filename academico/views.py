@@ -138,8 +138,8 @@ def dashboard(request):
 
     # 3. NUEVO REPORTE DE DESEMPEÑO ACADÉMICO (Histórico Total)
     
-    # Filtramos para obtener Módulos y Cursos Independientes (ocultamos los subcursos hijos para no duplicar data en el reporte)
-    cursos_query = Curso.objects.filter(modulo_padre__isnull=True)
+    # Traemos TODOS los cursos sin exclusión (módulos, subcursos y cursos independientes)
+    cursos_query = Curso.objects.all()
     
     # Filtramos para que solo salgan los cursos que INICIARON en el mes seleccionado
     if rango_fechas and len(rango_fechas) == 7 and '-' in rango_fechas:
@@ -160,7 +160,7 @@ def dashboard(request):
             # Sumamos la recaudación total de esos subcursos
             total_generado = Inscripcion.objects.filter(curso__in=subcursos).aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
         else:
-            # Si es un curso normal e independiente
+            # Si es un curso normal o un subcurso, sumamos directamente sus inscripciones
             num_inscritos = c.inscripcion_set.count()
             total_generado = c.inscripcion_set.aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
 
