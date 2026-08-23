@@ -141,7 +141,6 @@ def dashboard(request):
     # Traemos TODOS los cursos sin exclusión (módulos, subcursos y cursos independientes)
     cursos_query = Curso.objects.all()
     
-    # Filtramos para que solo salgan los cursos que INICIARON en el mes seleccionado
     if rango_fechas and len(rango_fechas) == 7 and '-' in rango_fechas:
         try:
             anio, mes = map(int, rango_fechas.split('-'))
@@ -152,15 +151,28 @@ def dashboard(request):
     reporte_cursos = []
     
     for c in cursos_query:
-        # Verificamos si este curso es un módulo padre
         if c.subcursos.exists():
             subcursos = c.subcursos.all()
-            # Contamos los alumnos únicos inscritos en cualquiera de sus subcursos
-            num_inscritos = Inscripcion.objects.filter(curso__in=subcursos).values('participante').distinct().count()
-            # Sumamos la recaudación total de esos subcursos
-            total_generado = Inscripcion.objects.filter(curso__in=subcursos).aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
+            total_subcursos = subcursos.count()
+            
+            # MAGIA CONTABLE: Identificamos a los alumnos que compraron el Módulo COMPLETO.
+            # Exigimos que tengan inscripciones en TODOS los subcursos (cursos_count = total_subcursos)
+            participantes_modulo = Inscripcion.objects.filter(curso__in=subcursos)\
+                .values('participante')\
+                .annotate(cursos_count=Count('curso', distinct=True))\
+                .filter(cursos_count=total_subcursos)\
+                .values_list('participante', flat=True)
+                
+            lista_participantes = list(participantes_modulo)
+            num_inscritos = len(lista_participantes)
+            
+            # Sumamos SOLO el dinero de los que pagaron el paquete del Módulo
+            total_generado = Inscripcion.objects.filter(
+                curso__in=subcursos, 
+                participante__in=lista_participantes
+            ).aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
         else:
-            # Si es un curso normal o un subcurso, sumamos directamente sus inscripciones
+            # Si es un curso independiente o un subcurso (Ej: Ajustes Contables)
             num_inscritos = c.inscripcion_set.count()
             total_generado = c.inscripcion_set.aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
 
