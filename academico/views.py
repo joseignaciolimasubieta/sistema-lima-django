@@ -137,8 +137,9 @@ def dashboard(request):
     total_cursos_activos = Curso.objects.filter(fecha_finalizacion__gte=hoy).count()
 
     # 3. NUEVO REPORTE DE DESEMPEÑO ACADÉMICO (Histórico Total)
-    # Filtramos los cursos principales (sin submódulos)
-    cursos_query = Curso.objects.filter(subcursos__isnull=True)
+    
+    # Filtramos para obtener Módulos y Cursos Independientes (ocultamos los subcursos hijos para no duplicar data en el reporte)
+    cursos_query = Curso.objects.filter(modulo_padre__isnull=True)
     
     # Filtramos para que solo salgan los cursos que INICIARON en el mes seleccionado
     if rango_fechas and len(rango_fechas) == 7 and '-' in rango_fechas:
@@ -148,23 +149,32 @@ def dashboard(request):
         except Exception:
             pass
 
-    # Anotamos el total histórico, sumando TODAS sus inscripciones sin importar la fecha en que se pagaron
-    reporte_cursos_bd = cursos_query.annotate(
-        num_inscritos=Count('inscripcion'),
-        total_generado=Sum('inscripcion__importe')
-    ).order_by('-total_generado')
-
     reporte_cursos = []
-    for c in reporte_cursos_bd:
+    
+    for c in cursos_query:
+        # Verificamos si este curso es un módulo padre
+        if c.subcursos.exists():
+            subcursos = c.subcursos.all()
+            # Contamos los alumnos únicos inscritos en cualquiera de sus subcursos
+            num_inscritos = Inscripcion.objects.filter(curso__in=subcursos).values('participante').distinct().count()
+            # Sumamos la recaudación total de esos subcursos
+            total_generado = Inscripcion.objects.filter(curso__in=subcursos).aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
+        else:
+            # Si es un curso normal e independiente
+            num_inscritos = c.inscripcion_set.count()
+            total_generado = c.inscripcion_set.aggregate(Sum('importe'))['importe__sum'] or Decimal('0.00')
+
         reporte_cursos.append({
             'curso__nombre': c.nombre,
             'modalidad': c.modalidad or 'VIRTUAL',
-            'num_inscritos': c.num_inscritos,
-            'total_generado': c.total_generado or Decimal('0.00'),
+            'num_inscritos': num_inscritos,
+            'total_generado': total_generado,
             'tendencia_clase': 'bg-slate-100 text-slate-500',
             'tendencia_texto': 'TOTAL HISTÓRICO'
         })
 
+    # Ordenamos manualmente la lista de mayor a menor dinero generado
+    reporte_cursos = sorted(reporte_cursos, key=lambda x: x['total_generado'], reverse=True)
     # 4. CÁLCULO OPTIMIZADO DE CUENTAS OPERATIVAS (Mapeado directo en RAM)
     # 🚀 Filtramos estrictamente las cuentas operativas del flujo de caja (001 a 004)
     cuentas_operativas = CuentaCaja.objects.filter(codigo__in=['001', '002', '003', '004']).order_by('codigo')
