@@ -1713,7 +1713,13 @@ def editar_inscripcion(request, id):
         # --- NUEVO: MENSAJE QUE SE CIERRA SOLO ---
         messages.success(request, 'Inscripción actualizada con éxito.')
         
-        return redirect('inscripciones')
+        # 🚀 1. Recuperamos la URL original con el filtro y borramos la memoria
+        url_anterior = request.session.pop(f'url_origen_insc_{id}', 'inscripciones')
+        return redirect(url_anterior)
+    
+    # 🚀 2. CUANDO CARGA LA PÁGINA: Guardamos de dónde vino el usuario en la sesión
+    request.session[f'url_origen_insc_{id}'] = request.META.get('HTTP_REFERER', 'inscripciones')
+    
     hoy = date.today()
     
     # Aplicamos el mismo orden inteligente: 1 (No inició), 2 (En curso), 3 (Finalizado)
@@ -1807,17 +1813,13 @@ def editar_inscripcion_cc(request, id):
 @login_required
 @user_passes_test(es_ventas)
 def eliminar_inscripcion(request, id):
-    # 1. Buscamos el registro exacto
     inscripcion = get_object_or_404(Inscripcion, id=id)
-    
-    # 2. Eliminamos el registro
     inscripcion.delete()
-    
-    # 3. Creamos el mensaje de éxito (NUEVO)
     messages.success(request, 'El registro de inscripción fue eliminado correctamente.')
     
-    # 4. Recargamos la tabla general
-    return redirect('inscripciones')
+    # 🚀 Redirigir a la misma página de donde vino (mantiene los filtros)
+    referer = request.META.get('HTTP_REFERER')
+    return redirect(referer if referer else 'inscripciones')
 
 @login_required
 @user_passes_test(es_ventas)
@@ -1897,9 +1899,15 @@ def editar_venta_servicio(request, id):
         
         venta.save()
         
+        # 👇 Solo te faltó esta línea para que salga el mensaje verde
         messages.success(request, f'Venta de {venta.tipo_servicio} actualizada con éxito.')
-        return redirect('inscripciones')
         
+        # 🚀 1. Retornar con filtro
+        url_anterior = request.session.pop(f'url_origen_venta_{id}', 'inscripciones')
+        return redirect(url_anterior)
+        
+    # 🚀 2. Guardar origen
+    request.session[f'url_origen_venta_{id}'] = request.META.get('HTTP_REFERER', 'inscripciones')
     return render(request, 'editar_venta_servicio.html', {'venta': venta})
 
 @login_required
@@ -1907,9 +1915,11 @@ def eliminar_venta_servicio(request, id):
     venta = get_object_or_404(VentaServicio, id=id)
     tipo = venta.tipo_servicio
     venta.delete()
-    
     messages.success(request, f'La venta de {tipo} fue eliminada correctamente.')
-    return redirect('inscripciones')
+    
+    # 🚀 Redirigir a la misma página de donde vino
+    referer = request.META.get('HTTP_REFERER')
+    return redirect(referer if referer else 'inscripciones')
 
 
 
