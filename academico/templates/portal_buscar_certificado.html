@@ -58,5 +58,13 @@
             </form>
         </div>
     </div>
+<script>
+        // Forzar recarga si la página fue restaurada desde el caché de retroceso/avance
+        window.addEventListener("pageshow", function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+    </script>
 </body>
 </html>
