@@ -117,18 +117,90 @@
 
                     <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
 
-                    <!-- CALENDARIO FLATPICKR -->
-                    <div class="relative w-full lg:w-48 h-9 flex items-center border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0 shrink-0">
-                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors z-10 pointer-events-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <!-- CALENDARIO POPOVER MODERNO (AÑO, MES O DÍA) -->
+                    <div class="relative w-full lg:w-auto flex items-center border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0 shrink-0">
+                        <input type="hidden" name="rango_fechas" id="inputMesBuscar" value="{{ rango_fechas|default:'' }}">
+                        
+                        <button type="button" onclick="toggleMesPicker()" id="btnMonthPicker" class="h-9 px-4 flex items-center justify-between gap-3 bg-white hover:bg-slate-50 transition-all rounded-full focus:outline-none w-full lg:w-40 border border-transparent shadow-sm">
+                            <div class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#0071e3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <span id="txtMesSeleccionado" class="text-[10px] font-black text-slate-700 tracking-widest uppercase">FECHAS</span>
+                            </div>
+                            <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        <!-- Menú Popover -->
+                        <div id="popoverMes" class="hidden absolute right-0 top-12 mt-1 w-[21rem] bg-white rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 p-5 transform origin-top-right transition-all z-50">
+                            
+                            <!-- Pestañas (Tres Opciones) -->
+                            <div class="flex items-center justify-between mb-5 bg-slate-50 p-1.5 rounded-xl border border-gray-100 gap-1">
+                                <button type="button" onclick="setModoCalendario('anio')" id="btnTabAnio" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg">Por Año</button>
+                                <button type="button" onclick="setModoCalendario('mes')" id="btnTabMes" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all">Por Mes</button>
+                                <button type="button" onclick="setModoCalendario('dia')" id="btnTabDia" class="flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg">Día Exacto</button>
+                            </div>
+
+                            <!-- Vista: Por Año -->
+                            <div id="vistaAnio" class="hidden animate-fade-in">
+                                <div class="flex items-center justify-between mb-2 px-2">
+                                    <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerAnioSolo" class="text-4xl font-black text-slate-800 tracking-wide my-4">2026</span>
+                                    <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <button type="button" onclick="seleccionarAnio()" class="w-full py-3 mt-4 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] uppercase tracking-widest font-black rounded-xl transition-all shadow-md active:scale-95">
+                                    Seleccionar Todo el Año
+                                </button>
+                            </div>
+
+                            <!-- Vista: Por Mes -->
+                            <div id="vistaMes" class="animate-fade-in">
+                                <div class="flex items-center justify-between mb-5 px-2">
+                                    <button type="button" onclick="cambiarAnio(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerAnio" class="text-xl font-light text-slate-800 tracking-wide">2026</span>
+                                    <button type="button" onclick="cambiarAnio(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-y-3 gap-x-2" id="gridMeses"></div>
+                            </div>
+
+                            <!-- Vista: Por Día -->
+                            <div id="vistaDia" class="hidden animate-fade-in">
+                                <div class="flex items-center justify-between mb-4 px-1">
+                                    <button type="button" onclick="cambiarMesDia(-1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    </button>
+                                    <span id="pickerMesAnioDia" class="text-sm font-black text-slate-800 tracking-widest uppercase">AGOSTO 2026</span>
+                                    <button type="button" onclick="cambiarMesDia(1)" class="p-1.5 text-gray-400 hover:text-[#0071e3] hover:bg-blue-50 transition-colors rounded-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                </div>
+                                <!-- Días de la semana -->
+                                <div class="grid grid-cols-7 text-center mb-2 border-b border-gray-100 pb-2">
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Lu</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ma</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Mi</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Ju</span>
+                                    <span class="text-[9px] font-black text-gray-400 uppercase">Vi</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Sa</span>
+                                    <span class="text-[9px] font-black text-rose-400 uppercase">Do</span>
+                                </div>
+                                <!-- Grilla de días -->
+                                <div class="grid grid-cols-7 gap-y-1 gap-x-1" id="gridDias"></div>
+                            </div>
+
                         </div>
-                        <input type="text" name="rango_fechas" value="{{ rango_fechas }}" placeholder="BUSCAR FECHAS..." id="calendario_caja" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 cursor-pointer hidden min-w-[120px]">
                     </div>
-                    
-                    <button type="submit" class="h-9 px-5 ml-1 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">BUSCAR</button>
+
+                    <button type="submit" class="h-9 px-5 ml-2 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">BUSCAR</button>
 
                     {% if rango_fechas %}
-                        <a href="{% url 'flujo_caja' %}" class="absolute -top-3 -right-3 lg:static w-9 h-9 lg:ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0 shadow-sm" title="Limpiar Filtro">
+                        <a href="{% url 'flujo_caja' %}" class="absolute -top-3 -right-3 lg:static w-9 h-9 lg:ml-2 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0 shadow-sm" title="Limpiar Filtro">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </a>
                     {% endif %}
@@ -350,9 +422,6 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -470,26 +539,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        
-        flatpickr("#calendario_caja", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            locale: "es",
-            allowInput: true,
-            altInput: true,
-            altFormat: "d M Y",
-            altInputClass: "w-full h-full pl-10 pr-4 bg-transparent outline-none text-sm font-semibold text-black placeholder-gray-400 cursor-pointer"
-        });
-
-        const inputCalendario = document.querySelector('.flatpickr-input[type="text"]');
-        if (inputCalendario) {
-            inputCalendario.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault(); 
-                    document.querySelector('form').submit(); 
-                }
-            });
-        }
 
         const contenedorTabla = document.getElementById('contenedor-tabla-caja');
         if (contenedorTabla) {
@@ -569,6 +618,201 @@
             }
         });
     });
+
+    // ==========================================
+    // LÓGICA DEL CALENDARIO POPOVER DUAL (AÑO / MES / DÍA)
+    // ==========================================
+    const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    let anioSeleccionado = new Date().getFullYear();
+    let mesSeleccionado = new Date().getMonth() + 1; // 1-12
+    let anioNavegacion = anioSeleccionado;
+    
+    let anioNavegacionDia = anioSeleccionado;
+    let mesNavegacionDia = mesSeleccionado - 1; // 0-11
+    let diaSeleccionadoStr = "";
+
+    function initPicker() {
+        const val = document.getElementById('inputMesBuscar').value;
+        if(val && val.length === 4 && !val.includes('-')) {
+            anioSeleccionado = parseInt(val);
+            anioNavegacion = anioSeleccionado;
+            anioNavegacionDia = anioSeleccionado;
+            document.getElementById('txtMesSeleccionado').innerText = `AÑO ${anioSeleccionado}`;
+            setModoCalendario('anio');
+        } else if(val && val.length === 7 && val.includes('-')) {
+            const parts = val.split('-');
+            anioSeleccionado = parseInt(parts[0]);
+            mesSeleccionado = parseInt(parts[1]);
+            anioNavegacion = anioSeleccionado;
+            anioNavegacionDia = anioSeleccionado;
+            mesNavegacionDia = mesSeleccionado - 1;
+            document.getElementById('txtMesSeleccionado').innerText = `${mesesNombres[mesSeleccionado-1]} ${anioSeleccionado}`;
+            setModoCalendario('mes');
+        } else if (val && val.length === 10 && val.includes('-')) {
+            const parts = val.split('-');
+            anioSeleccionado = parseInt(parts[0]);
+            mesSeleccionado = parseInt(parts[1]);
+            const dia = parts[2];
+            anioNavegacion = anioSeleccionado;
+            anioNavegacionDia = anioSeleccionado;
+            mesNavegacionDia = mesSeleccionado - 1;
+            diaSeleccionadoStr = val;
+            document.getElementById('txtMesSeleccionado').innerText = `${dia} ${mesesNombres[mesSeleccionado-1].substring(0,3)}. ${anioSeleccionado}`;
+            setModoCalendario('dia');
+        } else if (val) {
+            document.getElementById('txtMesSeleccionado').innerText = 'FILTRADO';
+            setModoCalendario('mes');
+        } else {
+            document.getElementById('txtMesSeleccionado').innerText = 'FECHAS';
+            setModoCalendario('mes');
+        }
+        renderVistas();
+    }
+
+    function toggleMesPicker() {
+        const pop = document.getElementById('popoverMes');
+        if(pop.classList.contains('hidden')){
+            anioNavegacion = anioSeleccionado; 
+            anioNavegacionDia = anioSeleccionado;
+            if(diaSeleccionadoStr) {
+                const parts = diaSeleccionadoStr.split('-');
+                mesNavegacionDia = parseInt(parts[1]) - 1;
+            } else {
+                mesNavegacionDia = new Date().getMonth();
+            }
+            renderVistas();
+            pop.classList.remove('hidden');
+        } else {
+            pop.classList.add('hidden');
+        }
+    }
+
+    function renderVistas() {
+        renderVistaAnio();
+        renderGridMeses();
+        renderGridDias();
+    }
+
+    function cambiarAnio(delta) {
+        anioNavegacion += delta;
+        renderVistas();
+    }
+
+    function cambiarMesDia(delta) {
+        mesNavegacionDia += delta;
+        if(mesNavegacionDia < 0) {
+            mesNavegacionDia = 11;
+            anioNavegacionDia--;
+        } else if (mesNavegacionDia > 11) {
+            mesNavegacionDia = 0;
+            anioNavegacionDia++;
+        }
+        renderGridDias();
+    }
+
+    function seleccionarAnio() {
+        document.getElementById('inputMesBuscar').value = anioNavegacion.toString();
+        document.getElementById('formFiltroCaja').submit();
+    }
+
+    function seleccionarMes(mesIndex) {
+        const strMes = mesIndex < 10 ? '0'+mesIndex : mesIndex;
+        document.getElementById('inputMesBuscar').value = `${anioNavegacion}-${strMes}`;
+        document.getElementById('formFiltroCaja').submit();
+    }
+
+    function seleccionarDia(dia) {
+        const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+        const d = dia.toString().padStart(2, '0');
+        const fecha = `${anioNavegacionDia}-${m}-${d}`;
+        document.getElementById('inputMesBuscar').value = fecha;
+        document.getElementById('formFiltroCaja').submit();
+    }
+
+    function renderVistaAnio() {
+        const spanAnioSolo = document.getElementById('pickerAnioSolo');
+        if(spanAnioSolo) spanAnioSolo.innerText = anioNavegacion;
+    }
+
+    function renderGridMeses() {
+        document.getElementById('pickerAnio').innerText = anioNavegacion;
+        const grid = document.getElementById('gridMeses');
+        grid.innerHTML = '';
+        
+        for(let i = 1; i <= 12; i++) {
+            const val = document.getElementById('inputMesBuscar').value;
+            const isSelected = (val.length === 7 && anioNavegacion === anioSeleccionado && i === mesSeleccionado);
+            const baseClass = "py-2.5 rounded-lg text-[13px] font-bold tracking-wide transition-all ";
+            const extraClass = isSelected 
+                ? "bg-[#0071e3] text-white shadow-sm" 
+                : "text-slate-600 border border-transparent hover:bg-slate-100 hover:text-black";
+                
+            grid.innerHTML += `<button type="button" onclick="seleccionarMes(${i})" class="${baseClass} ${extraClass}">${mesesNombres[i-1]}</button>`;
+        }
+    }
+
+    function renderGridDias() {
+        document.getElementById('pickerMesAnioDia').innerText = `${mesesNombres[mesNavegacionDia]} ${anioNavegacionDia}`;
+        const grid = document.getElementById('gridDias');
+        grid.innerHTML = '';
+        
+        const firstDay = new Date(anioNavegacionDia, mesNavegacionDia, 1);
+        const daysInMonth = new Date(anioNavegacionDia, mesNavegacionDia + 1, 0).getDate();
+        
+        let startDay = firstDay.getDay(); 
+        startDay = startDay === 0 ? 6 : startDay - 1; 
+        
+        for(let i=0; i<startDay; i++) {
+            grid.innerHTML += `<div class="p-1"></div>`; 
+        }
+        
+        for(let i=1; i<=daysInMonth; i++) {
+            const m = (mesNavegacionDia + 1).toString().padStart(2, '0');
+            const d = i.toString().padStart(2, '0');
+            const fechaActual = `${anioNavegacionDia}-${m}-${d}`;
+            
+            const hoy = new Date();
+            const esHoy = (hoy.getFullYear() === anioNavegacionDia && hoy.getMonth() === mesNavegacionDia && hoy.getDate() === i);
+            const isSelected = (fechaActual === diaSeleccionadoStr);
+            
+            const baseClass = "w-full h-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all";
+            let extraClass = "text-slate-700 hover:bg-slate-100 hover:text-black cursor-pointer border border-transparent";
+            
+            if (isSelected) {
+                extraClass = "bg-[#0071e3] text-white shadow-sm border border-[#0071e3]";
+            } else if (esHoy) {
+                extraClass = "bg-blue-50 text-[#0071e3] font-black border border-blue-200 cursor-pointer hover:bg-blue-100";
+            }
+                
+            grid.innerHTML += `
+                <div class="p-0.5 flex items-center justify-center">
+                    <button type="button" onclick="seleccionarDia(${i})" class="${baseClass} ${extraClass}">${i}</button>
+                </div>
+            `;
+        }
+    }
+
+    function setModoCalendario(modo) {
+        const btnActivo = "flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black bg-white rounded-lg shadow-sm text-[#0071e3] transition-all";
+        const btnInactivo = "flex-1 py-1.5 text-[9px] uppercase tracking-widest font-black text-gray-500 hover:text-black transition-all border border-transparent hover:border-gray-200 rounded-lg";
+        
+        document.getElementById('btnTabAnio').className = modo === 'anio' ? btnActivo : btnInactivo;
+        document.getElementById('btnTabMes').className = modo === 'mes' ? btnActivo : btnInactivo;
+        document.getElementById('btnTabDia').className = modo === 'dia' ? btnActivo : btnInactivo;
+
+        document.getElementById('vistaAnio').classList.toggle('hidden', modo !== 'anio');
+        document.getElementById('vistaMes').classList.toggle('hidden', modo !== 'mes');
+        document.getElementById('vistaDia').classList.toggle('hidden', modo !== 'dia');
+    }
+
+    document.addEventListener('click', function(event) {
+        const pop = document.getElementById('popoverMes');
+        if (pop && !event.target.closest('#formFiltroCaja') && !pop.classList.contains('hidden')) {
+            pop.classList.add('hidden');
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', initPicker);
 </script>
 
 <style>
@@ -583,6 +827,8 @@
         padding-right: 1.5rem !important;
         border-radius: 9999px !important;
     }
+    .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 {% endblock %}
