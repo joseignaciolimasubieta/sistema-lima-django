@@ -94,17 +94,41 @@
             <!-- FILA INFERIOR: Buscador, Editar y Nuevo Registro -->
             <div class="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
                 
-                <!-- Buscador (Más largo: w-full sm:w-auto md:w-[26rem]) -->
-                <form method="GET" class="flex items-center bg-white p-1.5 rounded-full border border-gray-200 shadow-sm w-full sm:w-auto md:w-[26rem] group focus-within:border-[#0071e3] transition-all shrink-0">
-                    <div class="relative w-full h-8 flex items-center">
+                <!-- Buscador Segmentado -->
+                <form method="GET" id="formFiltroCaja" class="flex flex-wrap lg:flex-nowrap items-center bg-white p-1.5 rounded-3xl lg:rounded-full border border-gray-200 shadow-sm w-full lg:w-auto focus-within:border-[#0071e3] transition-all shrink-0">
+                    
+                    <!-- BUSCADOR DETALLE DE MOVIMIENTO -->
+                    <div class="relative w-full lg:w-56 h-9 flex items-center mb-2 lg:mb-0">
                         <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="buscadorDetalle" onkeyup="filtrarCaja()" placeholder="DETALLE DE MOVIMIENTO..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
+                    </div>
+
+                    <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- BUSCADOR CUENTA -->
+                    <div class="relative w-full lg:w-36 h-9 flex items-center mb-2 lg:mb-0 border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <input type="text" id="buscadorCuenta" onkeyup="filtrarCaja()" placeholder="CUENTA..." class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 uppercase">
+                    </div>
+
+                    <div class="hidden lg:block w-px h-5 bg-gray-200 shrink-0 mx-1"></div>
+
+                    <!-- CALENDARIO FLATPICKR -->
+                    <div class="relative w-full lg:w-48 h-9 flex items-center border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0 shrink-0">
+                        <div class="absolute left-3.5 text-gray-400 group-focus-within:text-[#0071e3] transition-colors z-10 pointer-events-none">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
-                        <input type="text" name="rango_fechas" value="{{ rango_fechas }}" placeholder="BUSCAR POR FECHA..." id="calendario_caja" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[11px] font-bold text-black placeholder-gray-400 cursor-pointer hidden">
+                        <input type="text" name="rango_fechas" value="{{ rango_fechas }}" placeholder="BUSCAR FECHAS..." id="calendario_caja" class="w-full h-full pl-9 pr-2 bg-transparent outline-none text-[10px] font-bold text-slate-800 placeholder-gray-400 cursor-pointer hidden min-w-[120px]">
                     </div>
-                    <button type="submit" class="h-8 px-5 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">BUSCAR</button>
+                    
+                    <button type="submit" class="h-9 px-5 ml-1 bg-[#0071e3] hover:bg-[#0077ED] text-white text-[10px] font-black rounded-full transition-all tracking-widest uppercase shadow-sm whitespace-nowrap">BUSCAR</button>
+
                     {% if rango_fechas %}
-                        <a href="{% url 'flujo_caja' %}" class="w-8 h-8 ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0" title="Limpiar Filtro">
+                        <a href="{% url 'flujo_caja' %}" class="absolute -top-3 -right-3 lg:static w-9 h-9 lg:ml-1 flex items-center justify-center rounded-full bg-slate-100 text-gray-500 hover:text-black hover:bg-slate-200 transition-colors shrink-0 shadow-sm" title="Limpiar Filtro">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </a>
                     {% endif %}
@@ -129,7 +153,7 @@
                 <thead class="bg-slate-50 border-b-2 border-slate-200 sticky top-0 z-20">
                     <tr>
                         <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Fecha</th>
-                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Detalle de Operación</th>
+                        <th class="py-5 px-4 text-left text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Detalle de Movimiento</th>
                         <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Cuenta</th>
                         <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Entradas</th>
                         <th class="py-5 px-4 text-center text-[10px] font-black text-black uppercase tracking-widest whitespace-nowrap">Salidas</th>
@@ -140,8 +164,9 @@
                 
                 <tbody class="divide-y divide-gray-100 text-xs bg-white">
                     {% for mov in movimientos %}
-                    
-                    <tr class="hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer">
+                    <tr class="movimiento-row hover:bg-[#0071e3] transition-colors duration-200 group relative cursor-pointer"
+                        data-detalle="{{ mov.detalle|lower|default:'' }}"
+                        data-cuenta="{{ mov.cuenta.nombre|lower|default:'' }}">
                         
                         <td class="px-4 py-3 text-left text-gray-500 group-hover:text-white transition-colors font-bold text-[10px] uppercase whitespace-nowrap">
                             {{ mov.fecha|date:"l d \d\e F, Y" }}
@@ -158,13 +183,13 @@
                         </td>
                         
                         <td class="px-4 py-3 text-right whitespace-nowrap">
-                            <span class="font-black text-xs transition-colors {% if mov.tipo == 'ENTRADA' %}text-emerald-600 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
+                            <span class="val-entrada font-black text-xs transition-colors {% if mov.tipo == 'ENTRADA' %}text-emerald-600 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
                                 {% if mov.tipo == 'ENTRADA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
                             </span>
                         </td>
-            
+
                         <td class="px-4 py-3 text-right whitespace-nowrap">
-                            <span class="font-black text-xs transition-colors {% if mov.tipo == 'SALIDA' %}text-red-500 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
+                            <span class="val-salida font-black text-xs transition-colors {% if mov.tipo == 'SALIDA' %}text-red-500 group-hover:text-white{% else %}text-gray-300 group-hover:text-blue-200 font-medium{% endif %}">
                                 {% if mov.tipo == 'SALIDA' %}{{ mov.monto|floatformat:"2g" }}{% else %}-{% endif %}
                             </span>
                         </td>
@@ -202,25 +227,16 @@
 
                 <tfoot class="bg-slate-50 border-t-2 border-slate-200 sticky bottom-0 z-20">
                     <tr>
-                        <td colspan="3" class="px-4 py-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">
-                            TOTALES:
-                        </td>
-                        
+                        <td colspan="3" class="px-4 py-4 text-right text-[10px] font-black uppercase tracking-widest text-gray-400 whitespace-nowrap">TOTALES:</td>
                         <td class="px-4 py-4 text-right whitespace-nowrap">
-                            
-                            <span class="text-sm font-black text-emerald-600">Bs {{ total_entradas|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-emerald-600" id="total-entradas">Bs {{ total_entradas|floatformat:"2g" }}</span>
                         </td>
-                        
                         <td class="px-4 py-4 text-right whitespace-nowrap">
-                            
-                            <span class="text-sm font-black text-red-500">Bs {{ total_salidas|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-red-500" id="total-salidas">Bs {{ total_salidas|floatformat:"2g" }}</span>
                         </td>
-
                         <td class="px-5 py-4 text-right whitespace-nowrap">
-                            
-                            <span class="text-sm font-black text-[#0071e3]">Bs {{ saldo_total|floatformat:"2g" }}</span>
+                            <span class="text-sm font-black text-[#0071e3]" id="saldo-total">Bs {{ saldo_total|floatformat:"2g" }}</span>
                         </td>
-
                         <td class="col-edicion hidden px-4 py-4 bg-slate-100 border-l border-slate-200"></td>
                     </tr>
                 </tfoot>
@@ -340,6 +356,73 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
+    // ==========================================
+    // BÚSQUEDA Y CÁLCULO MATEMÁTICO EN TIEMPO REAL
+    // ==========================================
+    function filtrarCaja() {
+        const inputDetalle = document.getElementById('buscadorDetalle').value.toLowerCase();
+        const inputCuenta = document.getElementById('buscadorCuenta').value.toLowerCase();
+        const filas = document.querySelectorAll('.movimiento-row');
+        
+        filas.forEach(fila => {
+            const dataDetalle = fila.getAttribute('data-detalle') || '';
+            const dataCuenta = fila.getAttribute('data-cuenta') || '';
+            
+            const matchDetalle = dataDetalle.includes(inputDetalle);
+            const matchCuenta = dataCuenta.includes(inputCuenta);
+
+            if (matchDetalle && matchCuenta) {
+                fila.style.display = '';
+                fila.classList.remove('oculto-por-filtro');
+            } else {
+                fila.style.display = 'none';
+                fila.classList.add('oculto-por-filtro');
+            }
+        });
+        
+        // Al terminar de ocultar, mandamos a sumar todo
+        calcularTotalesCaja();
+    }
+
+    function calcularTotalesCaja() {
+        const filasVisibles = document.querySelectorAll('.movimiento-row:not(.oculto-por-filtro)');
+        
+        let sumaEntradas = 0;
+        let sumaSalidas = 0;
+
+        function limpiarNumero(texto) {
+            if (!texto || texto.trim() === "-" || texto.trim() === "") return 0;
+            // Limpiamos todo excepto los números, comas y puntos
+            let limpio = texto.replace(/[^0-9.,-]/g, '').trim();
+            if (!limpio) return 0;
+            limpio = limpio.replace(/\./g, '');
+            limpio = limpio.replace(',', '.');
+            return parseFloat(limpio) || 0;
+        }
+
+        filasVisibles.forEach(fila => {
+            const celdaEntrada = fila.querySelector('.val-entrada');
+            const celdaSalida = fila.querySelector('.val-salida');
+            
+            if (celdaEntrada) sumaEntradas += limpiarNumero(celdaEntrada.textContent);
+            if (celdaSalida) sumaSalidas += limpiarNumero(celdaSalida.textContent);
+        });
+
+        const saldoGeneral = sumaEntradas - sumaSalidas;
+
+        function formatearMoneda(valor) {
+            return valor.toLocaleString('es-BO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Imprimimos la sumatoria dinámica visualmente en el Footer
+        const elEntradas = document.getElementById('total-entradas');
+        const elSalidas = document.getElementById('total-salidas');
+        const elSaldoTotal = document.getElementById('saldo-total');
+
+        if (elEntradas) elEntradas.innerHTML = `Bs ${formatearMoneda(sumaEntradas)}`;
+        if (elSalidas) elSalidas.innerHTML = `Bs ${formatearMoneda(sumaSalidas)}`;
+        if (elSaldoTotal) elSaldoTotal.innerHTML = `Bs ${formatearMoneda(saldoGeneral)}`;
+    }
     function confirmarEdicion(url) {
         Swal.fire({
             title: '¿Editar este registro?',
