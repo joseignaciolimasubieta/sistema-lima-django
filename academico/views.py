@@ -931,6 +931,8 @@ def imprimir_recibo(request, inscripcion_id):
 @login_required
 @user_passes_test(es_administrador)
 def planillas(request):
+    hoy = date.today() # <-- 1. Traemos la fecha actual
+    
     empresa = DatosEmpresa.objects.first()
     pagos = PagoSueldo.objects.select_related('empleado').all().order_by('-fecha_pago')
     
@@ -938,6 +940,13 @@ def planillas(request):
     buscar = request.GET.get('buscar', '').strip() 
     mes_literal_buscar = "" 
     
+    # ==============================================================
+    # 2. ESCUDO DE MEMORIA: Si no busca nada, forzamos el mes actual
+    # ==============================================================
+    if not buscar and not mes_buscar:
+        mes_buscar = hoy.strftime('%Y-%m')
+    # ==============================================================
+
     if buscar:
         pagos = pagos.filter(Q(empleado__nombre_completo__icontains=buscar) | Q(empleado__ci__icontains=buscar))
     if mes_buscar:
