@@ -62,17 +62,18 @@
 
                 <script>
                     function irAlFinal() {
-                        const filas = document.querySelectorAll('table tbody tr');
+                        // Seleccionamos SOLO las filas que el buscador NO ha ocultado
+                        const filas = document.querySelectorAll('table tbody tr:not(.oculto-por-filtro)');
                         
-                        // Si hay al menos 2 registros, vamos al penúltimo (índice length - 2)
+                        // Si hay al menos 2 registros visibles, vamos al penúltimo
                         if (filas.length >= 2) {
                             const penultimoRegistro = filas[filas.length - 2];
                             penultimoRegistro.scrollIntoView({ 
                                 behavior: 'smooth', 
-                                block: 'center' // Cambiamos a 'center' para que lo veas justo en medio
+                                block: 'center' 
                             });
                         } 
-                        // Si solo hay 1 registro, vamos a ese
+                        // Si solo quedó 1 registro visible por el filtro, vamos directo a ese
                         else if (filas.length === 1) {
                             filas[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
