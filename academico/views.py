@@ -2670,31 +2670,36 @@ def imprimir_boleta(request, pago_id):
 @login_required
 @user_passes_test(es_administrador)
 def buscar_boletas(request):
-    buscar = request.GET.get('buscar', '').strip()
-    mes_buscar = request.GET.get('mes_buscar', '').strip() # <-- NUEVO: Atrapa el mes
+    hoy = date.today() # <-- 1. Traemos la fecha actual
     
+    buscar = request.GET.get('buscar', '').strip()
+    mes_buscar = request.GET.get('mes_buscar', '').strip()
+    
+    # ==============================================================
+    # 2. ESCUDO DE MEMORIA: Si no busca nada, forzamos el mes actual
+    # ==============================================================
+    if not buscar and not mes_buscar:
+        mes_buscar = hoy.strftime('%Y-%m')
+    # ==============================================================
+
     # Empezamos trayendo todos los pagos
     pagos = PagoSueldo.objects.select_related('empleado').all().order_by('-fecha_pago')
     
-    # 1. Si escribió un nombre o CI, filtramos
+    # Si escribió un nombre o CI, filtramos
     if buscar:
         pagos = pagos.filter(
             Q(empleado__nombre_completo__icontains=buscar) |
             Q(empleado__ci__icontains=buscar)
         )
         
-    # 2. Si seleccionó un mes (Ej: "2026-06"), filtramos
+    # Si seleccionó un mes (Ej: "2026-06") o aplicó el escudo, filtramos
     if mes_buscar:
         pagos = pagos.filter(mes_correspondiente=mes_buscar)
-        
-    # 3. Si no usó NINGÚN filtro, mostramos solo los últimos 15 para no saturar la pantalla
-    if not buscar and not mes_buscar:
-        pagos = pagos[:15]
         
     return render(request, 'buscar_boletas.html', {
         'pagos': pagos, 
         'buscar': buscar,
-        'mes_buscar': mes_buscar # <-- Lo pasamos al HTML para que no se borre al buscar
+        'mes_buscar': mes_buscar
     })
 
 @login_required
@@ -3509,10 +3514,19 @@ def eliminar_archivo(request, archivo_id):
 
 @login_required
 def lista_anticipos(request):
+    hoy = date.today() # <-- 1. Traemos la fecha actual
+    
     anticipos = AnticipoEmpleado.objects.select_related('empleado', 'cuenta_origen').all().order_by('-fecha')
     
     buscar = request.GET.get('buscar', '').strip()
     mes_buscar = request.GET.get('mes_buscar', '').strip()
+    
+    # ==============================================================
+    # 2. ESCUDO DE MEMORIA: Si no busca nada, forzamos el mes actual
+    # ==============================================================
+    if not buscar and not mes_buscar:
+        mes_buscar = hoy.strftime('%Y-%m')
+    # ==============================================================
     
     if buscar:
         anticipos = anticipos.filter(empleado__nombre_completo__icontains=buscar)
@@ -3527,7 +3541,6 @@ def lista_anticipos(request):
         'mes_buscar': mes_buscar,
         'total_entregado': total_entregado
     })
-
 @login_required
 @user_passes_test(es_administrador)
 def crear_anticipo(request):
