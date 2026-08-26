@@ -4060,8 +4060,8 @@ def descargar_certificado_publico(request, inscripcion_id):
     
     nombre_limpio = inscrito.participante.nombre_completo.replace(" ", "_")
     
-    # CAMBIO AQUÍ: Usamos 'application/octet-stream' para forzar la descarga en móviles
-    response = HttpResponse(pdf_file, content_type='application/octet-stream')
+    # CAMBIO AQUÍ: Usamos 'application/pdf' para evitar el colapso de memoria en móviles
+    response = HttpResponse(pdf_file, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="Certificado_{nombre_limpio}.pdf"'
     
     return response
