@@ -2829,13 +2829,13 @@ def liquidar_saldo_inscripcion(request, id):
                 inscripcion.save()
                 
                 # ========================================================================
-                # --- NUEVO: RESTAURAMOS EL ANTICIPO QUE EL SISTEMA BORRÓ DEL PASADO ---
+                # --- SOLUCIÓN: RESTAURAMOS EL ANTICIPO CON UN NOMBRE PROTEGIDO ---
                 # ========================================================================
                 mov_pasado = MovimientoCaja.objects.filter(
                     fecha=fecha_original,
                     cuenta=cuenta_caja,
                     tipo='ENTRADA',
-                    detalle="ANTICIPO DE INSCRIPCIÓN"
+                    detalle="ANTICIPO DE INSCRIPCIÓN (CERRADO)" # <--- EL CAMBIO ESTÁ AQUÍ
                 ).first()
                 
                 if mov_pasado:
@@ -2845,12 +2845,12 @@ def liquidar_saldo_inscripcion(request, id):
                         fecha=fecha_original,
                         cuenta=cuenta_caja,
                         tipo='ENTRADA',
-                        detalle="ANTICIPO DE INSCRIPCIÓN",
+                        detalle="ANTICIPO DE INSCRIPCIÓN (CERRADO)", # <--- Y AQUÍ
                         monto=anticipo_previo
                     )
                 # ========================================================================
 
-                # 3. CREAMOS EL EGRESO COMPENSATORIO (Salida de los 100 previos)
+                # 3. CREAMOS EL EGRESO COMPENSATORIO HOY
                 mov_egreso = MovimientoCaja.objects.filter(
                     fecha=date.today(),
                     cuenta=cuenta_caja,
@@ -2869,17 +2869,14 @@ def liquidar_saldo_inscripcion(request, id):
                         monto=anticipo_previo
                     )
                 
-                # Ya NO creamos la ENTRADA manualmente porque inscripcion.save() ya hizo el trabajo
                 messages.success(request, f'¡Cobro finalizado con éxito! La inscripción pasó al día de hoy y se registró el egreso de Bs {anticipo_previo} para cuadrar la caja.')
                 return redirect('inscripciones')
                 
             # --- CASO B: EL ALUMNO REALIZÓ UN ABONO PARCIAL (TODAVÍA DEBE) ---
             else:
-                # En pagos parciales, mantenemos la fecha original para no alterar el historial principal
                 fecha_original = inscripcion.fecha_inscripcion
                 inscripcion.save() 
                 
-                # Registramos el ingreso físico hoy para que el cajero tenga el dinero en su turno
                 MovimientoCaja.objects.create(
                     fecha=date.today(),
                     cuenta=cuenta_caja,
@@ -2888,7 +2885,6 @@ def liquidar_saldo_inscripcion(request, id):
                     monto=monto_pago
                 )
                 
-                # Hacemos un ajuste negativo en la fecha del pasado para que la suma global cuadre y no se duplique
                 MovimientoCaja.objects.create(
                     fecha=fecha_original,
                     cuenta=cuenta_caja,
