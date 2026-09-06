@@ -18,6 +18,9 @@ urlpatterns = [
     path('cursos/nuevo/', views.crear_curso, name='crear_curso'), 
     path('cursos/editar/<int:id>/', views.editar_curso, name='editar_curso'),
     path('cursos/eliminar/<int:id>/', views.eliminar_curso, name='eliminar_curso'),
+    # --- MÓDULO DE BACKUP PARA CURSOS ---
+    path('cursos/exportar/excel/', views.exportar_excel_cursos, name='exportar_excel_cursos'),
+    path('cursos/importar/excel/', views.importar_excel_cursos, name='importar_excel_cursos'),
     path('certificado/individual/<int:inscripcion_id>/', views.generar_certificado_individual, name='generar_certificado_individual'),
     path('inscripciones/', views.inscripciones, name='inscripciones'), 
     path('inscripciones/nuevo/', views.crear_inscripcion, name='crear_inscripcion'), 
@@ -91,7 +94,7 @@ urlpatterns = [
     # --- MÓDULO DE BACKUP PARA CONSULTORA ---
     path('consultora/exportar/excel/', views.exportar_excel_consultora, name='exportar_excel_consultora'),
     path('consultora/importar/excel/', views.importar_excel_consultora, name='importar_excel_consultora'),
-    
+
     # --- MÓDULO DE CONTROL DE ASISTENCIA ---
     path('api/asistencia/rfid/', views.registrar_asistencia_rfid, name='registrar_asistencia_rfid'),
     path('empleados/asistencia/', views.asistencia_empleados, name='asistencia_empleados'),

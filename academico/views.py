@@ -4508,3 +4508,132 @@ def importar_excel_consultora(request):
             messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
             
     return redirect('consultora')
+
+@login_required
+@user_passes_test(es_administrador)
+def exportar_excel_cursos(request):
+    import openpyxl
+    from django.http import HttpResponse
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Backup Cursos"
+    
+    # 1. Cabeceras con TODAS las columnas del modelo
+    headers = [
+        'ID', 'NOMBRE', 'MES_CURSO', 'TURNO', 'DOCENTE_ID', 
+        'FECHA_INICIO', 'FECHA_FINALIZACION', 'HORARIO', 'DIAS', 'DURACION', 
+        'MODALIDAD', 'MODULO_PADRE_ID', 'INVERSION', 'PROMO', 'ANTIGUOS', 
+        'IMAGEN_PUBLICIDAD', 'PUBLICADO_EN_REDES', 'IMAGEN_CONTENIDO', 
+        'CERTIFICADOS_ENVIADOS', 'FECHA_ENVIO_CERTIFICADOS', 
+        'WHATSAPP_REVISADO', 'FECHA_REVISION_WHATSAPP', 'REVISADO_POR_EMPLEADO_ID'
+    ]
+    ws.append(headers)
+    
+    # 2. Traemos todos los cursos ordenados por ID
+    cursos = Curso.objects.all().order_by('id')
+    for c in cursos:
+        ws.append([
+            c.id,
+            c.nombre or '',
+            c.mes_curso or '',
+            c.turno or '',
+            c.docente.id if c.docente else '',
+            c.fecha_inicio.strftime('%Y-%m-%d') if c.fecha_inicio else '',
+            c.fecha_finalizacion.strftime('%Y-%m-%d') if c.fecha_finalizacion else '',
+            c.horario or '',
+            c.dias or '',
+            c.duracion or '',
+            c.modalidad or '',
+            c.modulo_padre.id if c.modulo_padre else '',
+            float(c.inversion) if c.inversion else 0.0,
+            float(c.promo) if c.promo else 0.0,
+            float(c.antiguos) if c.antiguos else 0.0,
+            c.imagen_publicidad.name if c.imagen_publicidad else '',
+            1 if c.publicado_en_redes else 0,
+            c.imagen_contenido.name if c.imagen_contenido else '',
+            1 if c.certificados_enviados else 0,
+            c.fecha_envio_certificados.strftime('%Y-%m-%d') if c.fecha_envio_certificados else '',
+            1 if c.whatsapp_revisado else 0,
+            c.fecha_revision_whatsapp.strftime('%Y-%m-%d') if c.fecha_revision_whatsapp else '',
+            c.revisado_por_empleado.id if c.revisado_por_empleado else ''
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Cursos.xlsx"'
+    wb.save(response)
+    
+    return response
+
+@login_required
+@user_passes_test(es_administrador)
+def importar_excel_cursos(request):
+    import openpyxl
+    from decimal import Decimal
+    from datetime import datetime
+    
+    if request.method == 'POST' and request.FILES.get('excel_backup'):
+        excel_file = request.FILES['excel_backup']
+        
+        if not excel_file.name.endswith('.xlsx'):
+            messages.error(request, 'El archivo debe ser un Excel (.xlsx) generado por el sistema.')
+            return redirect('cursos')
+            
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            ws = wb.active
+            
+            restaurados = 0
+            
+            # Función segura para leer fechas, ya vengan en texto o en formato fecha de Excel
+            def procesar_fecha(valor):
+                if not valor:
+                    return None
+                if isinstance(valor, datetime):
+                    return valor.date()
+                if isinstance(valor, str) and valor.strip() != '':
+                    try:
+                        return datetime.strptime(valor, '%Y-%m-%d').date()
+                    except:
+                        return None
+                return None
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]: # Ignora filas sin ID
+                    continue
+                    
+                # update_or_create respeta la integridad referencial y actualiza si el curso ya existe
+                Curso.objects.update_or_create(
+                    id=row[0],
+                    defaults={
+                        'nombre': row[1] or '',
+                        'mes_curso': row[2] or '',
+                        'turno': row[3] or '',
+                        'docente_id': row[4] if row[4] else None,
+                        'fecha_inicio': procesar_fecha(row[5]),
+                        'fecha_finalizacion': procesar_fecha(row[6]),
+                        'horario': row[7] or '',
+                        'dias': row[8] or '',
+                        'duracion': row[9] or '',
+                        'modalidad': row[10] or '',
+                        'modulo_padre_id': row[11] if row[11] else None,
+                        'inversion': Decimal(str(row[12])) if row[12] else Decimal('0.00'),
+                        'promo': Decimal(str(row[13])) if row[13] else Decimal('0.00'),
+                        'antiguos': Decimal(str(row[14])) if row[14] else Decimal('0.00'),
+                        'imagen_publicidad': row[15] or '',
+                        'publicado_en_redes': bool(row[16]),
+                        'imagen_contenido': row[17] or '',
+                        'certificados_enviados': bool(row[18]),
+                        'fecha_envio_certificados': procesar_fecha(row[19]),
+                        'whatsapp_revisado': bool(row[20]),
+                        'fecha_revision_whatsapp': procesar_fecha(row[21]),
+                        'revisado_por_empleado_id': row[22] if row[22] else None
+                    }
+                )
+                restaurados += 1
+                
+            messages.success(request, f'¡Restauración de emergencia exitosa! Se recuperaron {restaurados} cursos a la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
+            
+    return redirect('cursos')
