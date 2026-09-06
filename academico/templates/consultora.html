@@ -18,7 +18,8 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toasts = document.querySelectorAll('.toast-mensaje');
+        // CORREGIDO: Ahora busca .toast-message correctamente
+        const toasts = document.querySelectorAll('.toast-message'); 
         toasts.forEach(toast => {
             setTimeout(() => {
                 toast.classList.remove('translate-x-10', 'opacity-0');
@@ -31,7 +32,7 @@
                 toast.classList.add('translate-x-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 500);
             });
-        }, 3000);
+        }, 4000); // Lo subí a 4 segundos para que dé tiempo de leerlo
     });
 </script>
 {% endif %}
@@ -135,7 +136,7 @@
                 <!-- Formulario Oculto de Subida -->
                 <form id="formRestaurar" action="{% url 'importar_excel_consultora' %}" method="POST" enctype="multipart/form-data" class="hidden">
                     {% csrf_token %}
-                    <input type="file" id="fileBackup" name="excel_backup" accept=".xlsx" onchange="if(confirm('🚨 ALERTA: ¿Estás seguro de que deseas inyectar este archivo a la base de datos? Esto restaurará o sobrescribirá la información actual.')) document.getElementById('formRestaurar').submit(); else this.value='';" />
+                    <input type="file" id="fileBackup" name="excel_backup" accept=".xlsx" onchange="iniciarRestauracion(this)" />
                 </form>
 
                 <!-- Botón: Gestión de Clientes -->
@@ -398,7 +399,56 @@
         });
 
         initPicker();
+        // ==========================================
+        // 4. LÓGICA DE PANTALLA DE CARGA (RESTAURACIÓN)
+        // ==========================================
+        window.iniciarRestauracion = function(input) {
+            if(input.files && input.files.length > 0) {
+                if(confirm('🚨 ALERTA DEL SISTEMA\n\n¿Estás seguro de que deseas inyectar este archivo a la base de datos?\n\nEsto restaurará los registros eliminados y sobrescribirá los datos actuales con la información exacta del Excel.')) {
+                    
+                    // 1. Mostrar la pantalla de carga
+                    const overlay = document.getElementById('loading-overlay');
+                    const modal = document.getElementById('loading-modal');
+                    
+                    overlay.classList.remove('hidden');
+                    
+                    // Pequeño delay para que la animación se vea fluida
+                    setTimeout(() => {
+                        overlay.classList.remove('opacity-0');
+                        modal.classList.remove('scale-95');
+                        modal.classList.add('scale-100');
+                    }, 10);
+
+                    // 2. Enviar el formulario
+                    document.getElementById('formRestaurar').submit();
+                } else {
+                    input.value = ''; // Si el usuario se arrepiente, vaciamos el input
+                }
+            }
+        };
     });
 </script>
+<!-- ============================================== -->
+<!-- PANTALLA DE CARGA PARA RESTAURACIÓN EXCEL      -->
+<!-- ============================================== -->
+<div id="loading-overlay" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center transition-all duration-300 opacity-0">
+    <div id="loading-modal" class="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center max-w-sm w-[90%] text-center transform scale-95 transition-transform duration-300 border border-white/20">
+        
+        <!-- Contenedor del Spinner -->
+        <div class="relative w-24 h-24 mb-6">
+            <!-- Círculo giratorio -->
+            <svg class="animate-spin w-full h-full text-gray-100" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="8"></circle>
+                <path fill="currentColor" d="M50 5a45 45 0 0 1 45 45h-8A37 37 0 0 0 50 13V5z" class="text-[#0071e3]"></path>
+            </svg>
+            <!-- Ícono en el centro -->
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg class="w-8 h-8 text-[#0071e3] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </div>
+        </div>
 
+        <h3 class="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tight mb-2">Restaurando...</h3>
+        <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">Inyectando datos a la matriz.<br>Por favor no cierre esta ventana.</p>
+    </div>
+</div>
 {% endblock %}
