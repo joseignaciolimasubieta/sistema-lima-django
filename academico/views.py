@@ -4400,3 +4400,111 @@ def editar_pago_prestamo(request, pago_id):
         'cuentas': cuentas,
         'cuenta_actual_id': cuenta_actual_id
     })
+
+@login_required
+@user_passes_test(es_contabilidad)
+def exportar_excel_consultora(request):
+    import openpyxl
+    from django.http import HttpResponse
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Backup Consultora"
+    
+    # 1. Cabeceras exactas (No cambiar el orden, es vital para restaurar)
+    headers = [
+        'ID', 'FECHA', 'CLIENTE_ID', 'ES_EXPRESO', 'NOMBRE_EXPRESO', 
+        'NIT_EXPRESO', 'SERVICIO', 'PERIODO', 'FACTURA', 'FORMA_PAGO', 
+        'BANCO', 'IMPORTE', 'CONTADOR_ID', 'COMISION', 'OBSERVACIONES'
+    ]
+    ws.append(headers)
+    
+    # 2. Traemos TODOS los registros de la consultora ordenados por ID
+    servicios = ServicioConsultora.objects.all().order_by('id')
+    for s in servicios:
+        ws.append([
+            s.id,
+            s.fecha.strftime('%Y-%m-%d') if s.fecha else '',
+            s.cliente.id if s.cliente else '',
+            1 if s.es_cliente_expreso else 0, # Guardamos booleanos como 1 o 0
+            s.cliente_expreso_nombre or '',
+            s.cliente_expreso_nit or '',
+            s.servicio or '',
+            s.periodo or '',
+            s.factura or '',
+            s.forma_pago or '',
+            s.banco or '',
+            float(s.importe) if s.importe else 0.0,
+            s.contador.id if s.contador else '',
+            float(s.comision) if s.comision else 0.0,
+            s.observaciones or ''
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Consultora.xlsx"'
+    wb.save(response)
+    
+    return response
+
+@login_required
+@user_passes_test(es_contabilidad)
+def importar_excel_consultora(request):
+    import openpyxl
+    from decimal import Decimal
+    from datetime import datetime
+    
+    if request.method == 'POST' and request.FILES.get('excel_backup'):
+        excel_file = request.FILES['excel_backup']
+        
+        # Filtro de seguridad para archivos
+        if not excel_file.name.endswith('.xlsx'):
+            messages.error(request, 'El archivo debe ser un Excel (.xlsx) generado por el sistema.')
+            return redirect('consultora')
+            
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            ws = wb.active
+            
+            restaurados = 0
+            # Empezamos a leer desde la fila 2 (saltando la cabecera)
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                # row[0] es el ID de la base de datos. Si está vacío, lo ignoramos.
+                if not row[0]: 
+                    continue
+                    
+                # Conversión segura de la fecha
+                fecha_val = row[1]
+                if isinstance(fecha_val, str) and fecha_val.strip() != '':
+                    try:
+                        fecha_val = datetime.strptime(fecha_val, '%Y-%m-%d').date()
+                    except:
+                        fecha_val = None
+                        
+                # update_or_create: Si el registro con este ID fue borrado, lo crea de nuevo. 
+                # Si existe pero fue modificado por error, lo sobrescribe con los datos del Excel.
+                ServicioConsultora.objects.update_or_create(
+                    id=row[0],
+                    defaults={
+                        'fecha': fecha_val,
+                        'cliente_id': row[2] if row[2] else None,
+                        'es_cliente_expreso': bool(row[3]),
+                        'cliente_expreso_nombre': row[4] or '',
+                        'cliente_expreso_nit': row[5] or '',
+                        'servicio': row[6] or '',
+                        'periodo': row[7] or '',
+                        'factura': row[8] or '',
+                        'forma_pago': row[9] or '',
+                        'banco': row[10] or '',
+                        'importe': Decimal(str(row[11])) if row[11] else Decimal('0.00'),
+                        'contador_id': row[12] if row[12] else None,
+                        'comision': Decimal(str(row[13])) if row[13] else Decimal('0.00'),
+                        'observaciones': row[14] or ''
+                    }
+                )
+                restaurados += 1
+                
+            messages.success(request, f'¡Restauración de emergencia exitosa! Se recuperaron {restaurados} trámites contables a la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
+            
+    return redirect('consultora')
