@@ -115,22 +115,26 @@
                     {% endif %}
                 </form>
 
-                <!-- Botón: Exportar Backup -->
-                <a href="{% url 'exportar_excel_consultora' %}" class="h-11 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Backup Excel
-                </a>
+                <!-- ============================================== -->
+                <!-- GRUPO: CONTROLES DE BASE DE DATOS (NUEVO DISEÑO) -->
+                <!-- ============================================== -->
+                <div class="flex items-center p-1 bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
+                    <a href="{% url 'exportar_excel_consultora' %}" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Descargar Backup Excel">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden 2xl:block">Backup</span>
+                    </a>
+                    
+                    <div class="w-px h-4 bg-gray-200 mx-1"></div>
+                    
+                    <button type="button" onclick="document.getElementById('fileBackup').click()" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Restaurar Base de Datos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="hidden 2xl:block">Restaurar</span>
+                    </button>
+                </div>
 
-                <!-- Botón: Importar / Restaurar -->
-                <button type="button" onclick="document.getElementById('fileBackup').click()" class="h-11 px-5 inline-flex items-center justify-center gap-2 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    Restaurar
-                </button>
-                
                 <!-- Formulario Oculto de Subida -->
                 <form id="formRestaurar" action="{% url 'importar_excel_consultora' %}" method="POST" enctype="multipart/form-data" class="hidden">
                     {% csrf_token %}
-                    <!-- Agregamos un confirm de JavaScript por seguridad para evitar que lo toquen por error -->
                     <input type="file" id="fileBackup" name="excel_backup" accept=".xlsx" onchange="if(confirm('🚨 ALERTA: ¿Estás seguro de que deseas inyectar este archivo a la base de datos? Esto restaurará o sobrescribirá la información actual.')) document.getElementById('formRestaurar').submit(); else this.value='';" />
                 </form>
 
