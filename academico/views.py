@@ -2022,7 +2022,7 @@ def exportar_excel_caja(request):
     )
     
     # Escribir Cabeceras
-    headers = ["FECHA", "DETALLE DE OPERACIÓN", "COD", "ENTRADAS", "SALIDAS", "SALDO"]
+    headers = ["FECHA", "DETALLE DE MOVIMIENTO", "COD", "ENTRADAS", "SALIDAS", "SALDO"]
     ws.append(headers)
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num)
@@ -2085,7 +2085,7 @@ def exportar_excel_caja(request):
 
     # Fila final de Totales
     ultima_fila = len(movimientos_qs) + 2
-    ws.append(["TOTALES", f"BALANCE DEL PERIODO: {rango_fechas if rango_fechas else 'HISTÓRICO'}", "", total_entradas, total_salidas, saldo_corriente])
+    ws.append(["TOTALES", f"PERIODO: {rango_fechas if rango_fechas else 'HISTÓRICO'}", "", total_entradas, total_salidas, saldo_corriente])
     for col_num in range(1, 7):
         cell = ws.cell(row=ultima_fila, column=col_num)
         cell.fill = header_fill
@@ -4902,3 +4902,132 @@ def importar_excel_honorarios(request):
             messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
             
     return redirect('honorarios')
+
+@login_required
+@user_passes_test(es_administrador)
+def exportar_excel_planillas(request):
+    import openpyxl
+    from django.http import HttpResponse
+    from decimal import Decimal
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Backup Planillas"
+    
+    # 1. Cabeceras con TODAS las columnas del modelo PagoSueldo
+    headers = [
+        'ID', 'EMPLEADO_ID', 'FECHA_PAGO', 'MES_CORRESPONDIENTE', 'CUENTA_ORIGEN_ID',
+        'SALARIO_BASE', 'BONO_ANTIGUEDAD', 'BONO_VENTAS', 'BONO_WHATSAPP', 
+        'COMISION_CERTIFICADOS', 'BONO_CONSULTORA', 'HORAS_EXTRAS', 'OTROS_BONOS',
+        'APORTES_AFP', 'RC_IVA', 'ANTICIPOS', 'PRESTAMOS', 'MULTAS', 
+        'RENDICION_CUENTAS', 'PASANAKU'
+    ]
+    ws.append(headers)
+    
+    # --- 2. ATRAPAR EL FILTRO DE FECHA ---
+    mes_buscar = request.GET.get('mes_buscar', '').strip()
+    
+    pagos = PagoSueldo.objects.select_related('empleado', 'cuenta_origen').all().order_by('id')
+    
+    if mes_buscar:
+        pagos = pagos.filter(mes_correspondiente=mes_buscar)
+        
+    # --- 3. EXPORTACIÓN SEGURA EN BLOQUES (Paginada en RAM) ---
+    for p in pagos.iterator(chunk_size=1000):
+        ws.append([
+            p.id,
+            p.empleado.id if p.empleado else '',
+            p.fecha_pago.strftime('%Y-%m-%d') if p.fecha_pago else '',
+            p.mes_correspondiente or '',
+            p.cuenta_origen.id if p.cuenta_origen else '',
+            float(p.salario_base) if p.salario_base else 0.0,
+            float(p.bono_antiguedad) if p.bono_antiguedad else 0.0,
+            float(p.bono_ventas) if p.bono_ventas else 0.0,
+            float(p.bono_whatsapp) if p.bono_whatsapp else 0.0,
+            float(p.comision_certificados) if p.comision_certificados else 0.0,
+            float(p.bono_consultora) if p.bono_consultora else 0.0,
+            float(p.horas_extras) if p.horas_extras else 0.0,
+            float(p.otros_bonos) if p.otros_bonos else 0.0,
+            float(p.aportes_afp) if p.aportes_afp else 0.0,
+            float(p.rc_iva) if p.rc_iva else 0.0,
+            float(p.anticipos) if p.anticipos else 0.0,
+            float(p.prestamos) if p.prestamos else 0.0,
+            float(p.multas) if p.multas else 0.0,
+            float(p.rendicion_cuentas) if p.rendicion_cuentas else 0.0,
+            float(p.pasanaku) if p.pasanaku else 0.0
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    texto_archivo = mes_buscar if mes_buscar else "Historico"
+    response['Content-Disposition'] = f'attachment; filename="Backup_Planillas_{texto_archivo}.xlsx"'
+    wb.save(response)
+    
+    return response
+
+@login_required
+@user_passes_test(es_administrador)
+def importar_excel_planillas(request):
+    import openpyxl
+    from decimal import Decimal
+    from datetime import datetime
+    
+    if request.method == 'POST' and request.FILES.get('excel_backup'):
+        excel_file = request.FILES['excel_backup']
+        
+        if not excel_file.name.endswith('.xlsx'):
+            messages.error(request, 'El archivo debe ser un Excel (.xlsx) generado por el sistema.')
+            return redirect('planillas')
+            
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            ws = wb.active
+            
+            restaurados = 0
+            
+            def procesar_fecha(valor):
+                if not valor:
+                    return None
+                if isinstance(valor, datetime):
+                    return valor.date()
+                if isinstance(valor, str) and valor.strip() != '':
+                    try:
+                        return datetime.strptime(valor, '%Y-%m-%d').date()
+                    except:
+                        return None
+                return None
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]: # Ignora filas sin ID
+                    continue
+                    
+                PagoSueldo.objects.update_or_create(
+                    id=row[0],
+                    defaults={
+                        'empleado_id': row[1] if row[1] else None,
+                        'fecha_pago': procesar_fecha(row[2]),
+                        'mes_correspondiente': row[3] or '',
+                        'cuenta_origen_id': row[4] if row[4] else None,
+                        'salario_base': Decimal(str(row[5])) if row[5] else Decimal('0.00'),
+                        'bono_antiguedad': Decimal(str(row[6])) if row[6] else Decimal('0.00'),
+                        'bono_ventas': Decimal(str(row[7])) if row[7] else Decimal('0.00'),
+                        'bono_whatsapp': Decimal(str(row[8])) if row[8] else Decimal('0.00'),
+                        'comision_certificados': Decimal(str(row[9])) if row[9] else Decimal('0.00'),
+                        'bono_consultora': Decimal(str(row[10])) if row[10] else Decimal('0.00'),
+                        'horas_extras': Decimal(str(row[11])) if row[11] else Decimal('0.00'),
+                        'otros_bonos': Decimal(str(row[12])) if row[12] else Decimal('0.00'),
+                        'aportes_afp': Decimal(str(row[13])) if row[13] else Decimal('0.00'),
+                        'rc_iva': Decimal(str(row[14])) if row[14] else Decimal('0.00'),
+                        'anticipos': Decimal(str(row[15])) if row[15] else Decimal('0.00'),
+                        'prestamos': Decimal(str(row[16])) if row[16] else Decimal('0.00'),
+                        'multas': Decimal(str(row[17])) if row[17] else Decimal('0.00'),
+                        'rendicion_cuentas': Decimal(str(row[18])) if row[18] else Decimal('0.00'),
+                        'pasanaku': Decimal(str(row[19])) if row[19] else Decimal('0.00')
+                    }
+                )
+                restaurados += 1
+                
+            messages.success(request, f'¡Restauración de emergencia exitosa! Se recuperaron {restaurados} registros de planillas en la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
+            
+    return redirect('planillas')

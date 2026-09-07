@@ -53,7 +53,7 @@
             <div class="flex flex-wrap items-center justify-end gap-4 w-full">
                 <!-- Botón de Anticipos -->
                 <a href="{% url 'lista_anticipos' %}" class="h-11 px-6 inline-flex items-center justify-center gap-2 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black tracking-widest uppercase transition-all shadow-sm w-full sm:w-auto shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402-2.599-1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0114 0z"></path></svg>
                     Anticipos
                 </a>
                 <a href="{% url 'buscar_boletas' %}" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
@@ -61,6 +61,29 @@
                     Boletas
                 </a>
                 
+                <!-- ============================================== -->
+                <!-- GRUPO: CONTROLES DE BASE DE DATOS (NUEVO DISEÑO) -->
+                <!-- ============================================== -->
+                <div class="flex items-center p-1 bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
+                    <a href="{% url 'exportar_excel_planillas' %}?mes_buscar={{ mes_buscar }}" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Descargar Backup Excel">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden 2xl:block">Backup</span>
+                    </a>
+                    
+                    <div class="w-px h-4 bg-gray-200 mx-1"></div>
+                    
+                    <button type="button" onclick="document.getElementById('fileBackup').click()" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Restaurar Base de Datos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="hidden 2xl:block">Restaurar</span>
+                    </button>
+                </div>
+
+                <!-- Formulario Oculto de Subida -->
+                <form id="formRestaurar" action="{% url 'importar_excel_planillas' %}" method="POST" enctype="multipart/form-data" class="hidden">
+                    {% csrf_token %}
+                    <input type="file" id="fileBackup" name="excel_backup" accept=".xlsx" onchange="iniciarRestauracion(this)" />
+                </form>
+
                 <a href="{% url 'descargar_pdf_planilla' %}?mes_buscar={{ mes_buscar }}&buscar={{ buscar }}" target="_blank" class="h-11 px-7 inline-flex items-center justify-center gap-2.5 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm shrink-0">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     PDF Oficial
@@ -326,7 +349,51 @@
         </div>
     </div>
 </div>
+<script>
+    // ==========================================
+    // LÓGICA DE PANTALLA DE CARGA (RESTAURACIÓN)
+    // ==========================================
+    window.iniciarRestauracion = function(input) {
+        if(input.files && input.files.length > 0) {
+            if(confirm('🚨 ALERTA DEL SISTEMA\n\n¿Estás seguro de que deseas inyectar este archivo a la base de datos?\n\nEsto restaurará las planillas eliminadas y sobrescribirá los datos actuales.')) {
+                
+                const overlay = document.getElementById('loading-overlay');
+                const modal = document.getElementById('loading-modal');
+                
+                overlay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    modal.classList.remove('scale-95');
+                    modal.classList.add('scale-100');
+                }, 10);
 
+                document.getElementById('formRestaurar').submit();
+            } else {
+                input.value = ''; 
+            }
+        }
+    };
+</script>
+
+<!-- ============================================== -->
+<!-- PANTALLA DE CARGA PARA RESTAURACIÓN EXCEL      -->
+<!-- ============================================== -->
+<div id="loading-overlay" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center transition-all duration-300 opacity-0">
+    <div id="loading-modal" class="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center max-w-sm w-[90%] text-center transform scale-95 transition-transform duration-300 border border-white/20">
+        <div class="relative w-24 h-24 mb-6">
+            <svg class="animate-spin w-full h-full text-gray-100" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="8"></circle>
+                <path fill="currentColor" d="M50 5a45 45 0 0 1 45 45h-8A37 37 0 0 0 50 13V5z" class="text-[#0071e3]"></path>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg class="w-8 h-8 text-[#0071e3] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </div>
+        </div>
+        <h3 class="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tight mb-2">Restaurando...</h3>
+        <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">Inyectando datos a la matriz.<br>Por favor no cierre esta ventana.</p>
+    </div>
+</div>
 <style>
     .scrollbar-delgada::-webkit-scrollbar { height: 8px; width: 8px; }
     .scrollbar-delgada::-webkit-scrollbar-track { background: #ffffff; }

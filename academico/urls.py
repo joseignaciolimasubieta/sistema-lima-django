@@ -76,6 +76,9 @@ urlpatterns = [
     path('rrhh/planillas/', views.planillas, name='planillas'), 
     path('rrhh/planillas/boletas/', views.buscar_boletas, name='buscar_boletas'), 
     path('rrhh/planillas/nuevo/', views.crear_pago, name='crear_pago'), 
+    # --- MÓDULO DE BACKUP PARA PLANILLAS ---
+    path('rrhh/planillas/exportar/excel/', views.exportar_excel_planillas, name='exportar_excel_planillas'),
+    path('rrhh/planillas/importar/excel/', views.importar_excel_planillas, name='importar_excel_planillas'),
     path('honorarios/<int:honorario_id>/anticipo/', views.registrar_anticipo, name='registrar_anticipo'), 
     path('honorarios/<int:honorario_id>/pagar/', views.pagar_honorario, name='pagar_honorario'), 
     # --- MÓDULO DE BACKUP PARA HONORARIOS ---
