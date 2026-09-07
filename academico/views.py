@@ -4656,9 +4656,27 @@ def exportar_excel_inscripciones(request):
     ]
     ws.append(headers)
     
-    # 2. Traemos TODAS las inscripciones ordenadas por ID
-    inscripciones = Inscripcion.objects.all().order_by('id')
-    for i in inscripciones:
+    # --- 2. ATRAPAR EL FILTRO DE FECHA ---
+    rango_fechas = request.GET.get('rango_fechas', '')
+    
+    # Usamos select_related para acelerar la carga cruzada de tablas
+    inscripciones = Inscripcion.objects.select_related('participante', 'curso').all().order_by('id')
+    
+    if rango_fechas:
+        if ' a ' in rango_fechas:
+            fecha_inicio, fecha_fin = rango_fechas.split(' a ')
+            inscripciones = inscripciones.filter(fecha_inscripcion__range=[fecha_inicio, fecha_fin])
+        elif len(rango_fechas) == 4 and rango_fechas.isdigit():
+            inscripciones = inscripciones.filter(fecha_inscripcion__year=rango_fechas)
+        elif len(rango_fechas) == 7 and '-' in rango_fechas:
+            anio, mes = rango_fechas.split('-')
+            inscripciones = inscripciones.filter(fecha_inscripcion__year=anio, fecha_inscripcion__month=mes)
+        else:
+            inscripciones = inscripciones.filter(fecha_inscripcion=rango_fechas)
+            
+    # --- 3. EXPORTACIÓN SEGURA (Paginada en RAM) ---
+    # .iterator(chunk_size=1000) evita que el servidor colapse por exceso de registros
+    for i in inscripciones.iterator(chunk_size=1000):
         ws.append([
             i.id,
             i.participante.id if i.participante else '',
@@ -4674,7 +4692,10 @@ def exportar_excel_inscripciones(request):
         ])
         
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Inscripciones.xlsx"'
+    
+    # Nombre del archivo dinámico
+    texto_archivo = rango_fechas.replace(" ", "") if rango_fechas else "Completo"
+    response['Content-Disposition'] = f'attachment; filename="Backup_Inscripciones_{texto_archivo}.xlsx"'
     wb.save(response)
     
     return response
