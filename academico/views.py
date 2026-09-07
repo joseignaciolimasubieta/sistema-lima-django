@@ -4637,3 +4637,104 @@ def importar_excel_cursos(request):
             messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
             
     return redirect('cursos')
+
+@login_required
+@user_passes_test(es_ventas)
+def exportar_excel_inscripciones(request):
+    import openpyxl
+    from django.http import HttpResponse
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Backup Inscripciones"
+    
+    # 1. Cabeceras con TODAS las columnas
+    headers = [
+        'ID', 'PARTICIPANTE_ID', 'CURSO_ID', 'FECHA_INSCRIPCION', 
+        'MODALIDAD', 'BANCO', 'IMPORTE', 'SALDO_PENDIENTE', 
+        'REGISTRADO_POR', 'FORMA_PAGO', 'VENDEDOR'
+    ]
+    ws.append(headers)
+    
+    # 2. Traemos TODAS las inscripciones ordenadas por ID
+    inscripciones = Inscripcion.objects.all().order_by('id')
+    for i in inscripciones:
+        ws.append([
+            i.id,
+            i.participante.id if i.participante else '',
+            i.curso.id if i.curso else '',
+            i.fecha_inscripcion.strftime('%Y-%m-%d') if i.fecha_inscripcion else '',
+            i.modalidad or '',
+            i.banco or '',
+            float(i.importe) if i.importe else 0.0,
+            float(i.saldo_pendiente) if i.saldo_pendiente else 0.0,
+            i.registrado_por or '',
+            i.forma_pago or '',
+            i.vendedor or ''
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Inscripciones.xlsx"'
+    wb.save(response)
+    
+    return response
+
+@login_required
+@user_passes_test(es_ventas)
+def importar_excel_inscripciones(request):
+    import openpyxl
+    from decimal import Decimal
+    from datetime import datetime
+    
+    if request.method == 'POST' and request.FILES.get('excel_backup'):
+        excel_file = request.FILES['excel_backup']
+        
+        if not excel_file.name.endswith('.xlsx'):
+            messages.error(request, 'El archivo debe ser un Excel (.xlsx) generado por el sistema.')
+            return redirect('inscripciones')
+            
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            ws = wb.active
+            
+            restaurados = 0
+            
+            def procesar_fecha(valor):
+                if not valor:
+                    return None
+                if isinstance(valor, datetime):
+                    return valor.date()
+                if isinstance(valor, str) and valor.strip() != '':
+                    try:
+                        return datetime.strptime(valor, '%Y-%m-%d').date()
+                    except:
+                        return None
+                return None
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]: # Ignora filas vacías
+                    continue
+                    
+                # Inyección forzada en la Base de Datos
+                Inscripcion.objects.update_or_create(
+                    id=row[0],
+                    defaults={
+                        'participante_id': row[1] if row[1] else None,
+                        'curso_id': row[2] if row[2] else None,
+                        'fecha_inscripcion': procesar_fecha(row[3]),
+                        'modalidad': row[4] or 'VIRTUAL',
+                        'banco': row[5] or '',
+                        'importe': Decimal(str(row[6])) if row[6] else Decimal('0.00'),
+                        'saldo_pendiente': Decimal(str(row[7])) if row[7] else Decimal('0.00'),
+                        'registrado_por': row[8] or '',
+                        'forma_pago': row[9] or 'Efectivo',
+                        'vendedor': row[10] or 'Administración'
+                    }
+                )
+                restaurados += 1
+                
+            messages.success(request, f'¡Restauración de emergencia exitosa! Se recuperaron {restaurados} inscripciones a la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
+            
+    return redirect('inscripciones')

@@ -24,6 +24,10 @@ urlpatterns = [
     path('certificado/individual/<int:inscripcion_id>/', views.generar_certificado_individual, name='generar_certificado_individual'),
     path('inscripciones/', views.inscripciones, name='inscripciones'), 
     path('inscripciones/nuevo/', views.crear_inscripcion, name='crear_inscripcion'), 
+    
+    # --- MÓDULO DE BACKUP PARA INSCRIPCIONES ---
+    path('inscripciones/exportar/excel/', views.exportar_excel_inscripciones, name='exportar_excel_inscripciones'),
+    path('inscripciones/importar/excel/', views.importar_excel_inscripciones, name='importar_excel_inscripciones'),
     path('marketing/', views.marketing, name='marketing'),
     path('marketing/eliminar-afiche/<int:curso_id>/', views.eliminar_afiche_marketing, name='eliminar_afiche_marketing'), 
     path('marketing/confirmar/<int:curso_id>/', views.confirmar_publicacion, name='confirmar_publicacion'), 

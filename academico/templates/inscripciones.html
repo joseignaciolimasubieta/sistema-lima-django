@@ -45,10 +45,33 @@
             <div class="flex flex-wrap items-center justify-end gap-4 w-full">
 
                 <button onclick="irAlFinal()" 
-                        class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95">
+                        class="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-full bg-white hover:bg-gray-50 text-gray-800 border border-gray-300 text-xs font-bold uppercase tracking-widest transition-all shadow-sm active:scale-95 shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
                     Ir al Ultimo Registro
                 </button>
+
+                <!-- ============================================== -->
+                <!-- GRUPO: CONTROLES DE BASE DE DATOS (NUEVO DISEÑO) -->
+                <!-- ============================================== -->
+                <div class="flex items-center p-1 bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
+                    <a href="{% url 'exportar_excel_inscripciones' %}" class="h-8 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Descargar Backup Excel">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden 2xl:block">Backup</span>
+                    </a>
+                    
+                    <div class="w-px h-4 bg-gray-200 mx-1"></div>
+                    
+                    <button type="button" onclick="document.getElementById('fileBackup').click()" class="h-8 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-rose-600 hover:bg-rose-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Restaurar Base de Datos">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="hidden 2xl:block">Restaurar</span>
+                    </button>
+                </div>
+
+                <!-- Formulario Oculto de Subida -->
+                <form id="formRestaurar" action="{% url 'importar_excel_inscripciones' %}" method="POST" enctype="multipart/form-data" class="hidden">
+                    {% csrf_token %}
+                    <input type="file" id="fileBackup" name="excel_backup" accept=".xlsx" onchange="iniciarRestauracion(this)" />
+                </form>
 
                 <script>
                     function irAlFinal() {
@@ -666,7 +689,51 @@
 
     document.addEventListener('DOMContentLoaded', initPicker);
 </script>
+<script>
+    // ==========================================
+    // LÓGICA DE PANTALLA DE CARGA (RESTAURACIÓN)
+    // ==========================================
+    window.iniciarRestauracion = function(input) {
+        if(input.files && input.files.length > 0) {
+            if(confirm('🚨 ALERTA DEL SISTEMA\n\n¿Estás seguro de que deseas inyectar este archivo a la base de datos?\n\nEsto restaurará los registros eliminados y sobrescribirá los datos actuales con la información exacta del Excel.')) {
+                
+                const overlay = document.getElementById('loading-overlay');
+                const modal = document.getElementById('loading-modal');
+                
+                overlay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    modal.classList.remove('scale-95');
+                    modal.classList.add('scale-100');
+                }, 10);
 
+                document.getElementById('formRestaurar').submit();
+            } else {
+                input.value = ''; 
+            }
+        }
+    };
+</script>
+
+<!-- ============================================== -->
+<!-- PANTALLA DE CARGA PARA RESTAURACIÓN EXCEL      -->
+<!-- ============================================== -->
+<div id="loading-overlay" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex flex-col items-center justify-center transition-all duration-300 opacity-0">
+    <div id="loading-modal" class="bg-white p-8 rounded-[2.5rem] shadow-2xl flex flex-col items-center max-w-sm w-[90%] text-center transform scale-95 transition-transform duration-300 border border-white/20">
+        <div class="relative w-24 h-24 mb-6">
+            <svg class="animate-spin w-full h-full text-gray-100" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="8"></circle>
+                <path fill="currentColor" d="M50 5a45 45 0 0 1 45 45h-8A37 37 0 0 0 50 13V5z" class="text-[#0071e3]"></path>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <svg class="w-8 h-8 text-[#0071e3] animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </div>
+        </div>
+        <h3 class="text-xl md:text-2xl font-black text-slate-800 uppercase tracking-tight mb-2">Restaurando...</h3>
+        <p class="text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">Inyectando datos a la matriz.<br>Por favor no cierre esta ventana.</p>
+    </div>
+</div>
 <style>
     .scrollbar-delgada::-webkit-scrollbar { width: 8px; height: 8px; }
     .scrollbar-delgada::-webkit-scrollbar-track { background: transparent; }
