@@ -106,7 +106,7 @@
                 <!-- GRUPO: CONTROLES DE BASE DE DATOS (NUEVO DISEÑO) -->
                 <!-- ============================================== -->
                 <div class="flex items-center p-1 bg-white border border-gray-200 rounded-full shadow-sm shrink-0">
-                    <a href="{% url 'exportar_excel_cursos' %}" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Descargar Backup Excel">
+                    <a href="{% url 'exportar_excel_cursos' %}?mes={{ mes_buscar }}" class="h-9 px-4 inline-flex items-center justify-center gap-2 rounded-full text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 text-[10px] font-black tracking-widest uppercase transition-all" title="Descargar Backup Excel">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span class="hidden 2xl:block">Backup</span>
                     </a>

@@ -4411,7 +4411,6 @@ def exportar_excel_consultora(request):
     ws = wb.active
     ws.title = "Backup Consultora"
     
-    # 1. Cabeceras exactas (No cambiar el orden, es vital para restaurar)
     headers = [
         'ID', 'FECHA', 'CLIENTE_ID', 'ES_EXPRESO', 'NOMBRE_EXPRESO', 
         'NIT_EXPRESO', 'SERVICIO', 'PERIODO', 'FACTURA', 'FORMA_PAGO', 
@@ -4419,14 +4418,27 @@ def exportar_excel_consultora(request):
     ]
     ws.append(headers)
     
-    # 2. Traemos TODOS los registros de la consultora ordenados por ID
-    servicios = ServicioConsultora.objects.all().order_by('id')
-    for s in servicios:
+    # --- 1. ATRAPAR EL FILTRO DE FECHA ---
+    mes_buscar = request.GET.get('mes_buscar', '').strip()
+    
+    # Usamos select_related para no saturar la base de datos
+    servicios = ServicioConsultora.objects.select_related('cliente', 'contador').all().order_by('id')
+    
+    # Aplicamos el filtro si el usuario seleccionó un mes
+    if mes_buscar:
+        try:
+            anio, mes = mes_buscar.split('-')
+            servicios = servicios.filter(fecha__year=anio, fecha__month=mes)
+        except ValueError:
+            pass
+            
+    # --- 2. EXPORTACIÓN SEGURA (Paginada en RAM) ---
+    for s in servicios.iterator(chunk_size=1000):
         ws.append([
             s.id,
             s.fecha.strftime('%Y-%m-%d') if s.fecha else '',
             s.cliente.id if s.cliente else '',
-            1 if s.es_cliente_expreso else 0, # Guardamos booleanos como 1 o 0
+            1 if s.es_cliente_expreso else 0,
             s.cliente_expreso_nombre or '',
             s.cliente_expreso_nit or '',
             s.servicio or '',
@@ -4441,7 +4453,8 @@ def exportar_excel_consultora(request):
         ])
         
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Consultora.xlsx"'
+    texto_archivo = mes_buscar if mes_buscar else "Completo"
+    response['Content-Disposition'] = f'attachment; filename="Backup_Consultora_{texto_archivo}.xlsx"'
     wb.save(response)
     
     return response
@@ -4519,7 +4532,6 @@ def exportar_excel_cursos(request):
     ws = wb.active
     ws.title = "Backup Cursos"
     
-    # 1. Cabeceras con TODAS las columnas del modelo
     headers = [
         'ID', 'NOMBRE', 'MES_CURSO', 'TURNO', 'DOCENTE_ID', 
         'FECHA_INICIO', 'FECHA_FINALIZACION', 'HORARIO', 'DIAS', 'DURACION', 
@@ -4530,9 +4542,20 @@ def exportar_excel_cursos(request):
     ]
     ws.append(headers)
     
-    # 2. Traemos todos los cursos ordenados por ID
-    cursos = Curso.objects.all().order_by('id')
-    for c in cursos:
+    # --- 1. ATRAPAR EL FILTRO DE FECHA ---
+    mes_busqueda = request.GET.get('mes', '').strip()
+    
+    cursos = Curso.objects.select_related('docente', 'modulo_padre', 'revisado_por_empleado').all().order_by('id')
+    
+    if mes_busqueda:
+        try:
+            anio, mes = mes_busqueda.split('-')
+            cursos = cursos.filter(fecha_inicio__year=anio, fecha_inicio__month=mes)
+        except ValueError:
+            pass
+            
+    # --- 2. EXPORTACIÓN SEGURA (Paginada en RAM) ---
+    for c in cursos.iterator(chunk_size=1000):
         ws.append([
             c.id,
             c.nombre or '',
@@ -4560,7 +4583,8 @@ def exportar_excel_cursos(request):
         ])
         
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="Backup_Total_Cursos.xlsx"'
+    texto_archivo = mes_busqueda if mes_busqueda else "Completo"
+    response['Content-Disposition'] = f'attachment; filename="Backup_Cursos_{texto_archivo}.xlsx"'
     wb.save(response)
     
     return response
