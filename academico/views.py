@@ -4783,3 +4783,122 @@ def importar_excel_inscripciones(request):
             messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
             
     return redirect('inscripciones')
+
+@login_required
+@user_passes_test(es_administrador)
+def exportar_excel_honorarios(request):
+    import openpyxl
+    from django.http import HttpResponse
+    from decimal import Decimal
+    
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Backup Honorarios"
+    
+    # 1. Cabeceras con TODAS las columnas del modelo Honorario
+    headers = [
+        'ID', 'CURSO_ID', 'CARGA', 'OBSERVACION', 
+        'MONTO_ACORDADO', 'ANTICIPO', 'FECHA_ANTICIPO', 
+        'ESTADO', 'FECHA_PAGO', 'MODO_PAGO', 'REALIZADO_POR'
+    ]
+    ws.append(headers)
+    
+    # --- 2. ATRAPAR EL FILTRO DE FECHA ---
+    rango_fechas = request.GET.get('rango_fechas', '').strip()
+    
+    honorarios_qs = Honorario.objects.select_related('curso').all().order_by('id')
+    
+    # Replicamos el filtro inteligente de la vista principal
+    if rango_fechas:
+        if ' a ' in rango_fechas:
+            fecha_inicio, fecha_fin = rango_fechas.split(' a ')
+            honorarios_qs = honorarios_qs.filter(curso__fecha_inicio__range=[fecha_inicio, fecha_fin])
+        elif len(rango_fechas) == 4 and rango_fechas.isdigit():
+            honorarios_qs = honorarios_qs.filter(curso__fecha_inicio__year=rango_fechas)
+        elif len(rango_fechas) == 7 and '-' in rango_fechas:
+            anio, mes = rango_fechas.split('-')
+            honorarios_qs = honorarios_qs.filter(curso__fecha_inicio__year=anio, curso__fecha_inicio__month=mes)
+        else:
+            honorarios_qs = honorarios_qs.filter(curso__fecha_inicio=rango_fechas)
+            
+    # --- 3. EXPORTACIÓN SEGURA EN BLOQUES (Paginada en RAM) ---
+    for h in honorarios_qs.iterator(chunk_size=1000):
+        ws.append([
+            h.id,
+            h.curso.id if h.curso else '',
+            h.carga or '',
+            h.observacion or '',
+            float(h.monto_acordado) if h.monto_acordado else 0.0,
+            float(h.anticipo) if h.anticipo else 0.0,
+            h.fecha_anticipo.strftime('%Y-%m-%d') if h.fecha_anticipo else '',
+            h.estado or 'PENDIENTE',
+            h.fecha_pago.strftime('%Y-%m-%d') if h.fecha_pago else '',
+            h.modo_pago or '',
+            h.realizado_por or ''
+        ])
+        
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    texto_archivo = rango_fechas.replace(" ", "") if rango_fechas else "Completo"
+    response['Content-Disposition'] = f'attachment; filename="Backup_Honorarios_{texto_archivo}.xlsx"'
+    wb.save(response)
+    
+    return response
+
+@login_required
+@user_passes_test(es_administrador)
+def importar_excel_honorarios(request):
+    import openpyxl
+    from decimal import Decimal
+    from datetime import datetime
+    
+    if request.method == 'POST' and request.FILES.get('excel_backup'):
+        excel_file = request.FILES['excel_backup']
+        
+        if not excel_file.name.endswith('.xlsx'):
+            messages.error(request, 'El archivo debe ser un Excel (.xlsx) generado por el sistema.')
+            return redirect('honorarios')
+            
+        try:
+            wb = openpyxl.load_workbook(excel_file)
+            ws = wb.active
+            
+            restaurados = 0
+            
+            def procesar_fecha(valor):
+                if not valor:
+                    return None
+                if isinstance(valor, datetime):
+                    return valor.date()
+                if isinstance(valor, str) and valor.strip() != '':
+                    try:
+                        return datetime.strptime(valor, '%Y-%m-%d').date()
+                    except:
+                        return None
+                return None
+
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]: # Ignora filas sin ID
+                    continue
+                    
+                Honorario.objects.update_or_create(
+                    id=row[0],
+                    defaults={
+                        'curso_id': row[1] if row[1] else None,
+                        'carga': row[2] or '',
+                        'observacion': row[3] or '',
+                        'monto_acordado': Decimal(str(row[4])) if row[4] else Decimal('0.00'),
+                        'anticipo': Decimal(str(row[5])) if row[5] else Decimal('0.00'),
+                        'fecha_anticipo': procesar_fecha(row[6]),
+                        'estado': row[7] or 'PENDIENTE',
+                        'fecha_pago': procesar_fecha(row[8]),
+                        'modo_pago': row[9] or '',
+                        'realizado_por': row[10] or ''
+                    }
+                )
+                restaurados += 1
+                
+            messages.success(request, f'¡Restauración de emergencia exitosa! Se recuperaron {restaurados} registros de honorarios a la base de datos.')
+        except Exception as e:
+            messages.error(request, f'Ocurrió un error crítico al procesar el Excel: {str(e)}')
+            
+    return redirect('honorarios')
